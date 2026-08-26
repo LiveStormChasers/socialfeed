@@ -1,0 +1,23 @@
+{
+ "max_posts_per_source": 12,
+ "max_feed_items": 300,
+ "keep_days": 45,
+ "download_previews": true,
+ "preview_max_width": 900,
+ "preview_quality": 78,
+ "max_download_bytes": 12000000,
+ "scroll_rounds": 3,
+
+ "_comment": "platform: x | facebook. handle: the part of the URL after the domain, or a full URL for Facebook pages with numeric IDs. label: what shows in the feed. enabled: false parks a source without deleting it.",
+
+ "sources": [
+  { "platform": "facebook", "handle": "EricGravesWX",     "label": "Eric Graves",         "enabled": true },
+  { "platform": "x",        "handle": "graves_wx",        "label": "Eric Graves",         "enabled": true },
+
+  { "platform": "facebook", "handle": "LiveStormChasers", "label": "Live Storm Chasers",  "enabled": true },
+  { "platform": "x",        "handle": "LiveStormChasers", "label": "Live Storm Chasers",  "enabled": true },
+
+  { "platform": "x",        "handle": "NWSSPC",           "label": "Storm Prediction Center", "enabled": false },
+  { "platform": "facebook", "handle": "NWSStormPredictionCenter", "label": "SPC",         "enabled": false }
+ ]
+}
