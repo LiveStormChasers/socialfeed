@@ -3,124 +3,275 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Social Feed</title>
+<title>LSC Feed</title>
+<meta name="description" content="Live severe-weather feed aggregated from Facebook and X.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700&family=JetBrains+Mono:wght@500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
 <style>
+  /* Dark-first: this is a monitoring surface, usually open at night. */
   :root{
-    --bg:#f5f6f7; --panel:#fff; --line:#dcdfe3; --line-soft:#eceef0;
-    --text:#16181c; --muted:#5b6570; --accent:#1c6fd0;
-    --x:#0f1419; --fb:#1877f2; --ok:#1a7f45; --warn:#9a6700; --bad:#b3261e;
-    --shadow:0 1px 2px rgba(16,24,40,.06),0 1px 3px rgba(16,24,40,.05); --radius:10px;
+    --bg:#f5f7fa; --surface:#fff; --surface-2:#eef2f7; --raise:#fff;
+    --line:#dce3ec; --line-soft:#e9eef4;
+    --text:#0c131b; --muted:#586675; --faint:#8695a5;
+    --accent:#0b63ce; --accent-soft:#e6effc;
+    --ok:#0f7b3e; --warn:#8a5a00; --bad:#b42318;
+    --x:#0f1419; --fb:#1877f2;
+    --shadow:0 1px 2px rgba(12,19,27,.05), 0 4px 16px -6px rgba(12,19,27,.10);
+    --shadow-hi:0 2px 4px rgba(12,19,27,.07), 0 12px 32px -10px rgba(12,19,27,.20);
+    --r:14px; --r-sm:9px;
   }
-  @media (prefers-color-scheme: dark){
-    :root{
-      --bg:#0e1116; --panel:#161a21; --line:#262c36; --line-soft:#1e232b;
-      --text:#e6e9ee; --muted:#9aa4b2; --accent:#63a4ff;
-      --x:#e6e9ee; --fb:#4c9aff; --ok:#3fb950; --warn:#d29922; --bad:#f85149;
-      --shadow:none;
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --bg:#080b11; --surface:#111721; --surface-2:#171f2a; --raise:#1a2430;
+      --line:#222c39; --line-soft:#19212c;
+      --text:#e9eef5; --muted:#93a2b3; --faint:#66748a;
+      --accent:#4da3ff; --accent-soft:#0e2439;
+      --ok:#3fb950; --warn:#d9a441; --bad:#f4685c;
+      --x:#e9eef5; --fb:#4c9aff;
+      --shadow:0 1px 2px rgba(0,0,0,.4); --shadow-hi:0 8px 30px -8px rgba(0,0,0,.7);
     }
   }
+  :root[data-theme="dark"]{
+    --bg:#080b11; --surface:#111721; --surface-2:#171f2a; --raise:#1a2430;
+    --line:#222c39; --line-soft:#19212c;
+    --text:#e9eef5; --muted:#93a2b3; --faint:#66748a;
+    --accent:#4da3ff; --accent-soft:#0e2439;
+    --ok:#3fb950; --warn:#d9a441; --bad:#f4685c;
+    --x:#e9eef5; --fb:#4c9aff;
+    --shadow:0 1px 2px rgba(0,0,0,.4); --shadow-hi:0 8px 30px -8px rgba(0,0,0,.7);
+  }
+
   *{box-sizing:border-box}
   html,body{margin:0;padding:0}
-  body{background:var(--bg);color:var(--text);
-    font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    -webkit-font-smoothing:antialiased}
-  .wrap{max-width:1180px;margin:0 auto;padding:0 18px 72px}
+  body{
+    background:var(--bg); color:var(--text);
+    font:15px/1.55 "Plus Jakarta Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+  }
+  a{color:var(--accent)}
+  .wrap{max-width:1240px;margin:0 auto;padding:0 22px 96px}
 
-  header.bar{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px solid var(--line);margin-bottom:18px}
-  .bar-inner{max-width:1180px;margin:0 auto;padding:14px 16px 12px;display:flex;flex-direction:column;gap:11px}
-  .title-row{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
-  h1{font-size:17px;font-weight:650;letter-spacing:-.01em;margin:0}
-  .stamp{font-size:12px;color:var(--muted);white-space:nowrap;display:flex;align-items:center;gap:7px}
-  .stamp button{background:none;border:0;color:var(--accent);cursor:pointer;font:inherit;font-size:12px;padding:0}
-  .controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-  .chips{display:flex;gap:6px;flex-wrap:wrap}
-  .chip{border:1px solid var(--line);background:var(--panel);color:var(--muted);padding:5px 11px;
-    border-radius:999px;font-size:12.5px;cursor:pointer;transition:background .12s,color .12s,border-color .12s }
-  .chip:hover{border-color:var(--muted)}
-  .chip[aria-pressed="true"]{background:var(--text);color:var(--bg);border-color:var(--text)}
-  input[type=search]{flex:1;min-width:150px;padding:6px 11px;border:1px solid var(--line);
-    border-radius:8px;background:var(--panel);color:var(--text);font-size:13.5px}
-  input[type=search]:focus{outline:2px solid var(--accent);outline-offset:-1px;border-color:transparent}
+  /* ---------------- masthead ---------------- */
+  header.bar{
+    position:sticky;top:0;z-index:30;
+    background:color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter:saturate(1.6) blur(14px);
+    border-bottom:1px solid var(--line);
+  }
+  .bar-in{max-width:1240px;margin:0 auto;padding:13px 22px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+  .brand{display:flex;align-items:center;gap:11px;margin-right:2px}
+  .mark{width:26px;height:26px;flex:none;color:var(--accent)}
+  .word{
+    font:700 16px/1 "Archivo",sans-serif;letter-spacing:.02em;text-transform:uppercase;
+    display:flex;flex-direction:column;gap:3px;
+  }
+  .word small{
+    font:500 9.5px/1 "JetBrains Mono",ui-monospace,monospace;
+    letter-spacing:.22em;color:var(--faint);text-transform:uppercase;
+  }
+  .live{display:flex;align-items:center;gap:7px;font:500 11.5px/1 "JetBrains Mono",ui-monospace,monospace;color:var(--muted)}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--ok);flex:none;
+    box-shadow:0 0 0 0 color-mix(in srgb,var(--ok) 60%,transparent);animation:pulse 2.6s infinite}
+  .dot.stale{background:var(--warn);animation:none}
+  .dot.dead{background:var(--bad);animation:none}
+  @keyframes pulse{
+    0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--ok) 55%,transparent)}
+    70%{box-shadow:0 0 0 7px transparent} 100%{box-shadow:0 0 0 0 transparent}
+  }
+  .spacer{flex:1 1 40px}
 
-  details.health{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
-    margin-bottom:14px;box-shadow:var(--shadow);font-size:13px}
-  details.health summary{padding:10px 14px;cursor:pointer;color:var(--muted);list-style:none;display:flex;gap:8px;align-items:center}
+  .seg{display:flex;background:var(--surface-2);border:1px solid var(--line);border-radius:999px;padding:3px;gap:2px}
+  .seg button{
+    border:0;background:none;color:var(--muted);cursor:pointer;
+    font:600 12.5px/1 "Plus Jakarta Sans",sans-serif;padding:7px 14px;border-radius:999px;
+    transition:color .15s,background .15s;
+  }
+  .seg button:hover{color:var(--text)}
+  .seg button[aria-pressed="true"]{background:var(--raise);color:var(--text);box-shadow:var(--shadow)}
+  .seg button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+
+  .search{position:relative;display:flex;align-items:center;min-width:190px;flex:0 1 300px}
+  .search svg{position:absolute;left:11px;width:15px;height:15px;color:var(--faint);pointer-events:none}
+  .search input{
+    width:100%;padding:9px 12px 9px 33px;border:1px solid var(--line);border-radius:999px;
+    background:var(--surface-2);color:var(--text);font:500 13px/1 "Plus Jakarta Sans",sans-serif;
+  }
+  .search input::placeholder{color:var(--faint)}
+  .search input:focus{outline:none;border-color:var(--accent);background:var(--surface)}
+  .search kbd{
+    position:absolute;right:11px;font:500 10px/1 "JetBrains Mono",monospace;color:var(--faint);
+    border:1px solid var(--line);border-radius:4px;padding:3px 5px;pointer-events:none;
+  }
+  .search input:focus ~ kbd, .search input:not(:placeholder-shown) ~ kbd{display:none}
+
+  /* ---------------- status strip ---------------- */
+  details.health{
+    background:var(--surface);border:1px solid var(--line);border-radius:var(--r);
+    margin:20px 0 6px;box-shadow:var(--shadow);overflow:hidden;
+  }
+  details.health summary{
+    padding:12px 16px;cursor:pointer;list-style:none;display:flex;gap:10px;align-items:center;
+    font-size:13px;color:var(--muted);
+  }
   details.health summary::-webkit-details-marker{display:none}
-  details.health summary::before{content:"›";display:inline-block;transition:transform .15s;font-size:16px;line-height:1}
-  details.health[open] summary::before{transform:rotate(90deg)}
+  .chev{width:13px;height:13px;color:var(--faint);transition:transform .18s;flex:none}
+  details.health[open] .chev{transform:rotate(90deg)}
   .health table{width:100%;border-collapse:collapse;font-size:12.5px}
-  .health td{padding:7px 14px;border-top:1px solid var(--line-soft);vertical-align:top}
-  .health td:first-child{white-space:nowrap;font-weight:550}
-  .s-ok{color:var(--ok)} .s-warn{color:var(--warn)} .s-bad{color:var(--bad)}
-  .err{color:var(--muted);word-break:break-word}
+  .health td{padding:9px 16px;border-top:1px solid var(--line-soft);vertical-align:top}
+  .health td:first-child{white-space:nowrap;font-weight:600}
+  .pill{
+    display:inline-block;padding:2px 8px;border-radius:999px;
+    font:600 10.5px/1.6 "JetBrains Mono",monospace;text-transform:uppercase;letter-spacing:.06em;
+  }
+  .pill.ok{background:color-mix(in srgb,var(--ok) 16%,transparent);color:var(--ok)}
+  .pill.warn{background:color-mix(in srgb,var(--warn) 18%,transparent);color:var(--warn)}
+  .pill.bad{background:color-mix(in srgb,var(--bad) 16%,transparent);color:var(--bad)}
+  .err{color:var(--muted);word-break:break-word;font-family:"JetBrains Mono",monospace;font-size:11.5px}
 
-  /* Masonry: fine rows plus a computed row-span per card, so cards pack upward
-     instead of every row stretching to its tallest member. Keeps left-to-right
-     chronological order, which a `columns:3` layout would not. */
-  #feed{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
-    column-gap:16px;grid-auto-rows:8px;align-items:start}
-  #feed > *{margin-bottom:16px}
-  @media (max-width:1000px){ #feed{grid-template-columns:repeat(2,minmax(0,1fr))} }
-  @media (max-width:660px){ #feed{grid-template-columns:minmax(0,1fr)} }
-  /* Day headers and the embed block break out across the whole row. */
-  #feed > .day, #feed > .embed{grid-column:1/-1}
-  .post{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
-    box-shadow:var(--shadow);overflow:hidden;min-width:0}
-  .post-head{display:flex;align-items:center;gap:9px;padding:13px 15px 0}
-  .badge{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;
-    border-radius:5px;flex:none;font-size:12px;font-weight:700;line-height:1}
-  .badge.x{background:var(--x);color:var(--panel)}
-  .badge.facebook{background:var(--fb);color:#fff}
-  .who{font-weight:600;font-size:14px}
-  .handle{color:var(--muted);font-size:13px}
-  .when{color:var(--muted);font-size:12.5px;margin-left:auto;white-space:nowrap}
-  .when.approx::after{content:"~";margin-left:2px;opacity:.7}
-  .body{padding:9px 15px 0;white-space:pre-wrap;overflow-wrap:anywhere}
-  .body.clamped{max-height:8.5em;overflow:hidden;-webkit-mask-image:linear-gradient(#000 72%,transparent)}
-  .more{background:none;border:0;color:var(--accent);font-size:13px;cursor:pointer;padding:5px 15px 0;font-family:inherit}
-  .media{margin:12px 0 0;position:relative;display:block;line-height:0;border-top:1px solid var(--line-soft)}
-  .media img{width:100%;height:auto;max-height:420px;object-fit:cover;
-    display:block;background:var(--line-soft)}
-  .play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
-  .play span{width:58px;height:58px;border-radius:50%;background:rgba(0,0,0,.62);display:flex;align-items:center;justify-content:center}
-  .play span::after{content:"";border-left:17px solid #fff;border-top:11px solid transparent;border-bottom:11px solid transparent;margin-left:5px}
-  .vid-only{margin:12px 15px 0;padding:12px;border:1px dashed var(--line);border-radius:8px;color:var(--muted);font-size:13px;text-align:center}
-  .foot{display:flex;gap:14px;padding:11px 15px 13px;align-items:center}
-  .foot a{color:var(--accent);text-decoration:none;font-size:13px}
+  /* ---------------- feed grid ---------------- */
+  #feed{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));column-gap:18px;grid-auto-rows:8px;align-items:start}
+  #feed > *{margin-bottom:18px}
+  @media (max-width:1080px){ #feed{grid-template-columns:repeat(2,minmax(0,1fr))} }
+  @media (max-width:700px){ #feed{grid-template-columns:minmax(0,1fr)} .wrap{padding:0 14px 72px} }
+  #feed > .day, #feed > .embed, #feed > .empty{grid-column:1/-1}
+
+  .day{
+    display:flex;align-items:center;gap:14px;margin:16px 2px 2px;
+    font:500 10.5px/1 "JetBrains Mono",monospace;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--faint);
+  }
+  .day::after{content:"";flex:1;height:1px;background:var(--line)}
+
+  .post{
+    background:var(--surface);border:1px solid var(--line);border-radius:var(--r);
+    box-shadow:var(--shadow);overflow:hidden;min-width:0;
+    transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+  }
+  .post:hover{transform:translateY(-2px);box-shadow:var(--shadow-hi);border-color:color-mix(in srgb,var(--accent) 32%,var(--line))}
+
+  .post-head{display:flex;align-items:center;gap:11px;padding:15px 16px 0}
+  .avatar{
+    position:relative;width:34px;height:34px;border-radius:50%;flex:none;
+    display:grid;place-items:center;color:#fff;
+    font:700 12px/1 "Plus Jakarta Sans",sans-serif;letter-spacing:.02em;
+  }
+  .avatar::after{
+    content:"";position:absolute;right:-2px;bottom:-2px;width:13px;height:13px;border-radius:50%;
+    border:2px solid var(--surface);background:var(--fb);
+  }
+  .avatar.x::after{background:var(--x)}
+  .who-wrap{display:flex;flex-direction:column;gap:2px;min-width:0}
+  .who{font-weight:700;font-size:14px;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .handle{font:500 11px/1 "JetBrains Mono",monospace;color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .when{
+    margin-left:auto;flex:none;align-self:flex-start;
+    font:500 11px/1 "JetBrains Mono",monospace;color:var(--faint);padding-top:3px;
+  }
+  .when.approx::after{content:"~";opacity:.6;margin-left:1px}
+
+  .body{padding:12px 16px 0;white-space:pre-wrap;overflow-wrap:anywhere;font-size:14.5px;line-height:1.6}
+  .body.clamped{max-height:8.2em;overflow:hidden;-webkit-mask-image:linear-gradient(#000 68%,transparent)}
+  .more{
+    background:none;border:0;color:var(--accent);cursor:pointer;font:600 12.5px/1 "Plus Jakarta Sans",sans-serif;
+    padding:8px 16px 0;
+  }
+  .more:hover{text-decoration:underline}
+
+  .media{display:block;margin:14px 0 0;position:relative;line-height:0;background:var(--surface-2)}
+  .media img{
+    width:100%;height:auto;max-height:440px;object-fit:cover;display:block;
+    opacity:0;transition:opacity .35s ease;
+  }
+  .media img.in{opacity:1}
+  .play{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none}
+  .play i{
+    width:54px;height:54px;border-radius:50%;background:rgba(8,11,17,.62);
+    backdrop-filter:blur(3px);border:1px solid rgba(255,255,255,.22);
+    display:grid;place-items:center;transition:transform .18s ease;
+  }
+  .post:hover .play i{transform:scale(1.07)}
+  .play i::after{
+    content:"";border-left:15px solid #fff;border-top:9px solid transparent;
+    border-bottom:9px solid transparent;margin-left:4px;
+  }
+  .vid-only{
+    margin:14px 16px 0;padding:13px;border:1px dashed var(--line);border-radius:var(--r-sm);
+    color:var(--muted);font-size:12.5px;text-align:center;
+  }
+
+  .foot{display:flex;gap:12px;align-items:center;padding:13px 16px 15px}
+  .foot a{
+    font:600 12.5px/1 "Plus Jakarta Sans",sans-serif;text-decoration:none;
+    display:inline-flex;align-items:center;gap:5px;
+  }
   .foot a:hover{text-decoration:underline}
-  .tag{margin-left:auto;font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+  .foot a svg{width:12px;height:12px}
+  .tag{margin-left:auto;font:500 10px/1 "JetBrains Mono",monospace;color:var(--faint);
+    text-transform:uppercase;letter-spacing:.12em}
 
-  .embed{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
-    box-shadow:var(--shadow);margin-bottom:12px;overflow:hidden}
-  .embed .post-head{padding-bottom:9px}
-  .embed .note{padding:0 15px 11px;color:var(--muted);font-size:12.5px}
-  .embed iframe{width:100%;border:0;display:block;background:var(--line-soft)}
+  /* ---------------- embeds + states ---------------- */
+  .embed{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);
+    box-shadow:var(--shadow);overflow:hidden}
+  .embed .note{padding:0 16px 12px;color:var(--muted);font-size:12.5px}
+  .embed iframe{width:100%;border:0;display:block;background:var(--surface-2)}
 
-  .day{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:10px 2px 0}
-  .day:first-child{margin-top:4px}
-  .empty{grid-column:1/-1;text-align:center;color:var(--muted);padding:60px 20px;border:1px dashed var(--line);border-radius:var(--radius);font-size:14px}
-  .empty code{background:var(--line-soft);padding:2px 6px;border-radius:4px;font-size:12.5px}
+  .empty{
+    text-align:center;color:var(--muted);padding:72px 24px;border:1px dashed var(--line);
+    border-radius:var(--r);font-size:14px;
+  }
+  .empty b{color:var(--text)}
+  .skel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px}
+  .skel div{background:var(--surface-2);border-radius:6px;animation:sheen 1.5s infinite}
+  @keyframes sheen{0%,100%{opacity:.55}50%{opacity:1}}
+
+  .newpill{
+    position:fixed;left:50%;transform:translateX(-50%) translateY(-70px);
+    top:76px;z-index:40;background:var(--accent);color:#fff;border:0;cursor:pointer;
+    font:700 12.5px/1 "Plus Jakarta Sans",sans-serif;padding:10px 18px;border-radius:999px;
+    box-shadow:var(--shadow-hi);transition:transform .28s cubic-bezier(.2,.8,.2,1);
+  }
+  .newpill.show{transform:translateX(-50%) translateY(0)}
+
+  @media (prefers-reduced-motion:reduce){ *{animation:none!important;transition:none!important} }
 </style>
 </head>
 <body>
 
 <header class="bar">
-  <div class="bar-inner">
-    <div class="title-row">
-      <h1>Social Feed</h1>
-      <div class="stamp"><span id="stamp">loading…</span><button id="reload" title="Reload feed.json">refresh</button></div>
+  <div class="bar-in">
+    <div class="brand">
+      <svg class="mark" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <circle cx="12" cy="12" r="9.2" stroke="currentColor" stroke-width="1.3" opacity=".3"/>
+        <circle cx="12" cy="12" r="5" stroke="currentColor" stroke-width="1.3" opacity=".55"/>
+        <path d="M12 12 L20 8.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        <circle cx="12" cy="12" r="1.7" fill="currentColor"/>
+      </svg>
+      <span class="word">Live Storm Chasers<small>Feed</small></span>
     </div>
-    <div class="controls">
-      <div class="chips" id="chips">
-        <button class="chip" data-f="all" aria-pressed="true">All</button>
-        <button class="chip" data-f="x" aria-pressed="false">X</button>
-        <button class="chip" data-f="facebook" aria-pressed="false">Facebook</button>
-        <button class="chip" data-f="media" aria-pressed="false">Media only</button>
-      </div>
-      <input type="search" id="q" placeholder="Search posts…" autocomplete="off">
+
+    <div class="live"><span class="dot" id="dot"></span><span id="stamp">connecting…</span></div>
+    <span class="spacer"></span>
+
+    <div class="seg" id="chips">
+      <button data-f="all" aria-pressed="true">All</button>
+      <button data-f="facebook" aria-pressed="false">Facebook</button>
+      <button data-f="x" aria-pressed="false">X</button>
+      <button data-f="media" aria-pressed="false">Media</button>
     </div>
+
+    <label class="search">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <circle cx="11" cy="11" r="6.5" stroke="currentColor" stroke-width="2"/>
+        <path d="M16 16l4.5 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <input type="search" id="q" placeholder="Search the feed" autocomplete="off" aria-label="Search posts">
+      <kbd>/</kbd>
+    </label>
   </div>
 </header>
+
+<button class="newpill" id="newpill" hidden>New posts</button>
 
 <main class="wrap">
   <div id="health"></div>
@@ -128,264 +279,246 @@
 </main>
 
 <script>
-const feedEl   = document.getElementById('feed');
-const healthEl = document.getElementById('health');
-const stampEl  = document.getElementById('stamp');
-const qEl      = document.getElementById('q');
-let ITEMS = [], SOURCES = [], filter = 'all';
+const feedEl=document.getElementById('feed'), healthEl=document.getElementById('health'),
+      stampEl=document.getElementById('stamp'), dotEl=document.getElementById('dot'),
+      qEl=document.getElementById('q'), pillEl=document.getElementById('newpill');
+let ITEMS=[], SOURCES=[], filter='all', knownIds=new Set(), pending=null;
 
-const esc = s => (s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const esc=s=>(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
-function linkify(text){
-  let h = esc(text);
-  h = h.replace(/\bhttps?:\/\/[^\s<]+/g,
-    u => `<a href="${u}" target="_blank" rel="noopener noreferrer">${u.replace(/^https?:\/\//,'')}</a>`);
-  h = h.replace(/(^|\s)@([A-Za-z0-9_.]{2,30})/g, '$1<span style="color:var(--accent)">@$2</span>');
-  h = h.replace(/(^|\s)#([A-Za-z0-9_]{2,40})/g, '$1<span style="color:var(--accent)">#$2</span>');
+function linkify(t){
+  let h=esc(t);
+  h=h.replace(/\bhttps?:\/\/[^\s<]+/g,u=>`<a href="${u}" target="_blank" rel="noopener noreferrer">${u.replace(/^https?:\/\/(www\.)?/,'')}</a>`);
+  h=h.replace(/(^|\s)@([A-Za-z0-9_.]{2,30})/g,'$1<span style="color:var(--accent)">@$2</span>');
+  h=h.replace(/(^|\s)#([A-Za-z0-9_]{2,40})/g,'$1<span style="color:var(--accent)">#$2</span>');
   return h;
 }
-
 function relTime(iso){
   if(!iso) return '';
-  const t = new Date(iso);
-  if (isNaN(t)) return '';
-  const s = (Date.now() - t.getTime())/1000;
-  if (s < 60)     return Math.max(1,Math.floor(s)) + 's';
-  if (s < 3600)   return Math.floor(s/60) + 'm';
-  if (s < 86400)  return Math.floor(s/3600) + 'h';
-  if (s < 604800) return Math.floor(s/86400) + 'd';
-  return t.toLocaleDateString(undefined,{month:'short',day:'numeric',
-    year: t.getFullYear()===new Date().getFullYear()?undefined:'numeric'});
+  const t=new Date(iso); if(isNaN(t)) return '';
+  const s=(Date.now()-t)/1000;
+  if(s<60) return Math.max(1,Math.floor(s))+'s';
+  if(s<3600) return Math.floor(s/60)+'m';
+  if(s<86400) return Math.floor(s/3600)+'h';
+  if(s<604800) return Math.floor(s/86400)+'d';
+  return t.toLocaleDateString(undefined,{month:'short',day:'numeric'});
 }
-
 function dayLabel(iso){
-  const t = new Date(iso);
-  if (isNaN(t)) return 'Undated';
-  const today = new Date(); today.setHours(0,0,0,0);
-  const d = new Date(t);   d.setHours(0,0,0,0);
-  const diff = Math.round((today-d)/86400000);
-  if (diff===0) return 'Today';
-  if (diff===1) return 'Yesterday';
-  return t.toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric',
-    year: t.getFullYear()===today.getFullYear()?undefined:'numeric'});
+  const t=new Date(iso); if(isNaN(t)) return 'Undated';
+  const a=new Date(); a.setHours(0,0,0,0);
+  const b=new Date(t); b.setHours(0,0,0,0);
+  const d=Math.round((a-b)/864e5);
+  if(d===0) return 'Today'; if(d===1) return 'Yesterday';
+  return t.toLocaleDateString(undefined,{weekday:'long', month:'long', day:'numeric'});
 }
-
-// On a repost the interesting handle is whoever wrote it, not the account we read.
+// Stable per-account colour so the same source always looks the same.
+function hue(s){ let n=0; for(const c of (s||'')) n=(n*31+c.charCodeAt(0))%360; return n; }
+function initials(name){
+  return (name||'?').replace(/[^A-Za-z0-9 ]/g,'').split(/\s+/).filter(Boolean)
+    .slice(0,2).map(w=>w[0].toUpperCase()).join('') || '?';
+}
 function shownHandle(p){
-  const a = (p.author||'').trim();
-  return (a && a.toLowerCase() !== (p.handle||'').toLowerCase()) ? a : (p.handle||'');
+  const a=(p.author||'').trim();
+  return (a && a.toLowerCase()!==(p.handle||'').toLowerCase()) ? a : (p.handle||'');
 }
 
 function renderHealth(){
-  if (!SOURCES.length){ healthEl.innerHTML = ''; return; }
-  const bad  = SOURCES.filter(s => !s.ok && !s.embed_only).length;
-  const soft = SOURCES.filter(s => s.embed_only).length;
-  const ok   = SOURCES.filter(s => s.ok).length;
-
-  const summary = bad
-    ? `<span class="s-bad">${bad} source${bad>1?'s':''} not collecting</span> · ${ok} ok`
-    : soft ? `<span class="s-warn">${ok} collecting, ${soft} fell back to embed</span>`
-           : `<span class="s-ok">all ${ok} source${ok>1?'s':''} collecting</span>`;
-
-  const rows = SOURCES.map(s => {
-    const cls  = s.ok ? 's-ok' : (s.embed_only ? 's-warn' : 's-bad');
-    const word = s.ok ? 'ok'   : (s.embed_only ? 'embed'  : 'failed');
-    const detail = s.ok
-      ? `via ${esc(s.route)}${s.count!=null?` · ${s.count} post${s.count===1?'':'s'}`:''}`
-      : esc(s.error || '');
-    return `<tr><td>${esc(s.platform)}/${esc(s.handle)}</td>
-              <td class="${cls}">${word}</td>
-              <td class="err">${detail}</td></tr>`;
+  if(!SOURCES.length){ healthEl.innerHTML=''; return; }
+  const bad=SOURCES.filter(s=>!s.ok&&!s.embed_only).length;
+  const soft=SOURCES.filter(s=>s.embed_only).length;
+  const ok=SOURCES.filter(s=>s.ok).length;
+  const head = bad ? `<b style="color:var(--bad)">${bad} not collecting</b> · ${ok} live`
+             : soft ? `<b style="color:var(--warn)">${ok} live</b> · ${soft} on embed`
+                    : `<b style="color:var(--ok)">All ${ok} sources live</b>`;
+  const rows=SOURCES.map(s=>{
+    const cls=s.ok?'ok':(s.embed_only?'warn':'bad');
+    const word=s.ok?'live':(s.embed_only?'embed':'down');
+    const detail=s.ok
+      ? `<span class="err">${esc(s.route||'')}${s.count!=null?` · ${s.count} post${s.count===1?'':'s'}`:''}</span>`
+      : `<span class="err">${esc(s.error||'')}</span>`;
+    return `<tr><td>${esc(s.handle)}</td><td><span class="pill ${cls}">${word}</span></td><td>${detail}</td></tr>`;
   }).join('');
-
-  healthEl.innerHTML =
-    `<details class="health"${bad?' open':''}>
-       <summary>${summary}</summary>
-       <table>${rows}</table>
-     </details>`;
+  healthEl.innerHTML=`<details class="health"${bad?' open':''}>
+      <summary><svg class="chev" viewBox="0 0 24 24" fill="none"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>${head}</span></summary><table>${rows}</table></details>`;
 }
 
 function embedCard(s){
-  const el = document.createElement('div');
-  el.className = 'embed';
-  const href = encodeURIComponent(
-    s.handle.startsWith('http') ? s.handle : `https://www.facebook.com/${s.handle}`);
-  el.innerHTML =
-    `<div class="post-head">
-       <span class="badge facebook">f</span>
-       <span class="who">${esc(s.label || s.handle)}</span>
-       <span class="handle">@${esc(s.handle)}</span>
-       <span class="when">live</span>
-     </div>
-     <div class="note">Collection failed for this page, so this is Facebook's own live embed —
-       not searchable, not archived, and not merged into the timeline above.</div>
-     <iframe loading="lazy" height="640" scrolling="no" frameborder="0" allowfullscreen="true"
-       title="${esc(s.label || s.handle)} on Facebook"
-       src="https://www.facebook.com/plugins/page.php?href=${href}&tab=timeline&width=640&height=640&small_header=true&adapt_container_width=true&hide_cover=false&show_facepile=false"></iframe>`;
+  const el=document.createElement('div'); el.className='embed';
+  const href=encodeURIComponent(s.handle.startsWith('http')?s.handle:`https://www.facebook.com/${s.handle}`);
+  el.innerHTML=`<div class="post-head">
+      <span class="avatar" style="background:linear-gradient(140deg,hsl(${hue(s.handle)} 62% 46%),hsl(${(hue(s.handle)+38)%360} 62% 38%))">${esc(initials(s.label||s.handle))}</span>
+      <div class="who-wrap"><span class="who">${esc(s.label||s.handle)}</span>
+      <span class="handle">facebook · @${esc(s.handle)}</span></div>
+      <span class="when">live</span></div>
+    <div class="note">Not collectable right now — this is Facebook's own embed, so it is not searchable or archived.</div>
+    <iframe loading="lazy" height="620" scrolling="no" frameborder="0" allowfullscreen="true"
+      title="${esc(s.label||s.handle)} on Facebook"
+      src="https://www.facebook.com/plugins/page.php?href=${href}&tab=timeline&width=640&height=620&small_header=true&adapt_container_width=true&hide_cover=false&show_facepile=false"></iframe>`;
   return el;
 }
 
 function card(p){
-  const el = document.createElement('article');
-  el.className = 'post';
-  const mark = p.platform === 'x' ? 'X' : 'f';
-  const when = relTime(p.sort_time || p.published || p.first_seen);
-
-  let html =
-    `<div class="post-head">
-       <span class="badge ${esc(p.platform)}">${mark}</span>
-       <span class="who">${esc(p.source || p.handle)}</span>
-       <span class="handle">@${esc(shownHandle(p))}</span>
-       <span class="when${p.published_exact?'':' approx'}" title="${esc(p.sort_time||'')}">${esc(when)}</span>
-     </div>`;
-  if (p.text) html += `<div class="body">${linkify(p.text)}</div>`;
-  if (p.preview){
-    html += `<a class="media" href="${esc(p.url||p.preview)}" target="_blank" rel="noopener noreferrer">
-               <img src="${esc(p.preview)}" alt="" loading="lazy">
-               ${p.has_video ? '<span class="play"><span></span></span>' : ''}
-             </a>`;
-  } else if (p.has_video){
-    html += `<div class="vid-only">Video attached — no preview frame captured</div>`;
+  const el=document.createElement('article'); el.className='post';
+  const h=hue(p.handle);
+  const when=relTime(p.sort_time||p.published||p.first_seen);
+  let html=`<div class="post-head">
+      <span class="avatar ${p.platform==='x'?'x':''}" style="background:linear-gradient(140deg,hsl(${h} 62% 46%),hsl(${(h+38)%360} 62% 38%))">${esc(initials(p.source||p.handle))}</span>
+      <div class="who-wrap">
+        <span class="who">${esc(p.source||p.handle)}</span>
+        <span class="handle">${esc(p.platform)} · @${esc(shownHandle(p))}</span>
+      </div>
+      <span class="when${p.published_exact?'':' approx'}" title="${esc(p.sort_time||'')}">${esc(when)}</span>
+    </div>`;
+  if(p.text) html+=`<div class="body">${linkify(p.text)}</div>`;
+  if(p.preview){
+    html+=`<a class="media" href="${esc(p.url||p.preview)}" target="_blank" rel="noopener noreferrer">
+      <img src="${esc(p.preview)}" alt="" loading="lazy">
+      ${p.has_video?'<span class="play"><i></i></span>':''}</a>`;
+  } else if(p.has_video){
+    html+=`<div class="vid-only">Video attached — no preview frame captured</div>`;
   }
-  html += `<div class="foot">
-             ${p.url ? `<a href="${esc(p.url)}" target="_blank" rel="noopener noreferrer">Open original</a>` : ''}
-             <span class="tag">${p.repost ? 'repost' : esc(p.platform)}</span>
-           </div>`;
-  el.innerHTML = html;
+  html+=`<div class="foot">
+      ${p.url?`<a href="${esc(p.url)}" target="_blank" rel="noopener noreferrer">Open original
+        <svg viewBox="0 0 24 24" fill="none"><path d="M7 17L17 7M17 7H9M17 7v8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>`:''}
+      <span class="tag">${p.repost?'repost':esc(p.platform)}</span></div>`;
+  el.innerHTML=html;
 
-  const body = el.querySelector('.body');
-  if (body && body.scrollHeight > 150){
+  const img=el.querySelector('.media img');
+  if(img){
+    const show=()=>{img.classList.add('in'); layout();};
+    if(img.complete) show(); else { img.addEventListener('load',show,{once:true}); img.addEventListener('error',show,{once:true}); }
+  }
+  const body=el.querySelector('.body');
+  if(body && body.scrollHeight>150){
     body.classList.add('clamped');
-    const btn = document.createElement('button');
-    btn.className = 'more';
-    btn.textContent = 'Show more';
-    btn.onclick = () => {
-      const open = body.classList.toggle('clamped');
-      btn.textContent = open ? 'Show more' : 'Show less';
-      layout();
-    };
-    body.after(btn);
+    const b=document.createElement('button'); b.className='more'; b.textContent='Show more';
+    b.onclick=()=>{ const open=body.classList.toggle('clamped');
+      b.textContent=open?'Show more':'Show less'; layout(); };
+    body.after(b);
   }
   return el;
 }
 
-const ROW = 8, GAP = 16;
-
-// Cards are natural height; this assigns each one a row span so the grid packs
-// them upward. Runs after every render, after images load, and on resize.
+/* Masonry: assign each card a row span so cards pack upward while keeping
+   left-to-right chronological order. */
+const ROW=8, GAP=18;
 function layout(){
-  for (const el of feedEl.children){
-    el.style.gridRowEnd = 'auto';
-    const h = el.getBoundingClientRect().height;
-    if (h) el.style.gridRowEnd = 'span ' + Math.ceil((h + GAP) / ROW);
+  for(const el of feedEl.children){
+    el.style.gridRowEnd='auto';
+    const h=el.getBoundingClientRect().height;
+    if(h) el.style.gridRowEnd='span '+Math.ceil((h+GAP)/ROW);
   }
 }
+let rt; addEventListener('resize',()=>{clearTimeout(rt); rt=setTimeout(layout,120)});
 
-function watchMedia(){
-  feedEl.querySelectorAll('img, iframe').forEach(el => {
-    if (el.complete) return;
-    el.addEventListener('load', layout, {once:true});
-    el.addEventListener('error', layout, {once:true});
-  });
-}
-
-let resizeTimer;
-window.addEventListener('resize', () => {
-  clearTimeout(resizeTimer);
-  resizeTimer = setTimeout(layout, 120);
-});
-
-function passes(p, q){
-  if (filter==='x' && p.platform!=='x') return false;
-  if (filter==='facebook' && p.platform!=='facebook') return false;
-  if (filter==='media' && !p.preview && !p.has_video) return false;
-  if (q && !((p.text||'')+' '+(p.source||'')).toLowerCase().includes(q)) return false;
+function passes(p,q){
+  if(filter==='x'&&p.platform!=='x') return false;
+  if(filter==='facebook'&&p.platform!=='facebook') return false;
+  if(filter==='media'&&!p.preview&&!p.has_video) return false;
+  if(q&&!((p.text||'')+' '+(p.source||'')+' '+(p.handle||'')).toLowerCase().includes(q)) return false;
   return true;
 }
 
 function render(){
-  const q = qEl.value.trim().toLowerCase();
-  const list = ITEMS.filter(p => passes(p,q));
-  feedEl.innerHTML = '';
-
-  if (!list.length){
-    const note = document.createElement('div');
-    note.className = 'empty';
-    note.innerHTML = ITEMS.length
-      ? 'No posts match this filter.'
-      : 'No posts collected yet.<br><br>Run the <b>Collect feed</b> workflow from the Actions tab, then reload.';
-    feedEl.appendChild(note);
+  const q=qEl.value.trim().toLowerCase();
+  const list=ITEMS.filter(p=>passes(p,q));
+  feedEl.innerHTML='';
+  if(!list.length){
+    const n=document.createElement('div'); n.className='empty';
+    n.innerHTML=ITEMS.length?'Nothing matches that.':'No posts yet. The collector runs every few minutes — check back shortly.';
+    feedEl.appendChild(n);
   } else {
-    let lastDay = null;
-    for (const p of list){
-      const d = dayLabel(p.sort_time || p.published || p.first_seen);
-      if (d !== lastDay){
-        const h = document.createElement('div');
-        h.className = 'day';
-        h.textContent = d;
-        feedEl.appendChild(h);
-        lastDay = d;
-      }
+    let last=null;
+    for(const p of list){
+      const d=dayLabel(p.sort_time||p.published||p.first_seen);
+      if(d!==last){ const h=document.createElement('div'); h.className='day'; h.textContent=d; feedEl.appendChild(h); last=d; }
       feedEl.appendChild(card(p));
     }
   }
-
-  // Facebook sources with no cookie secret get the platform's own embed. It
-  // goes last: it is a tall iframe and must not push the real timeline down.
-  if (!q && (filter==='all' || filter==='facebook')){
-    const embeds = SOURCES.filter(s => s.embed_only);
-    if (embeds.length){
-      const h = document.createElement('div');
-      h.className = 'day';
-      h.textContent = 'Facebook embeds';
+  if(!q&&(filter==='all'||filter==='facebook')){
+    const em=SOURCES.filter(s=>s.embed_only);
+    if(em.length){
+      const h=document.createElement('div'); h.className='day'; h.textContent='Embedded sources';
       feedEl.appendChild(h);
-      embeds.forEach(s => feedEl.appendChild(embedCard(s)));
+      em.forEach(s=>feedEl.appendChild(embedCard(s)));
     }
   }
-
   layout();
-  watchMedia();
 }
 
-function load(){
-  return fetch('feed.json?t=' + Date.now(), {cache:'no-store'})
-    .then(r => { if(!r.ok) throw new Error(r.status); return r.json(); })
-    .then(data => {
-      ITEMS = (data.items||[]).sort((a,b) =>
+function skeleton(){
+  feedEl.innerHTML='';
+  for(let i=0;i<6;i++){
+    const s=document.createElement('div'); s.className='skel';
+    s.innerHTML=`<div style="height:34px;width:34px;border-radius:50%"></div>
+      <div style="height:11px;width:42%;margin-top:13px"></div>
+      <div style="height:11px;width:88%;margin-top:9px"></div>
+      <div style="height:${120+i*26}px;margin-top:14px"></div>`;
+    feedEl.appendChild(s);
+  }
+  layout();
+}
+
+function applyStamp(data){
+  const g=data.generated?new Date(data.generated):null;
+  const mins=g?(Date.now()-g)/60000:1e9;
+  dotEl.className='dot'+(mins>45?' dead':mins>20?' stale':'');
+  stampEl.textContent=g?`${ITEMS.length} posts · updated ${relTime(data.generated)} ago`:`${ITEMS.length} posts`;
+  stampEl.title=g?g.toLocaleString():'';
+}
+
+function load(first){
+  return fetch('feed.json?t='+Date.now(),{cache:'no-store'})
+    .then(r=>{ if(!r.ok) throw new Error(r.status); return r.json(); })
+    .then(data=>{
+      const items=(data.items||[]).sort((a,b)=>
         (b.sort_time||b.published||'').localeCompare(a.sort_time||a.published||''));
-      SOURCES = data.sources || [];
-      const g = data.generated ? new Date(data.generated) : null;
-      stampEl.textContent = g
-        ? `${ITEMS.length} posts · updated ${relTime(data.generated)} ago`
-        : `${ITEMS.length} posts`;
-      stampEl.title = g ? g.toLocaleString() : '';
-      renderHealth();
-      render();
+      SOURCES=data.sources||[];
+      if(first||!knownIds.size){
+        ITEMS=items; knownIds=new Set(items.map(i=>i.id));
+        applyStamp(data); renderHealth(); render();
+      } else {
+        const fresh=items.filter(i=>!knownIds.has(i.id));
+        if(fresh.length && window.scrollY>400){
+          pending={items,data};
+          pillEl.textContent=`${fresh.length} new post${fresh.length===1?'':'s'}`;
+          pillEl.hidden=false; requestAnimationFrame(()=>pillEl.classList.add('show'));
+        } else {
+          ITEMS=items; knownIds=new Set(items.map(i=>i.id));
+          applyStamp(data); renderHealth(); render();
+        }
+      }
     })
-    .catch(() => {
-      stampEl.textContent = 'no feed.json yet';
-      healthEl.innerHTML = '';
-      feedEl.innerHTML = `<div class="empty">
-          No <code>feed.json</code> in this folder yet.<br><br>
-          Open the repo's <b>Actions</b> tab, pick <b>Collect feed</b>, and click
-          <b>Run workflow</b>. Reload here when it finishes.
-        </div>`;
+    .catch(()=>{
+      dotEl.className='dot dead';
+      stampEl.textContent='feed unavailable';
+      feedEl.innerHTML=`<div class="empty">Could not load <b>feed.json</b>. If the collector has never run, start it from the repository's Actions tab.</div>`;
     });
 }
 
-document.getElementById('chips').addEventListener('click', e => {
-  const b = e.target.closest('.chip');
-  if (!b) return;
-  filter = b.dataset.f;
-  document.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed', String(c===b)));
+pillEl.addEventListener('click',()=>{
+  if(pending){ ITEMS=pending.items; knownIds=new Set(ITEMS.map(i=>i.id));
+    applyStamp(pending.data); renderHealth(); render(); pending=null; }
+  pillEl.classList.remove('show'); setTimeout(()=>pillEl.hidden=true,300);
+  scrollTo({top:0,behavior:'smooth'});
+});
+document.getElementById('chips').addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b) return;
+  filter=b.dataset.f;
+  document.querySelectorAll('#chips button').forEach(c=>c.setAttribute('aria-pressed',String(c===b)));
   render();
 });
-qEl.addEventListener('input', render);
-document.getElementById('reload').addEventListener('click', load);
+qEl.addEventListener('input',render);
+addEventListener('keydown',e=>{
+  if(e.key==='/'&&document.activeElement!==qEl){ e.preventDefault(); qEl.focus(); }
+  if(e.key==='Escape'&&document.activeElement===qEl){ qEl.value=''; qEl.blur(); render(); }
+});
 
-load();
-setInterval(load, 5*60*1000);          // keep an open tab reasonably fresh
-document.addEventListener('visibilitychange', () => { if (!document.hidden) load(); });
+skeleton();
+load(true);
+setInterval(()=>load(false), 3*60*1000);
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden) load(false); });
 </script>
 </body>
 </html>
