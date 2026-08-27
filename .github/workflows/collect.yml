@@ -47,15 +47,17 @@ jobs:
           X_COOKIES: ${{ secrets.X_COOKIES }}
           FB_COOKIES: ${{ secrets.FB_COOKIES }}
         run: |
-          python - <<'PY' >> "$GITHUB_OUTPUT"
+          python - <<'PY'
           import json, os
           cfg = json.load(open("sources.json"))
           fb = any(s.get("enabled", True) and s.get("platform", "").lower() == "facebook"
                    for s in cfg.get("sources", []))
           cookies = bool(os.environ.get("X_COOKIES") or os.environ.get("FB_COOKIES"))
           need = fb or cookies
-          print(f"browser={'true' if need else 'false'}")
-          print(f"::notice::facebook sources: {fb}, cookie secrets: {cookies}, browser: {need}")
+          # Only key=value may go into GITHUB_OUTPUT; anything else fails the step.
+          with open(os.environ["GITHUB_OUTPUT"], "a") as fh:
+              fh.write(f"browser={'true' if need else 'false'}\n")
+          print(f"facebook sources: {fb}, cookie secrets: {cookies}, browser: {need}")
           PY
 
       # Restoring the browser from cache takes ~10s against ~60s to install it.
