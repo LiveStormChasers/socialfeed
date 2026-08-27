@@ -35,10 +35,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     strategy:
-      # One shard being blocked must not cancel the other four.
+      # One shard being blocked must not cancel the others.
       fail-fast: false
       matrix:
-        shard: [0, 1, 2, 3, 4]
+        shard: [0, 1, 2, 3, 4, 5, 6]
 
     steps:
       - uses: actions/checkout@v4
@@ -103,7 +103,7 @@ jobs:
           FB_COOKIES: ${{ secrets.FB_COOKIES }}
         run: |
           python collect.py --verbose \
-            --shard ${{ matrix.shard }} --shards 5 \
+            --shard ${{ matrix.shard }} --shards 7 \
             --out "part-${{ matrix.shard }}.json"
 
       - name: Hand the catch to the merge job
@@ -118,7 +118,7 @@ jobs:
   merge:
     needs: shard
     # Merge whatever came back. Waiting for all five to succeed would throw
-    # away four good shards because one was blocked.
+    # away six good shards because one was blocked.
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 10
