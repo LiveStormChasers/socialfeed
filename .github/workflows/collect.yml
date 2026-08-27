@@ -3,12 +3,13 @@ name: Collect feed
 # Facebook throttles by source IP: after roughly eight page requests from one
 # address it stops refusing and starts answering HTTP 200 with a ~430KB shell
 # that has no posts in it, where a real page is ~950KB-1MB. One job asking for
-# nineteen pages therefore only ever got the first few.
+# twenty-seven pages therefore only ever got the first few.
 #
 # Every GitHub-hosted job is a fresh VM, so the fix is to stop asking from one
-# address. Five parallel shards ask for about four pages each - under the
-# threshold - and a merge job folds the results into feed.json. Only the merge
-# job writes feed.json; five jobs committing the same file would lose posts.
+# address. Nine parallel shards ask for three pages each - well under the
+# threshold, with room for the browser pass on every source - and a merge job
+# folds the results into feed.json. Only the merge job writes feed.json; nine
+# jobs committing the same file would lose posts.
 
 on:
   workflow_dispatch:
@@ -38,12 +39,12 @@ jobs:
       # One shard being blocked must not cancel the others.
       fail-fast: false
       matrix:
-        shard: [0, 1, 2, 3, 4, 5, 6]
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8]
 
     steps:
       - uses: actions/checkout@v4
 
-      # The whole design rests on these five jobs not sharing an address.
+      # The whole design rests on these jobs not sharing an address.
       # Print it so the run itself proves or disproves that, rather than us
       # assuming it.
       - name: Show this runner's public IP
@@ -103,7 +104,7 @@ jobs:
           FB_COOKIES: ${{ secrets.FB_COOKIES }}
         run: |
           python collect.py --verbose \
-            --shard ${{ matrix.shard }} --shards 7 \
+            --shard ${{ matrix.shard }} --shards 9 \
             --out "part-${{ matrix.shard }}.json"
 
       - name: Hand the catch to the merge job
@@ -117,8 +118,8 @@ jobs:
 
   merge:
     needs: shard
-    # Merge whatever came back. Waiting for all five to succeed would throw
-    # away six good shards because one was blocked.
+    # Merge whatever came back. Waiting for all nine to succeed would throw
+    # away eight good shards because one was blocked.
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 10
