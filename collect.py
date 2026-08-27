@@ -812,18 +812,37 @@ def fetch_with_browser(platform, handle, label, limit, cookies, cfg):
 
         # Scroll until the post count stops growing. Facebook re-inserts the
         # login gate as you go, so clear it every round or scrolling stops.
+        #
+        # Two things used to cut this short. The wait after each scroll was
+        # 1.4s, which is less than Facebook takes to render the next batch, so
+        # a round that was merely slow looked empty; and two such rounds ended
+        # the loop. Measured on a live run, the whole scroll finished in four
+        # seconds with the count stuck at three - it was quitting before the
+        # page had answered. Smaller steps, a longer wait, and more patience
+        # before giving up.
         seen_before = 0
         stalled = 0
-        for _ in range(int(cfg.get("scroll_rounds", 6))):
-            page.mouse.wheel(0, 2600)
-            page.wait_for_timeout(1400)
+        rounds = int(cfg.get("scroll_rounds", 10))
+        patience = int(cfg.get("scroll_patience", 3))
+        step = int(cfg.get("scroll_step_px", 1800))
+        pause = int(cfg.get("scroll_pause_ms", 2200))
+        for i in range(rounds):
+            page.mouse.wheel(0, step)
+            page.wait_for_timeout(pause)
+            # Lazy-loaded posts arrive on the network, so give a quiet moment
+            # a chance to mean "loaded" rather than guessing from the clock.
+            try:
+                page.wait_for_load_state("networkidle", timeout=2500)
+            except Exception:
+                pass
             try:
                 found = page.evaluate(CLEAR_OVERLAY)
             except Exception:
                 found = 0
             if found and found <= seen_before:
                 stalled += 1
-                if stalled >= 2:
+                if stalled >= patience:
+                    vlog(f"scroll stalled at {seen_before} node(s) after {i+1} round(s)")
                     break
             else:
                 stalled = 0
@@ -831,6 +850,7 @@ def fetch_with_browser(platform, handle, label, limit, cookies, cfg):
         vlog(f"after scrolling, {seen_before} article node(s) present")
 
         raw = page.evaluate(script, limit)
+        vlog(f"extractor returned {len(raw or [])} post(s) from {seen_before} node(s)")
         ctx.close()
         browser.close()
 
