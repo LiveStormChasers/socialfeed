@@ -106,7 +106,38 @@ def canonical_url(url):
     return urlunsplit((parts.scheme, parts.netloc, parts.path.rstrip("/"), keep, ""))
 
 
+# Facebook writes the same post id into several URL shapes: /posts/<id>,
+# /reel/<id>, /videos/<id>, /photo/?fbid=<id>, permalink.php?story_fbid=<id>.
+FB_POST_NUMBER = re.compile(
+    r"/(?:posts|reel|reels|videos?|photos?|permalink)/(\d{6,})"
+    r"|[?&](?:story_fbid|fbid|v)=(\d{6,})")
+
+
+def facebook_post_number(url):
+    """The numeric post id, whichever URL shape Facebook used.
+
+    One post reached the feed twice because the page JSON described it as
+    /maxvelocitywx/posts/1972707866740878 while the rendered page linked to
+    /reel/1972707866740878/. Same post, same number, different path - and
+    hashing the path gave it two identities. Hash the number instead.
+    """
+    if not url:
+        return ""
+    m = FB_POST_NUMBER.search(url)
+    if not m:
+        return ""
+    return next((g for g in m.groups() if g), "")
+
+
 def post_id(url, text, platform, handle):
+    if (platform or "").lower() == "facebook":
+        number = facebook_post_number(url)
+        if number:
+            # Facebook post ids are unique on their own, so no handle here -
+            # that way a route that mislabels the page still lands on the
+            # same post rather than inventing a second one.
+            key = f"facebook:post:{number}"
+            return hashlib.sha1(key.encode("utf-8")).hexdigest()[:16]
     key = canonical_url(url) if url else f"{platform}:{handle}:{(text or '')[:180]}"
     return hashlib.sha1(key.encode("utf-8", "replace")).hexdigest()[:16]
 
@@ -1150,7 +1181,14 @@ def dedup_text(t):
     long one until the marker is removed.
     """
     s = re.sub(r"\s+", "", (t or "")).lower()
-    return re.sub(r"(?:seemore|…|\.{3})+$", "", s)
+    s = re.sub(r"(?:seemore)+$", "", s)
+    # Dots and ellipses are the one thing the two routes never agree on. The
+    # same post came back as "...the Atlantic.….." from the rendered page and
+    # "...the Atlantic..." from the page JSON - a mix of the ellipsis character
+    # and plain periods, in different amounts. Collapse any run of them to a
+    # single stop, then drop a trailing one, so both sides read the same.
+    s = re.sub(r"[.…]{2,}", ".", s)
+    return re.sub(r"[.…]+$", "", s)
 
 
 # Facebook's rendered page collapses long posts behind "See more", so the
