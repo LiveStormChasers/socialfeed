@@ -1,0 +1,390 @@
+{
+ "generated": "2026-08-27T00:36:38Z",
+ "count": 10,
+ "sources": [
+  {
+   "platform": "facebook",
+   "handle": "EricGravesWX",
+   "label": "Eric Graves",
+   "ok": true,
+   "route": "public html",
+   "error": "",
+   "count": 1,
+   "checked": "2026-08-27T00:35:24Z"
+  },
+  {
+   "platform": "x",
+   "handle": "graves_wx",
+   "label": "Eric Graves",
+   "ok": false,
+   "route": "",
+   "error": "syndication page: HTTPError: 429 Client Error: Too Many Requests for url: https://syndication.twitter.com/srv/timeline-profile/screen-name/graves_wx; syndication cdn: JSONDecodeError: Expecting value: line 1 column 1 (char 0)",
+   "checked": "2026-08-27T00:35:27Z"
+  },
+  {
+   "platform": "facebook",
+   "handle": "ericsnitilwx",
+   "label": "Eric Snitil",
+   "ok": true,
+   "route": "public html",
+   "error": "",
+   "count": 1,
+   "checked": "2026-08-27T00:35:27Z"
+  },
+  {
+   "platform": "facebook",
+   "handle": "DylanFedericoWx",
+   "label": "Dylan Federico",
+   "ok": true,
+   "route": "public html",
+   "error": "",
+   "count": 1,
+   "checked": "2026-08-27T00:35:28Z"
+  },
+  {
+   "platform": "facebook",
+   "handle": "MattDevittWeather",
+   "label": "Matt Devitt",
+   "ok": true,
+   "route": "public html",
+   "error": "",
+   "count": 1,
+   "checked": "2026-08-27T00:35:29Z"
+  },
+  {
+   "platform": "facebook",
+   "handle": "GregDeeWeather",
+   "label": "Greg Dee",
+   "ok": true,
+   "route": "public html",
+   "error": "",
+   "count": 1,
+   "checked": "2026-08-27T00:35:29Z"
+  },
+  {
+   "platform": "facebook",
+   "handle": "mikesweatherpage",
+   "label": "Mike's Weather Page",
+   "ok": true,
+   "route": "public html",
+   "error": "",
+   "count": 1,
+   "checked": "2026-08-27T00:35:30Z"
+  },
+  {
+   "platform": "facebook",
+   "handle": "JeffBerardelli",
+   "label": "Jeff Berardelli",
+   "ok": true,
+   "route": "public html",
+   "error": "",
+   "count": 1,
+   "checked": "2026-08-27T00:35:30Z"
+  },
+  {
+   "platform": "facebook",
+   "handle": "MikeCollierWx",
+   "label": "Mike Collier",
+   "ok": true,
+   "route": "public html",
+   "error": "",
+   "count": 1,
+   "checked": "2026-08-27T00:35:31Z"
+  },
+  {
+   "platform": "facebook",
+   "handle": "MeteorologistChristopherNunley",
+   "label": "Christopher Nunley",
+   "ok": true,
+   "route": "public html",
+   "error": "",
+   "count": 1,
+   "checked": "2026-08-27T00:35:31Z"
+  },
+  {
+   "platform": "facebook",
+   "handle": "GulfCoastUpdates",
+   "label": "Gulf Coast Updates",
+   "ok": true,
+   "route": "logged-out browser",
+   "error": "",
+   "count": 1,
+   "checked": "2026-08-27T00:35:41Z"
+  },
+  {
+   "platform": "facebook",
+   "handle": "NTXWC",
+   "label": "North Texas Weather Chasers",
+   "ok": false,
+   "route": "",
+   "error": "public html: RuntimeError: page rendered but held no post objects; logged-out browser: RuntimeError: redirected to a login page — this page is not viewable logged out",
+   "checked": "2026-08-27T00:35:49Z",
+   "embed_only": true
+  },
+  {
+   "platform": "facebook",
+   "handle": "maxvelocitywx",
+   "label": "Max Velocity",
+   "ok": false,
+   "route": "",
+   "error": "public html: RuntimeError: page rendered but held no post objects; logged-out browser: RuntimeError: redirected to a login page — this page is not viewable logged out",
+   "checked": "2026-08-27T00:35:57Z",
+   "embed_only": true
+  },
+  {
+   "platform": "facebook",
+   "handle": "ryanhallyall",
+   "label": "Ryan Hall Y'all",
+   "ok": false,
+   "route": "",
+   "error": "public html: RuntimeError: page rendered but held no post objects; logged-out browser: RuntimeError: redirected to a login page — this page is not viewable logged out",
+   "checked": "2026-08-27T00:36:05Z",
+   "embed_only": true
+  },
+  {
+   "platform": "facebook",
+   "handle": "TheWeatherChannel",
+   "label": "The Weather Channel",
+   "ok": false,
+   "route": "",
+   "error": "public html: RuntimeError: page rendered but held no post objects; logged-out browser: RuntimeError: redirected to a login page — this page is not viewable logged out",
+   "checked": "2026-08-27T00:36:13Z",
+   "embed_only": true
+  },
+  {
+   "platform": "facebook",
+   "handle": "FoxWeather",
+   "label": "Fox Weather",
+   "ok": false,
+   "route": "",
+   "error": "public html: RuntimeError: page rendered but held no post objects; logged-out browser: RuntimeError: redirected to a login page — this page is not viewable logged out",
+   "checked": "2026-08-27T00:36:21Z",
+   "embed_only": true
+  },
+  {
+   "platform": "facebook",
+   "handle": "AccuWeather",
+   "label": "AccuWeather",
+   "ok": false,
+   "route": "",
+   "error": "public html: RuntimeError: page rendered but held no post objects; logged-out browser: RuntimeError: redirected to a login page — this page is not viewable logged out",
+   "checked": "2026-08-27T00:36:29Z",
+   "embed_only": true
+  },
+  {
+   "platform": "facebook",
+   "handle": "WeatherNation",
+   "label": "WeatherNation",
+   "ok": false,
+   "route": "",
+   "error": "public html: RuntimeError: page rendered but held no post objects; logged-out browser: RuntimeError: redirected to a login page — this page is not viewable logged out",
+   "checked": "2026-08-27T00:36:38Z",
+   "embed_only": true
+  }
+ ],
+ "items": [
+  {
+   "id": "88e58ee38538479c",
+   "platform": "facebook",
+   "source": "Eric Graves",
+   "handle": "EricGravesWX",
+   "author": "EricGravesWX",
+   "url": "https://www.facebook.com/EricGravesWX/posts/1686801570118361",
+   "text": "",
+   "published": "2026-08-27T00:31:36Z",
+   "published_exact": true,
+   "images": [
+    "https://scontent-iad6-1.xx.fbcdn.net/v/t39.99422-6/786900111_1250594963848481_7860410324662964541_n.png?stp=dst-jpg_tt6&cstp=mx1080x1722&ctp=s590x590&_nc_cat=102&ccb=1-7&_nc_sid=833d8c&_nc_ohc=5cRwN5TdyZ0Q7kNvwGTLCO7&_nc_oc=AdqlzZH26In4M4Ajy0aP8pu9zbKWA73ZYG41VrqBOkYX26nOKdIwbkTAbZDqIFyAC5U&_nc_zt=14&_nc_ht=scontent-iad6-1.xx&_nc_gid=qNg4KbuApr1akoPX-7eePg&_nc_ss=70289&oh=00_AQF5_ydultfnufk7GReahdhrDLvohW3gSpfHpJ56M64KRA&oe=6A954E1C",
+    "https://scontent-iad6-1.xx.fbcdn.net/v/t39.99422-6/786900111_1250594963848481_7860410324662964541_n.png?stp=dst-jpg_tt6&cstp=mx1080x1722&ctp=s1080x1722&_nc_cat=102&ccb=1-7&_nc_sid=833d8c&_nc_ohc=5cRwN5TdyZ0Q7kNvwGTLCO7&_nc_oc=AdqlzZH26In4M4Ajy0aP8pu9zbKWA73ZYG41VrqBOkYX26nOKdIwbkTAbZDqIFyAC5U&_nc_zt=14&_nc_ht=scontent-iad6-1.xx&_nc_gid=qNg4KbuApr1akoPX-7eePg&_nc_ss=70289&oh=00_AQF5_ydultfnufk7GReahdhrDLvohW3gSpfHpJ56M64KRA&oe=6A954E1C",
+    "https://scontent-iad3-2.xx.fbcdn.net/v/t39.99422-6/784622307_1102336858916485_811003695248466898_n.png?stp=dst-jpg_tt6&cstp=mx1080x1725&ctp=s590x590&_nc_cat=111&ccb=1-7&_nc_sid=833d8c&_nc_ohc=zJNH0hHRgXYQ7kNvwG0K7a_&_nc_oc=AdqThPmuYfwcPdoPWAIUU4k6mF8sot6jIvBEF5tiELWILxG2-LCUAdzLV2MSwqp2Etw&_nc_zt=14&_nc_ht=scontent-iad3-2.xx&_nc_gid=qNg4KbuApr1akoPX-7eePg&_nc_ss=70289&oh=00_AQFTTRKlW71i5qU1Z_K3GgJ8wFaS0nchcKO0Lj_d94jE9g&oe=6A9571D9",
+    "https://scontent-iad3-2.xx.fbcdn.net/v/t39.99422-6/784622307_1102336858916485_811003695248466898_n.png?stp=dst-jpg_tt6&cstp=mx1080x1725&ctp=s1080x1725&_nc_cat=111&ccb=1-7&_nc_sid=833d8c&_nc_ohc=zJNH0hHRgXYQ7kNvwG0K7a_&_nc_oc=AdqThPmuYfwcPdoPWAIUU4k6mF8sot6jIvBEF5tiELWILxG2-LCUAdzLV2MSwqp2Etw&_nc_zt=14&_nc_ht=scontent-iad3-2.xx&_nc_gid=qNg4KbuApr1akoPX-7eePg&_nc_ss=70289&oh=00_AQFTTRKlW71i5qU1Z_K3GgJ8wFaS0nchcKO0Lj_d94jE9g&oe=6A9571D9"
+   ],
+   "has_video": false,
+   "video_url": "",
+   "repost": false,
+   "preview": "media/5bd829f5b5152f11048d.jpg",
+   "first_seen": "2026-08-27T00:36:38Z",
+   "sort_time": "2026-08-27T00:31:36Z"
+  },
+  {
+   "id": "e1e54cf90c31e81c",
+   "platform": "facebook",
+   "source": "Christopher Nunley",
+   "handle": "MeteorologistChristopherNunley",
+   "author": "MeteorologistChristopherNunley",
+   "url": "https://www.facebook.com/MeteorologistChristopherNunley/posts/1630595188430446",
+   "text": "",
+   "published": "2026-08-27T00:30:25Z",
+   "published_exact": true,
+   "images": [
+    "https://scontent-iad3-1.xx.fbcdn.net/v/t39.99422-6/785035048_1631283928780321_8176137495571962721_n.png?stp=dst-jpg_tt6&cstp=mx1290x1524&ctp=s590x590&_nc_cat=110&ccb=1-7&_nc_sid=833d8c&_nc_ohc=bvduXJhKDKEQ7kNvwHp9CaR&_nc_oc=AdpdzZbjM50C5_n0SS9SWu5iQn_9g1BoB56xJU6aw2iYqBeitPIOitb6M4t3o7w-HQg&_nc_zt=14&_nc_ht=scontent-iad3-1.xx&_nc_gid=OkyBtBdVxEbaSbqnUh_avA&_nc_ss=70289&oh=00_AQG2A85mInsosNeQsiweSyAmGlP5XH7zr9JbLPIrtboQ9g&oe=6A9552C6"
+   ],
+   "has_video": false,
+   "video_url": "",
+   "repost": false,
+   "preview": "media/ac69b130181bb7054247.jpg",
+   "first_seen": "2026-08-27T00:36:38Z",
+   "sort_time": "2026-08-27T00:30:25Z"
+  },
+  {
+   "id": "a9c7d00627e0ae8e",
+   "platform": "facebook",
+   "source": "Greg Dee",
+   "handle": "GregDeeWeather",
+   "author": "GregDeeWeather",
+   "url": "https://www.facebook.com/GregDeeWeather/posts/1590578695860644",
+   "text": "",
+   "published": "2026-08-27T00:20:21Z",
+   "published_exact": true,
+   "images": [
+    "https://scontent-iad3-1.xx.fbcdn.net/v/t39.99422-6/788047053_1065292723139358_1860404163968940671_n.png?stp=dst-jpg_tt6&cstp=mx1080x487&ctp=s1080x487&_nc_cat=104&ccb=1-7&_nc_sid=833d8c&_nc_ohc=ENuQuYfDoXYQ7kNvwG2vgp5&_nc_oc=Adpm9medCqaqgy4Mcc6ksF3yph8Wn4-A9j6-VPUnABwuD-VmVjIg6eyaX_1dcifBAmU&_nc_zt=14&_nc_ht=scontent-iad3-1.xx&_nc_gid=suiyqHWZZgsxlY0WfKs8IA&_nc_ss=70289&oh=00_AQGmyqvR063iB7-s2dMbVWYg_A-W07IofIlj4ucE-x8OYQ&oe=6A955A81"
+   ],
+   "has_video": false,
+   "video_url": "",
+   "repost": false,
+   "preview": "media/5f24a724cb7ea1423bab.jpg",
+   "first_seen": "2026-08-27T00:36:38Z",
+   "sort_time": "2026-08-27T00:20:21Z"
+  },
+  {
+   "id": "6af087de9850a625",
+   "platform": "facebook",
+   "source": "Mike Collier",
+   "handle": "MikeCollierWx",
+   "author": "MikeCollierWx",
+   "url": "https://www.facebook.com/MikeCollierWx/posts/1589915999152331",
+   "text": "",
+   "published": "2026-08-27T00:12:20Z",
+   "published_exact": true,
+   "images": [
+    "https://scontent-iad3-1.xx.fbcdn.net/v/t39.99422-6/786656896_1835810090624918_1889445479073932712_n.png?stp=dst-jpg_tt6&cstp=mx1440x1080&ctp=s720x720&_nc_cat=108&ccb=1-7&_nc_sid=833d8c&_nc_ohc=-N7l6Mj1ZcwQ7kNvwFMkZuI&_nc_oc=Adp-xU-UYPbtgZUD0X_EPwozkkpdxhZbKIAUan8g48gKiH_PxmwUfWw6VhzsV_qRQqg&_nc_zt=14&_nc_ht=scontent-iad3-1.xx&_nc_gid=hgB7qNWVSs6EJO9CKvVtEg&_nc_ss=70289&oh=00_AQGUZ8GSKwDMuySNWKWS8NmAXy58LoNhlCj9GPiaSojX_Q&oe=6A954834"
+   ],
+   "has_video": false,
+   "video_url": "",
+   "repost": false,
+   "preview": "media/b7b3a6f905803f1720b5.jpg",
+   "first_seen": "2026-08-27T00:36:38Z",
+   "sort_time": "2026-08-27T00:12:20Z"
+  },
+  {
+   "id": "d9fbba71c884f434",
+   "platform": "facebook",
+   "source": "Eric Snitil",
+   "handle": "ericsnitilwx",
+   "author": "ericsnitilwx",
+   "url": "https://www.facebook.com/ericsnitilwx/posts/1599956051496787",
+   "text": "",
+   "published": "2026-08-27T00:02:33Z",
+   "published_exact": true,
+   "images": [
+    "https://scontent-iad6-1.xx.fbcdn.net/v/t39.99422-6/787197018_1088578613708140_8251387866483842413_n.png?stp=dst-jpg_tt6&cstp=mx1440x1080&ctp=s720x720&_nc_cat=100&ccb=1-7&_nc_sid=833d8c&_nc_ohc=lsxr_RNBmywQ7kNvwGhwbRu&_nc_oc=Ado82l03OGTjuNBKvZZydYBJjoW_yvGOSVDgzqujfC6tFnU_P-daF7W8GNdKybtfGqM&_nc_zt=14&_nc_ht=scontent-iad6-1.xx&_nc_gid=fItz4MwImepWPwm7x9fRJg&_nc_ss=70289&oh=00_AQFEX9paSXqcC716ppjuGVlq_ZvTHRIby36Qcf7LkTWLJg&oe=6A955930"
+   ],
+   "has_video": false,
+   "video_url": "",
+   "repost": false,
+   "preview": "media/64e8789ea0e13fda21f6.jpg",
+   "first_seen": "2026-08-27T00:36:38Z",
+   "sort_time": "2026-08-27T00:02:33Z"
+  },
+  {
+   "id": "4d01ebe70e605e1c",
+   "platform": "facebook",
+   "source": "Mike's Weather Page",
+   "handle": "mikesweatherpage",
+   "author": "mikesweatherpage",
+   "url": "https://www.facebook.com/mikesweatherpage/posts/1614491910034140",
+   "text": "",
+   "published": "2026-08-27T00:02:20Z",
+   "published_exact": true,
+   "images": [
+    "https://scontent-iad3-2.xx.fbcdn.net/v/t39.30808-6/788047070_1614491883367476_2720793312803674842_n.jpg?stp=dst-jpegr_tt6&cstp=mx2048x1536&ctp=s720x720&_nc_cat=103&ccb=1-7&_nc_sid=833d8c&_nc_ohc=gOgFegQH8CIQ7kNvwEMfalR&_nc_oc=AdoNfe2imIhvfeM9_7pHAs5Q9gJtrmEGhED3ScTajp3CzWXsULIwyvdSdJrfIp7tvHQ&_nc_zt=23&se=-1&_nc_ht=scontent-iad3-2.xx&_nc_gid=jnYc3o4J9sE9nTBiLItTog&_nc_ss=70289&oh=00_AQH_O2qaD7tMrGKl2-4OrhNUcRkm6ScdrsqP1r3n8CBOSw&oe=6A956554"
+   ],
+   "has_video": false,
+   "video_url": "",
+   "repost": false,
+   "preview": "media/4965cc4284c237d8c036.jpg",
+   "first_seen": "2026-08-27T00:36:38Z",
+   "sort_time": "2026-08-27T00:02:20Z"
+  },
+  {
+   "id": "7035bb1d665afbc8",
+   "platform": "facebook",
+   "source": "Matt Devitt",
+   "handle": "MattDevittWeather",
+   "author": "MattDevittWeather",
+   "url": "https://www.facebook.com/MattDevittWeather/posts/1635543794600943",
+   "text": "",
+   "published": "2026-08-26T23:02:42Z",
+   "published_exact": true,
+   "images": [
+    "https://scontent-iad6-1.xx.fbcdn.net/v/t39.99422-6/778985542_2061402444461962_2641925055900043123_n.png?stp=dst-jpg_tt6&cstp=mx1320x1749&ctp=p526x296&_nc_cat=109&ccb=1-7&_nc_sid=833d8c&_nc_ohc=lJkp8CU4hqsQ7kNvwGLgnsk&_nc_oc=AdrXJTA1N-47Z194AdVLIvXH_r6n546D5WQnGqKB-95dWJm1vjsX5ZIfOrgOUlSVMOo&_nc_zt=14&_nc_ht=scontent-iad6-1.xx&_nc_gid=tItgNatAd9Tb9OxL-C-zPA&_nc_ss=70289&oh=00_AQGBKJuKi81Nm9f6ILDi0AcCbKO46IMoW9cQmQPSUB4hBg&oe=6A956543"
+   ],
+   "has_video": false,
+   "video_url": "",
+   "repost": false,
+   "preview": "media/8bb6aa048e89cd8fa2a2.jpg",
+   "first_seen": "2026-08-27T00:36:38Z",
+   "sort_time": "2026-08-26T23:02:42Z"
+  },
+  {
+   "id": "3dc1b282f0fd9933",
+   "platform": "facebook",
+   "source": "Jeff Berardelli",
+   "handle": "JeffBerardelli",
+   "author": "JeffBerardelli",
+   "url": "https://www.facebook.com/JeffBerardelli/posts/1607553830941449",
+   "text": "",
+   "published": "2026-08-26T22:50:59Z",
+   "published_exact": true,
+   "images": [
+    "https://scontent-iad3-2.xx.fbcdn.net/v/t39.99422-6/778985438_2246956359463001_8650325869874212453_n.png?stp=dst-jpg_tt6&cstp=mx1480x1080&ctp=s720x720&_nc_cat=105&ccb=1-7&_nc_sid=833d8c&_nc_ohc=26AgOC4I0XYQ7kNvwHShFS_&_nc_oc=Adr0o-TZtlgamlpDDzf4BZVzD3aB-afeTJBgS3PTsnNMxKWBQ9jgc2fAMY0O4-sfCOg&_nc_zt=14&_nc_ht=scontent-iad3-2.xx&_nc_gid=aL01ayougy_7qOiFP3440w&_nc_ss=70289&oh=00_AQGrC6h3b20DX_siiKDqYu0gmwpqaWH38Sks3FqGif2nmA&oe=6A9565F7"
+   ],
+   "has_video": false,
+   "video_url": "",
+   "repost": false,
+   "preview": "media/6b1b57d510152930cb04.jpg",
+   "first_seen": "2026-08-27T00:36:38Z",
+   "sort_time": "2026-08-26T22:50:59Z"
+  },
+  {
+   "id": "55e15d98df06d7e8",
+   "platform": "facebook",
+   "source": "Dylan Federico",
+   "handle": "DylanFedericoWx",
+   "author": "DylanFedericoWx",
+   "url": "https://www.facebook.com/DylanFedericoWx/posts/1741036567589712",
+   "text": "",
+   "published": "2026-08-26T22:46:25Z",
+   "published_exact": true,
+   "images": [
+    "https://scontent-iad3-1.xx.fbcdn.net/v/t39.99422-6/778985476_1083779274580072_8170847923903371568_n.png?stp=dst-jpg_tt6&cstp=mx1080x1200&ctp=s565x565&_nc_cat=110&ccb=1-7&_nc_sid=833d8c&_nc_ohc=3hVHnf35ev4Q7kNvwEUt6rr&_nc_oc=Adqo6olf8G6Ej6NY9GZrDW15WyfhU-7P7XbEpmre9uCnMCJYKS0d5cq3AsoPxPglRIo&_nc_zt=14&_nc_ht=scontent-iad3-1.xx&_nc_gid=Rrk2PJoqSPgr7OY9rVtTQA&_nc_ss=70289&oh=00_AQG9CgzJEvQ6sEtEKpCFu-9ye3i2_87NLjf2sFUtA-FbQQ&oe=6A954183"
+   ],
+   "has_video": false,
+   "video_url": "",
+   "repost": false,
+   "preview": "media/4d7ee7e34678e8f49514.jpg",
+   "first_seen": "2026-08-27T00:36:38Z",
+   "sort_time": "2026-08-26T22:46:25Z"
+  },
+  {
+   "id": "87120b9bf37b7531",
+   "platform": "facebook",
+   "source": "Gulf Coast Updates",
+   "handle": "GulfCoastUpdates",
+   "author": "GulfCoastUpdates",
+   "url": "https://www.facebook.com/GulfCoastUpdates/posts/pfbid0psWZrX7pRVn4jPt7CxYNZ1PKcrxaTJDUK8LkxNtoGTTPHBxYj1FmXMHtcgay5tLQl",
+   "text": "The latest HRRR modeling still shows a nasty constipation moving through early tomorrow morning. …",
+   "published": "2026-08-26T22:35:41Z",
+   "published_exact": false,
+   "images": [
+    "https://scontent-iad6-1.xx.fbcdn.net/v/t39.99422-6/785837019_1064392486482781_6039408336667739200_n.png?stp=dst-jpg_tt6&cstp=mx1158x1135&ctp=p526x296&_nc_cat=1&ccb=1-7&_nc_sid=833d8c&_nc_ohc=Jxcs76bFiTIQ7kNvwEwUubI&_nc_oc=AdreDKZp2QC7mzwU8PoOjKDPlCalsuORfr7-LW5OQnZewBxl3t3zrkH9I4Q2uIaFyBg&_nc_zt=14&_nc_ht=scontent-iad6-1.xx&_nc_gid=WxsTpB5T8kCciCjjrnZIQA&_nc_ss=79289&oh=00_AQGEKsz0SxDSa8s95B774ET5QV3aEPjPkPlAhuDvuhk5Yw&oe=6A9557ED"
+   ],
+   "has_video": false,
+   "video_url": "",
+   "repost": false,
+   "preview": "media/c4c501f4d18345b81fa8.jpg",
+   "first_seen": "2026-08-27T00:36:38Z",
+   "sort_time": "2026-08-26T22:35:41Z"
+  }
+ ]
+}
