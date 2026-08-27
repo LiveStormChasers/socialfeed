@@ -138,6 +138,45 @@
   @media (max-width:1080px){ #feed{grid-template-columns:repeat(2,minmax(0,1fr))} }
   @media (max-width:700px){ #feed{grid-template-columns:minmax(0,1fr)} .wrap{padding:0 14px 72px} }
 
+  /* toolbar buttons: sound toggle + account picker */
+  .tool{
+    display:inline-flex;align-items:center;gap:6px;cursor:pointer;
+    background:var(--surface-2);border:1px solid var(--line);color:var(--muted);
+    border-radius:999px;padding:7px 12px;white-space:nowrap;
+    font:600 12.5px/1 "Plus Jakarta Sans",sans-serif;
+  }
+  .tool:hover{color:var(--text);border-color:var(--line-hi,var(--line))}
+  .tool svg{width:15px;height:15px;flex:none}
+  .tool .badge{
+    font:700 10px/1 "JetBrains Mono",monospace;letter-spacing:.04em;
+    background:var(--surface);border-radius:999px;padding:3px 5px;color:var(--faint);
+  }
+  #soundbtn .wave{opacity:0}
+  #soundbtn.on{color:var(--accent);border-color:color-mix(in srgb,var(--accent) 45%,transparent)}
+  #soundbtn.on .wave{opacity:1}
+  #soundbtn.on .slash{opacity:0}
+
+  .acct-wrap{position:relative}
+  .acct-menu{
+    position:absolute;top:calc(100% + 8px);right:0;z-index:60;width:250px;
+    background:var(--surface);border:1px solid var(--line);border-radius:12px;
+    box-shadow:var(--shadow-hi);padding:8px;
+  }
+  .acct-actions{display:flex;gap:6px;padding:2px 4px 8px;border-bottom:1px solid var(--line)}
+  .acct-actions button{
+    flex:1;cursor:pointer;background:var(--surface-2);border:1px solid var(--line);
+    color:var(--muted);border-radius:8px;padding:6px;
+    font:600 11.5px/1 "Plus Jakarta Sans",sans-serif;
+  }
+  .acct-actions button:hover{color:var(--text)}
+  .acct-list{max-height:min(52vh,380px);overflow:auto;margin-top:6px}
+  .acct{display:flex;align-items:center;gap:9px;padding:7px 6px;border-radius:8px;
+    cursor:pointer;font-size:13px}
+  .acct:hover{background:var(--surface-2)}
+  .acct input{accent-color:var(--accent);width:15px;height:15px;flex:none}
+  .acct-empty{padding:14px 8px;color:var(--muted);font-size:12.5px}
+  @media (max-width:700px){ .acct-menu{position:fixed;left:14px;right:14px;width:auto} }
+
   /* column picker */
   .cols{display:flex;align-items:center;gap:6px}
   .cols .lbl{font:500 10px/1 "JetBrains Mono",monospace;color:var(--faint);
@@ -291,6 +330,31 @@
       <button data-f="media" aria-pressed="false">Media</button>
     </div>
 
+    <div class="acct-wrap">
+      <button class="tool" id="acctbtn" aria-expanded="false" title="Choose which accounts appear">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M4 6h16M7 12h10M10 18h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        Accounts <span class="badge" id="acctcount">All</span>
+      </button>
+      <div class="acct-menu" id="acctmenu" hidden>
+        <div class="acct-actions">
+          <button type="button" data-all="1">Select all</button>
+          <button type="button" data-all="0">Clear all</button>
+        </div>
+        <div class="acct-list" id="acctlist"></div>
+      </div>
+    </div>
+
+    <button class="tool" id="soundbtn" aria-pressed="false" title="Alert sound off">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M4 9v6h4l5 4V5L8 9H4z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+        <path class="wave" d="M16.5 8.5a5 5 0 010 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <path class="slash" d="M3 3l18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      Alert
+    </button>
+
     <div class="cols" id="cols">
       <span class="lbl">cols</span>
       <div class="seg" id="colseg">
@@ -398,6 +462,80 @@ function embedCard(s){
   return el;
 }
 
+/* ---- audio alert ------------------------------------------------------- */
+/* Browsers refuse to play audio a person did not ask for, and the refusal is
+   silent. So the toggle click - a real user gesture - is used to "unlock" the
+   element by playing and immediately pausing it. After that, a later play()
+   is allowed, including while this tab is in the background. */
+const SOUND_KEY='lsc.sound';
+let soundOn=false, audioReady=false;
+const alertSound=new Audio('alert.mp3');
+alertSound.preload='auto';
+
+function unlockAudio(){
+  if(audioReady) return Promise.resolve(true);
+  alertSound.muted=true;
+  return alertSound.play().then(()=>{
+    alertSound.pause(); alertSound.currentTime=0; alertSound.muted=false;
+    audioReady=true; return true;
+  }).catch(()=>{ alertSound.muted=false; return false; });
+}
+
+function chime(n){
+  if(!soundOn) return;
+  try{
+    alertSound.currentTime=0;
+    const p=alertSound.play();
+    if(p&&p.catch) p.catch(()=>{});   // a blocked play must never break the refresh
+  }catch(_){}
+  // The tab title is the alert you can see when the sound is muted by the OS.
+  flashTitle(n);
+}
+
+let titleTimer=null;
+const BASE_TITLE=document.title;
+function flashTitle(n){
+  clearTimeout(titleTimer);
+  document.title=`(${n}) new · ${BASE_TITLE}`;
+  titleTimer=setTimeout(()=>{document.title=BASE_TITLE;},60000);
+}
+addEventListener('focus',()=>{clearTimeout(titleTimer);document.title=BASE_TITLE;});
+
+function setSound(on,save){
+  soundOn=!!on;
+  const b=document.getElementById('soundbtn');
+  if(b){ b.setAttribute('aria-pressed',String(soundOn)); b.classList.toggle('on',soundOn);
+         b.title=soundOn?'Alert sound on':'Alert sound off'; }
+  if(save){ try{ localStorage.setItem(SOUND_KEY,soundOn?'1':'0'); }catch(_){} }
+}
+
+/* ---- per-account filter ------------------------------------------------ */
+const MUTED_KEY='lsc.muted';
+let muted=new Set();
+
+function saveMuted(){
+  try{ localStorage.setItem(MUTED_KEY,JSON.stringify([...muted])); }catch(_){}
+}
+
+function knownAccounts(){
+  const m=new Map();
+  for(const p of ITEMS) if(p.handle) m.set(p.handle.toLowerCase(),p.source||p.handle);
+  for(const s of SOURCES) if(s.handle) m.set(s.handle.toLowerCase(),s.label||s.handle);
+  return [...m.entries()].sort((a,b)=>a[1].localeCompare(b[1]));
+}
+
+function renderAccounts(){
+  const box=document.getElementById('acctlist'); if(!box) return;
+  const rows=knownAccounts();
+  box.innerHTML=rows.map(([h,label])=>
+    `<label class="acct"><input type="checkbox" data-h="${esc(h)}"${muted.has(h)?'':' checked'}>
+       <span>${esc(label)}</span></label>`).join('')
+    || '<div class="acct-empty">No accounts yet.</div>';
+  const on=rows.length-rows.filter(([h])=>muted.has(h)).length;
+  const c=document.getElementById('acctcount');
+  if(c) c.textContent=on===rows.length?'All':`${on}/${rows.length}`;
+}
+
 /* ---- post body: a preview, with the rest behind "Read more" ------------ */
 const WORD_LIMIT=25;
 const expanded=new Set();     // post ids the reader has opened
@@ -478,6 +616,7 @@ function layout(){
 let rt; addEventListener('resize',()=>{clearTimeout(rt); rt=setTimeout(layout,120)});
 
 function passes(p,q){
+  if(muted.has((p.handle||'').toLowerCase())) return false;
   if(filter==='x'&&p.platform!=='x') return false;
   if(filter==='facebook'&&p.platform!=='facebook') return false;
   if(filter==='media'&&!p.preview&&!p.has_video) return false;
@@ -549,11 +688,17 @@ function load(first){
       const items=(data.items||[]).sort((a,b)=>
         (b.sort_time||b.published||'').localeCompare(a.sort_time||a.published||''));
       SOURCES=data.sources||[];
+      renderAccounts();     // keep the picker and its count in step with the feed
       if(first||!knownIds.size){
         ITEMS=items; knownIds=new Set(items.map(i=>i.id));
         applyStamp(data); renderHealth(); render();
       } else {
         const fresh=items.filter(i=>!knownIds.has(i.id));
+        // Only posts from accounts you are actually watching should make a
+        // noise, and never on the first load - otherwise opening the page
+        // would fire the alert for the entire backlog.
+        const audible=fresh.filter(i=>!muted.has((i.handle||'').toLowerCase()));
+        if(audible.length) chime(audible.length);
         if(fresh.length && window.scrollY>400){
           pending={items,data};
           pillEl.textContent=`${fresh.length} new post${fresh.length===1?'':'s'}`;
@@ -605,6 +750,60 @@ document.getElementById('colseg').addEventListener('click',e=>{
 let savedCols=null;
 try{ savedCols=localStorage.getItem(COLS_KEY); }catch(_){}
 setCols(savedCols||3,false);
+
+/* ---- sound toggle ------------------------------------------------------ */
+document.getElementById('soundbtn').addEventListener('click',async()=>{
+  const turningOn=!soundOn;
+  if(turningOn){
+    // This click is the user gesture browsers require. Unlock now, while we
+    // still have it - a play() attempted later, on its own, would be refused.
+    const ok=await unlockAudio();
+    if(!ok){
+      setSound(false,true);
+      const b=document.getElementById('soundbtn');
+      b.title='Your browser blocked audio here — click again after interacting with the page';
+      return;
+    }
+  }
+  setSound(turningOn,true);
+  if(turningOn){ try{ alertSound.currentTime=0; alertSound.play().catch(()=>{}); }catch(_){} }
+});
+
+try{ setSound(localStorage.getItem(SOUND_KEY)==='1',false); }catch(_){ setSound(false,false); }
+// A saved "on" still needs a gesture before it can make noise, so unlock on
+// the first interaction of the session, whatever it is.
+addEventListener('pointerdown',function once(){ if(soundOn) unlockAudio(); removeEventListener('pointerdown',once); });
+
+/* ---- account picker ---------------------------------------------------- */
+const acctBtn=document.getElementById('acctbtn'), acctMenu=document.getElementById('acctmenu');
+acctBtn.addEventListener('click',e=>{
+  e.stopPropagation();
+  const open=acctMenu.hidden;
+  acctMenu.hidden=!open; acctBtn.setAttribute('aria-expanded',String(open));
+  if(open) renderAccounts();
+});
+acctMenu.addEventListener('click',e=>{
+  e.stopPropagation();
+  const all=e.target.closest('[data-all]');
+  if(all){
+    if(all.dataset.all==='1') muted.clear();
+    else knownAccounts().forEach(([h])=>muted.add(h));
+    saveMuted(); renderAccounts(); render(); return;
+  }
+  const cb=e.target.closest('input[type=checkbox]');
+  if(cb){
+    const h=cb.dataset.h;
+    if(cb.checked) muted.delete(h); else muted.add(h);
+    saveMuted(); renderAccounts(); render();
+  }
+});
+addEventListener('click',()=>{ if(!acctMenu.hidden){ acctMenu.hidden=true; acctBtn.setAttribute('aria-expanded','false'); } });
+addEventListener('keydown',e=>{ if(e.key==='Escape'&&!acctMenu.hidden){ acctMenu.hidden=true; acctBtn.setAttribute('aria-expanded','false'); } });
+
+try{
+  const raw=localStorage.getItem(MUTED_KEY);
+  if(raw) muted=new Set(JSON.parse(raw));
+}catch(_){ muted=new Set(); }
 
 qEl.addEventListener('input',render);
 addEventListener('keydown',e=>{
