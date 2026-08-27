@@ -570,7 +570,7 @@ def fetch_fb_public_html(handle, label, limit, session):
             for payload in script_payloads(r.text):
                 harvest_fb_posts(payload, found)
             if not found:
-                last = "page rendered but held no post objects"
+                last = f"page rendered but held no post objects ({len(r.content)} bytes)"
                 continue
 
             posts = [normalise_fb_post(k, v, handle, label) for k, v in found.items()]
@@ -868,6 +868,16 @@ def collect_facebook(handle, label, limit, cfg, session, secrets, budget=None):
     budget = budget if budget is not None else {"browser": 99, "walls": 0, "eligible": None}
     posts, seen, notes = [], set(), []
 
+    # Once Facebook is serving throttle shells, every further request this run
+    # gets one too. Asking anyway does not just waste time - it digs the hole
+    # deeper for the next run. Report the remaining sources as skipped and go.
+    if budget.get("throttled"):
+        note = "throttled earlier this run - not asking again"
+        log(f"  facebook/{handle}: skipped ({note})")
+        return [], {"platform": "facebook", "handle": handle, "label": label,
+                    "ok": False, "route": "", "error": note,
+                    "checked": iso(now_utc())}
+
     def absorb(name, fn):
         try:
             got = fn() or []
@@ -886,8 +896,29 @@ def collect_facebook(handle, label, limit, cfg, session, secrets, budget=None):
 
     absorb("public html", lambda: fetch_fb_public_html(handle, label, limit, session))
 
+    # Throttle detection. Over its budget, Facebook stops refusing and starts
+    # answering HTTP 200 with a shell that carries no post data - measured at
+    # ~430KB against ~950KB-1MB for a real page, identical to the byte for
+    # every page asked for after the cutoff. One page returning nothing is
+    # that page's business; three different pages in a row returning nothing
+    # is the IP being throttled, and every further request this run digs the
+    # hole deeper. Consecutive-across-sources is the signal, not size, so a
+    # page that genuinely has no public posts cannot trip it alone.
+    if posts:
+        budget["starved"] = 0
+    elif any("held no post objects" in n for n in notes):
+        budget["starved"] = budget.get("starved", 0) + 1
+        if budget["starved"] >= 3:
+            budget["throttled"] = True
+            log("  ! three pages in a row came back stripped - Facebook is "
+                "throttling this runner; stopping Facebook for this run")
+
     eligible = budget.get("eligible")
+    # The browser route goes to the same IP, and in the run that exposed this
+    # it hit a login wall at the same moment the fetches started coming back
+    # stripped. Spending it here would only confirm the throttle.
     may_browse = (budget["browser"] > 0
+                  and not budget.get("throttled")
                   and (eligible is None or handle in eligible))
 
     if len(posts) < limit and may_browse:
@@ -1181,7 +1212,8 @@ def run(args):
     if eligible:
         log(f"Deep pass this run: {', '.join(sorted(eligible))}")
 
-    budget = {"browser": per_run, "walls": 0, "eligible": eligible or None}
+    budget = {"browser": per_run, "walls": 0, "eligible": eligible or None,
+              "throttled": False, "starved": 0}
 
     for n, src in enumerate(sources):
         try:
@@ -1194,8 +1226,11 @@ def run(args):
         fresh.extend(posts)
         status.append(st)
         # Space the requests out. Back-to-back hits are what trip the blocking.
+        # No point pacing ourselves between sources we are about to skip.
         if n < len(sources) - 1:
-            time.sleep(random.uniform(3.0, 7.0))
+            nxt = sources[n + 1].get("platform", "").lower()
+            if not (budget.get("throttled") and nxt == "facebook"):
+                time.sleep(random.uniform(3.0, 7.0))
 
     if fresh:
         download_previews(fresh, session, cfg)
