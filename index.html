@@ -130,10 +130,39 @@
   .err{color:var(--muted);word-break:break-word;font-family:"JetBrains Mono",monospace;font-size:11.5px}
 
   /* ---------------- feed grid ---------------- */
-  #feed{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));column-gap:18px;grid-auto-rows:8px;align-items:start}
+  /* Column count is the reader's choice on a wide screen; below 1080px the
+     breakpoints take over, because five columns on a laptop is unreadable. */
+  #feed{display:grid;grid-template-columns:repeat(var(--user-cols,3),minmax(0,1fr));
+    column-gap:18px;grid-auto-rows:8px;align-items:start}
   #feed > *{margin-bottom:18px}
   @media (max-width:1080px){ #feed{grid-template-columns:repeat(2,minmax(0,1fr))} }
   @media (max-width:700px){ #feed{grid-template-columns:minmax(0,1fr)} .wrap{padding:0 14px 72px} }
+
+  /* column picker */
+  .cols{display:flex;align-items:center;gap:6px}
+  .cols .lbl{font:500 10px/1 "JetBrains Mono",monospace;color:var(--faint);
+    text-transform:uppercase;letter-spacing:.12em}
+  @media (max-width:1080px){ .cols{display:none} }   /* nothing to choose down here */
+
+  /* a source that is configured but not collecting yet */
+  .seg button.soon{position:relative;opacity:.72}
+  .seg button.soon::after{
+    content:"soon";margin-left:6px;font:700 8.5px/1 "JetBrains Mono",monospace;
+    letter-spacing:.1em;text-transform:uppercase;color:var(--warn);
+    border:1px solid color-mix(in srgb,var(--warn) 45%,transparent);
+    border-radius:999px;padding:2.5px 4.5px;vertical-align:middle;
+  }
+  .soon-panel{
+    grid-column:1/-1;text-align:center;padding:64px 24px;
+    border:1px dashed var(--line);border-radius:var(--r);
+  }
+  .soon-panel h3{font:700 17px/1.3 "Plus Jakarta Sans",sans-serif;margin:0 0 8px}
+  .soon-panel p{color:var(--muted);font-size:13.5px;margin:0;line-height:1.6}
+  .soon-panel .glyph{
+    width:44px;height:44px;margin:0 auto 16px;border-radius:12px;
+    display:grid;place-items:center;background:var(--surface-2);
+    border:1px solid var(--line);font:700 20px/1 "Plus Jakarta Sans",sans-serif;
+  }
   #feed > .day, #feed > .embed, #feed > .empty{grid-column:1/-1}
 
   .day{
@@ -256,8 +285,17 @@
     <div class="seg" id="chips">
       <button data-f="all" aria-pressed="true">All</button>
       <button data-f="facebook" aria-pressed="false">Facebook</button>
-      <button data-f="x" aria-pressed="false">X</button>
+      <button data-f="x" aria-pressed="false" class="soon">X</button>
       <button data-f="media" aria-pressed="false">Media</button>
+    </div>
+
+    <div class="cols" id="cols">
+      <span class="lbl">cols</span>
+      <div class="seg" id="colseg">
+        <button data-c="3" aria-pressed="true">3</button>
+        <button data-c="4" aria-pressed="false">4</button>
+        <button data-c="5" aria-pressed="false">5</button>
+      </div>
     </div>
 
     <label class="search">
@@ -424,7 +462,16 @@ function render(){
   const q=qEl.value.trim().toLowerCase();
   const list=ITEMS.filter(p=>passes(p,q));
   feedEl.innerHTML='';
-  if(!list.length){
+  if(!list.length && filter==='x' && !q){
+    // X is configured but parked: its syndication endpoint refuses the
+    // collector. Say so plainly rather than showing an empty feed that looks
+    // like a fault.
+    const n=document.createElement('div'); n.className='soon-panel';
+    n.innerHTML=`<div class="glyph">𝕏</div>
+      <h3>Coming soon</h3>
+      <p>X posts aren't being collected yet.<br>Facebook sources are live and updating every 10 minutes.</p>`;
+    feedEl.appendChild(n);
+  } else if(!list.length){
     const n=document.createElement('div'); n.className='empty';
     n.innerHTML=ITEMS.length?'Nothing matches that.':'No posts yet. The collector runs every few minutes — check back shortly.';
     feedEl.appendChild(n);
@@ -509,6 +556,29 @@ document.getElementById('chips').addEventListener('click',e=>{
   document.querySelectorAll('#chips button').forEach(c=>c.setAttribute('aria-pressed',String(c===b)));
   render();
 });
+/* ---- column count ---------------------------------------------------- */
+/* Remembered per browser. Storage can throw (private windows, blocked site
+   data), so every touch of it is guarded and the page works without it. */
+const COLS_KEY='lsc.cols';
+
+function setCols(n,save){
+  n=Math.min(5,Math.max(3,parseInt(n,10)||3));
+  document.documentElement.style.setProperty('--user-cols',n);
+  document.querySelectorAll('#colseg button').forEach(b=>
+    b.setAttribute('aria-pressed',String(+b.dataset.c===n)));
+  if(save){ try{ localStorage.setItem(COLS_KEY,n); }catch(_){} }
+  layout();   // masonry spans are measured per column width, so re-measure
+}
+
+document.getElementById('colseg').addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b) return;
+  setCols(b.dataset.c,true);
+});
+
+let savedCols=null;
+try{ savedCols=localStorage.getItem(COLS_KEY); }catch(_){}
+setCols(savedCols||3,false);
+
 qEl.addEventListener('input',render);
 addEventListener('keydown',e=>{
   if(e.key==='/'&&document.activeElement!==qEl){ e.preventDefault(); qEl.focus(); }

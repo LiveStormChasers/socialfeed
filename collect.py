@@ -1093,7 +1093,101 @@ def collapse_twins(items):
         if not winner.get("preview") and loser.get("preview"):
             winner["preview"] = loser["preview"]
         best[key] = winner
-    return list(best.values()) + passthrough
+    return collapse_prefixes(list(best.values()) + passthrough)
+
+
+def dedup_text(t):
+    """Text reduced to what both routes agree on.
+
+    Whitespace and case go, and so does the trailing ellipsis Facebook adds
+    when it collapses a long body behind "See more". That ellipsis is the
+    whole reason the prefix test used to fail: the truncated copy ends
+    "...main structure.…" while the full post continues "...main structure.
+    The fire is now...", so the short one is not literally a prefix of the
+    long one until the marker is removed.
+    """
+    s = re.sub(r"\s+", "", (t or "")).lower()
+    return re.sub(r"(?:seemore|…|\.{3})+$", "", s)
+
+
+# Facebook's rendered page collapses long posts behind "See more", so the
+# browser route sees a truncated body; the JSON route sees the whole thing.
+# Below this length a "prefix" is too weak to prove anything - two posts can
+# easily open with the same forty characters.
+PREFIX_MIN = 60
+
+
+def collapse_prefixes(items):
+    """Merge a truncated copy of a post into the full one.
+
+    The two Facebook routes disagree about the same post in two ways at once:
+    the browser sees "TOMORROW NIGHT'S LUNAR ECLIPSE will ... could make f..."
+    with a relative "3h" timestamp, while the page JSON has the full body and
+    a real creation time. On top of that Facebook mints a fresh pfbid
+    permalink on every view, so neither the URL nor the text nor the timestamp
+    matches, and the same post entered the feed again on every run.
+
+    What does hold is that the short version is a prefix of the long one. So:
+    same account, one body a prefix of the other, and no more than a day
+    apart - one post. Keep the richer record and the earlier first_seen.
+    """
+    by_account = {}
+    for p in items:
+        by_account.setdefault((p.get("platform"), (p.get("handle") or "").lower()),
+                              []).append(p)
+
+    out = []
+    for group in by_account.values():
+        # Longest body first, so a full post absorbs its truncated twins
+        # rather than several truncations each claiming to be separate.
+        group.sort(key=lambda p: len(dedup_text(p.get("text"))), reverse=True)
+        kept = []
+        for p in group:
+            body = dedup_text(p.get("text"))
+            match = None
+            if len(body) >= PREFIX_MIN:
+                for k in kept:
+                    kbody = dedup_text(k.get("text"))
+                    if kbody.startswith(body) or body.startswith(kbody):
+                        if within_a_day(p, k):
+                            match = k
+                            break
+            if match is None:
+                kept.append(p)
+                continue
+            winner, loser = ((p, match) if richness(p) > richness(match)
+                             else (match, p))
+            seen = [x.get("first_seen") for x in (winner, loser) if x.get("first_seen")]
+            if seen:
+                winner["first_seen"] = min(seen)
+            if not winner.get("preview") and loser.get("preview"):
+                winner["preview"] = loser["preview"]
+            if not winner.get("images") and loser.get("images"):
+                winner["images"] = loser["images"]
+            kept[kept.index(match)] = winner
+        out.extend(kept)
+    return out
+
+
+def within_a_day(a, b):
+    """True when two records are close enough in time to be the same post.
+
+    Relative timestamps ("3h") are parsed at whatever moment the run happened,
+    so two sightings of one post can land an hour or more apart. A day is
+    generous enough to cover that drift and still refuse to merge a genuine
+    repost of the same wording on another day.
+    """
+    def when(p):
+        raw = p.get("published") or ""
+        try:
+            return datetime.fromisoformat(raw.replace("Z", "+00:00"))
+        except (TypeError, ValueError):
+            return None
+
+    ta, tb = when(a), when(b)
+    if not ta or not tb:
+        return True          # undated records fall back to the text match
+    return abs((ta - tb).total_seconds()) <= 86400
 
 
 def merge(existing, fresh, cfg):
