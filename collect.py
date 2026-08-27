@@ -1164,9 +1164,80 @@ def rotate_sources(sources, cursor, step):
     return sources[start:] + sources[:start], (start + step) % len(sources)
 
 
+def shard_sources(sources, shard, shards):
+    """Deal the sources out across parallel jobs, round-robin.
+
+    The throttle is per source IP, and every GitHub-hosted job is a fresh VM.
+    Splitting nineteen sources across five jobs means each one asks Facebook
+    for about four pages instead of nineteen - under the threshold that was
+    costing us most of the list. Round-robin rather than contiguous blocks so
+    that when the run order rotates, neighbours do not all move together.
+    """
+    if shards <= 1:
+        return sources
+    return [s for i, s in enumerate(sources) if i % shards == shard % shards]
+
+
+def merge_parts(args):
+    """Second phase: fold every shard's partial result into feed.json."""
+    cfg = load_json(CONFIG_PATH, None)
+    if cfg is None:
+        log(f"{CONFIG_PATH.name} is missing.")
+        return 1
+
+    parts = sorted(Path(args.merge).glob("**/*.json"))
+    if not parts:
+        log(f"No shard results found under {args.merge}.")
+        return 1
+
+    fresh, status, cursor = [], [], 0
+    for path in parts:
+        part = load_json(path, None)
+        if not isinstance(part, dict):
+            log(f"  ! {path.name} is unreadable - skipping it")
+            continue
+        fresh.extend(part.get("fresh", []))
+        status.extend(part.get("status", []))
+        cursor = part.get("next_cursor", cursor) or cursor
+        log(f"  {path.name}: {len(part.get('fresh', []))} post(s), "
+            f"{sum(1 for s in part.get('status', []) if s.get('ok'))} source(s) ok")
+
+    # Previews are downloaded here, once, rather than in every shard: the
+    # images come from fbcdn, which has not been the thing refusing us, and
+    # doing it in one place keeps the media folder consistent.
+    session = requests.Session()
+    if fresh:
+        download_previews(fresh, session, cfg)
+
+    previous = load_json(FEED_PATH, {}) or {}
+    existing = previous.get("items", []) if isinstance(previous, dict) else []
+    items, added = merge(existing, fresh, cfg)
+    removed = prune_media(items)
+
+    status.sort(key=lambda s: (s.get("platform", ""), s.get("handle", "")))
+    ok_count = sum(1 for s in status if s.get("ok"))
+    save_json(FEED_PATH, {
+        "generated": iso(now_utc()),
+        "count": len(items),
+        "order_cursor": cursor,
+        "sources": status,
+        "items": items,
+    })
+    log(f"Merged {len(parts)} shard(s). {len(fresh)} scraped, {added} new, "
+        f"{len(items)} in feed, {ok_count}/{len(status)} sources ok"
+        f"{f', {removed} stale preview(s) removed' if removed else ''}.")
+    if ok_count == 0 and not items:
+        log("No source succeeded and there is nothing cached — check the errors above.")
+        return 1
+    return 0
+
+
 def run(args):
     global VERBOSE
     VERBOSE = args.verbose
+
+    if getattr(args, "merge", None):
+        return merge_parts(args)
 
     cfg = load_json(CONFIG_PATH, None)
     if cfg is None:
@@ -1203,9 +1274,24 @@ def run(args):
                                      cfg.get("rotate_by", 6))
     log(f"Run order starts at {sources[0].get('platform')}/{sources[0].get('handle')}")
 
+    shards = max(1, int(getattr(args, "shards", 1) or 1))
+    if shards > 1:
+        sources = shard_sources(sources, int(args.shard or 0), shards)
+        log(f"Shard {args.shard}/{shards}: "
+            + ", ".join(f"{s.get('platform')}/{s.get('handle')}" for s in sources))
+        if not sources:
+            log("Nothing in this shard.")
+            save_json(Path(args.out), {"fresh": [], "status": [],
+                                       "next_cursor": cursor})
+            return 0
+
     # The browser pass is the expensive route, so spend it on the sources at
     # the front of this run's order - the slots least likely to be refused.
+    # Each shard gets its own allowance: it is a separate machine with its own
+    # standing at Facebook, so one shard's bad luck should not ration another's.
     per_run = max(1, int(cfg.get("browser_pass_per_run", 4)))
+    if shards > 1:
+        per_run = max(1, int(cfg.get("browser_pass_per_shard", 2)))
     eligible = set(list(dict.fromkeys(
         s["handle"] for s in sources
         if s.get("platform", "").lower() == "facebook"))[:per_run])
@@ -1231,6 +1317,17 @@ def run(args):
             nxt = sources[n + 1].get("platform", "").lower()
             if not (budget.get("throttled") and nxt == "facebook"):
                 time.sleep(random.uniform(3.0, 7.0))
+
+    # A shard's job ends here: hand the raw catch to the merge job, which owns
+    # feed.json. Shards must never write it - five jobs committing the same
+    # file in parallel is how you lose posts.
+    if shards > 1:
+        save_json(Path(args.out), {"fresh": fresh, "status": status,
+                                   "next_cursor": cursor})
+        ok_count = sum(1 for s in status if s.get("ok"))
+        log(f"Shard {args.shard} done. {len(fresh)} post(s), "
+            f"{ok_count}/{len(status)} sources ok -> {args.out}")
+        return 0
 
     if fresh:
         download_previews(fresh, session, cfg)
@@ -1264,7 +1361,16 @@ def main():
     ap = argparse.ArgumentParser(description="Collect public X / Facebook posts into feed.json")
     ap.add_argument("--only", choices=["x", "facebook"], help="only run one platform")
     ap.add_argument("--verbose", action="store_true", help="log every fetch attempt")
+    ap.add_argument("--shard", type=int, default=0, help="which shard this job is")
+    ap.add_argument("--shards", type=int, default=1,
+                    help="how many parallel jobs are splitting the sources")
+    ap.add_argument("--out", default="part.json",
+                    help="where a shard writes its partial result")
+    ap.add_argument("--merge", help="merge every shard result in this directory "
+                                    "into feed.json")
     args = ap.parse_args()
+    if args.shards > 1 and not (0 <= args.shard < args.shards):
+        ap.error(f"--shard must be between 0 and {args.shards - 1}")
     sys.exit(run(args))
 
 
