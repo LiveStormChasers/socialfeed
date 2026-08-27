@@ -523,8 +523,13 @@ def normalise_fb_post(key, slot, handle, label):
     images = (slot.get("images") or [])[:4]
     videos = slot.get("videos") or []
 
+    # Identity must not depend on which URL form Facebook served: the same post
+    # appears as /posts/<numeric id> on one run and /posts/pfbid... on the next.
+    # `key` is the numeric post id from the fragments, so hash that instead.
+    identity = f"https://www.facebook.com/{handle}/posts/{key}"
+
     return {
-        "id": post_id(url, text or key, "facebook", handle),
+        "id": post_id(identity, text or key, "facebook", handle),
         "platform": "facebook",
         "source": label,
         "handle": handle,
@@ -917,6 +922,42 @@ def download_previews(posts, session, cfg):
 # merge, prune
 # --------------------------------------------------------------------------
 
+def richness(p):
+    """How complete a post record is, for picking between duplicates."""
+    return (len(p.get("text") or ""), len(p.get("images") or []),
+            1 if p.get("url") else 0, 1 if p.get("published_exact") else 0)
+
+
+def collapse_twins(items):
+    """Merge records that are plainly the same post seen twice.
+
+    An account does not publish two different posts in the same second, so
+    identical (platform, handle, exact timestamp) means one post that reached us
+    under two identities - which happens when Facebook serves a numeric
+    permalink one run and a pfbid one the next. Keep the richer record but the
+    earlier first_seen, so the post does not jump to the top of the feed.
+    """
+    best = {}
+    passthrough = []
+    for p in items:
+        if not p.get("published") or not p.get("published_exact"):
+            passthrough.append(p)
+            continue
+        key = (p.get("platform"), (p.get("handle") or "").lower(), p["published"])
+        prev = best.get(key)
+        if prev is None:
+            best[key] = p
+            continue
+        winner, loser = (p, prev) if richness(p) > richness(prev) else (prev, p)
+        seen = [x.get("first_seen") for x in (winner, loser) if x.get("first_seen")]
+        if seen:
+            winner["first_seen"] = min(seen)
+        if not winner.get("preview") and loser.get("preview"):
+            winner["preview"] = loser["preview"]
+        best[key] = winner
+    return list(best.values()) + passthrough
+
+
 def merge(existing, fresh, cfg):
     by_id = {p["id"]: p for p in existing}
     stamp = iso(now_utc())
@@ -933,7 +974,7 @@ def merge(existing, fresh, cfg):
             by_id[post["id"]] = post
             added += 1
 
-    items = list(by_id.values())
+    items = collapse_twins(list(by_id.values()))
     for p in items:
         p["sort_time"] = p.get("published") or p.get("first_seen") or stamp
     items.sort(key=lambda p: p["sort_time"], reverse=True)
