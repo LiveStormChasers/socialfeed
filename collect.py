@@ -1178,6 +1178,65 @@ def shard_sources(sources, shard, shards):
     return [s for i, s in enumerate(sources) if i % shards == shard % shards]
 
 
+STARVED_MARK = "held no post objects"
+
+
+def retry_starved(status, cfg, session, cap):
+    """Re-ask for the pages that came back stripped, from this job's address.
+
+    GitHub hands out runner IPs from a shared pool and recycles them, so a
+    shard can draw an address Facebook is already throttling - its pages come
+    back as the ~430KB shell while the other shards do fine. The merge job is
+    a sixth fresh VM whose address has not spoken to Facebook this run, so it
+    usually gets a straight answer.
+
+    Capped deliberately: if this address is dirty too, working through the
+    whole list would only confirm it and burn the address for the next run.
+    Anything still missing is picked up by the next beat.
+
+    Returns (posts, handles_recovered). `status` rows are updated in place.
+    """
+    rows = {id(s): s for s in status}
+    targets = [s for s in status
+               if not s.get("ok")
+               and (s.get("platform") or "").lower() == "facebook"
+               and STARVED_MARK in (s.get("error") or "")][:max(0, cap)]
+    if not targets:
+        return [], []
+
+    log(f"Retrying {len(targets)} starved source(s) from the merge runner: "
+        + ", ".join(s.get("handle", "?") for s in targets))
+
+    # No browser on this runner - the merge job does not install Chromium, and
+    # the cheap fetch is what the throttle was blocking anyway.
+    budget = {"browser": 0, "walls": 0, "eligible": None,
+              "throttled": False, "starved": 0}
+    posts, recovered = [], []
+    for n, row in enumerate(targets):
+        src = {"platform": "facebook", "handle": row.get("handle", ""),
+               "label": row.get("label") or row.get("handle", "")}
+        try:
+            got, st = collect_source(src, cfg, session, {}, budget)
+        except Exception as exc:
+            log(f"  retry of {src['handle']} failed: {type(exc).__name__}: {exc}")
+            continue
+        if st.get("ok"):
+            posts.extend(got)
+            recovered.append(src["handle"])
+            st["route"] = f"{st.get('route', '')} (recovered on merge runner)".strip()
+            rows[id(row)].clear()
+            rows[id(row)].update(st)
+        if budget.get("throttled"):
+            log("  merge runner is throttled too - leaving the rest for the next beat")
+            break
+        if n < len(targets) - 1:
+            time.sleep(random.uniform(3.0, 7.0))
+
+    log(f"Retry recovered {len(recovered)}/{len(targets)} source(s)"
+        + (f": {', '.join(recovered)}" if recovered else ""))
+    return posts, recovered
+
+
 def merge_parts(args):
     """Second phase: fold every shard's partial result into feed.json."""
     cfg = load_json(CONFIG_PATH, None)
@@ -1202,10 +1261,18 @@ def merge_parts(args):
         log(f"  {path.name}: {len(part.get('fresh', []))} post(s), "
             f"{sum(1 for s in part.get('status', []) if s.get('ok'))} source(s) ok")
 
+    session = requests.Session()
+
+    # Second chance for anything a dirty shard IP starved, before the feed is
+    # written - so a recovered source lands in this run rather than the next.
+    if not getattr(args, "no_retry", False):
+        recovered_posts, _ = retry_starved(
+            status, cfg, session, int(cfg.get("retry_starved_max", 4)))
+        fresh.extend(recovered_posts)
+
     # Previews are downloaded here, once, rather than in every shard: the
     # images come from fbcdn, which has not been the thing refusing us, and
     # doing it in one place keeps the media folder consistent.
-    session = requests.Session()
     if fresh:
         download_previews(fresh, session, cfg)
 
@@ -1368,6 +1435,8 @@ def main():
                     help="where a shard writes its partial result")
     ap.add_argument("--merge", help="merge every shard result in this directory "
                                     "into feed.json")
+    ap.add_argument("--no-retry", action="store_true",
+                    help="with --merge, skip the second attempt at starved sources")
     args = ap.parse_args()
     if args.shards > 1 and not (0 <= args.shard < args.shards):
         ap.error(f"--shard must be between 0 and {args.shards - 1}")
