@@ -2,11 +2,12 @@ name: Collect feed
 
 on:
   schedule:
-    # Every 5 minutes — the shortest interval GitHub accepts. Free and unlimited
-    # because this repo is public. GitHub queues cron on shared infrastructure
-    # and deprioritises it under load, so the real interval is usually longer;
-    # treat this as "as fast as GitHub will go", not a guarantee.
-    - cron: "*/5 * * * *"
+    # Every 15 minutes. Not a GitHub limit - a Facebook one. At */5 with ~19
+    # sources this made ~230 requests an hour from one datacenter IP, and
+    # Facebook started refusing everything after the first eight sources of a
+    # run. Volume is the constraint, not speed. The feed accumulates across
+    # runs anyway, so slower polling loses nothing but flakiness.
+    - cron: "*/15 * * * *"
   workflow_dispatch:        # run it by hand from the Actions tab
   push:
     branches: [main]
