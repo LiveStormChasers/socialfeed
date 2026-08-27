@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Social Feed</title>
+<style>
+  :root{
+    --bg:#f5f6f7; --panel:#fff; --line:#dcdfe3; --line-soft:#eceef0;
+    --text:#16181c; --muted:#5b6570; --accent:#1c6fd0;
+    --x:#0f1419; --fb:#1877f2; --ok:#1a7f45; --warn:#9a6700; --bad:#b3261e;
+    --shadow:0 1px 2px rgba(16,24,40,.06),0 1px 3px rgba(16,24,40,.05); --radius:10px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#0e1116; --panel:#161a21; --line:#262c36; --line-soft:#1e232b;
+      --text:#e6e9ee; --muted:#9aa4b2; --accent:#63a4ff;
+      --x:#e6e9ee; --fb:#4c9aff; --ok:#3fb950; --warn:#d29922; --bad:#f85149;
+      --shadow:none;
+    }
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);
+    font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:680px;margin:0 auto;padding:0 16px 64px}
+
+  header.bar{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px solid var(--line);margin-bottom:18px}
+  .bar-inner{max-width:680px;margin:0 auto;padding:14px 16px 12px;display:flex;flex-direction:column;gap:11px}
+  .title-row{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+  h1{font-size:17px;font-weight:650;letter-spacing:-.01em;margin:0}
+  .stamp{font-size:12px;color:var(--muted);white-space:nowrap;display:flex;align-items:center;gap:7px}
+  .stamp button{background:none;border:0;color:var(--accent);cursor:pointer;font:inherit;font-size:12px;padding:0}
+  .controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .chips{display:flex;gap:6px;flex-wrap:wrap}
+  .chip{border:1px solid var(--line);background:var(--panel);color:var(--muted);padding:5px 11px;
+    border-radius:999px;font-size:12.5px;cursor:pointer;transition:background .12s,color .12s,border-color .12s}
+  .chip:hover{border-color:var(--muted)}
+  .chip[aria-pressed="true"]{background:var(--text);color:var(--bg);border-color:var(--text)}
+  input[type=search]{flex:1;min-width:150px;padding:6px 11px;border:1px solid var(--line);
+    border-radius:8px;background:var(--panel);color:var(--text);font-size:13.5px}
+  input[type=search]:focus{outline:2px solid var(--accent);outline-offset:-1px;border-color:transparent}
+
+  details.health{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    margin-bottom:14px;box-shadow:var(--shadow);font-size:13px}
+  details.health summary{padding:10px 14px;cursor:pointer;color:var(--muted);list-style:none;display:flex;gap:8px;align-items:center}
+  details.health summary::-webkit-details-marker{display:none}
+  details.health summary::before{content:"›";display:inline-block;transition:transform .15s;font-size:16px;line-height:1}
+  details.health[open] summary::before{transform:rotate(90deg)}
+  .health table{width:100%;border-collapse:collapse;font-size:12.5px}
+  .health td{padding:7px 14px;border-top:1px solid var(--line-soft);vertical-align:top}
+  .health td:first-child{white-space:nowrap;font-weight:550}
+  .s-ok{color:var(--ok)} .s-warn{color:var(--warn)} .s-bad{color:var(--bad)}
+  .err{color:var(--muted);word-break:break-word}
+
+  .post{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);margin-bottom:12px;overflow:hidden}
+  .post-head{display:flex;align-items:center;gap:9px;padding:13px 15px 0}
+  .badge{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;
+    border-radius:5px;flex:none;font-size:12px;font-weight:700;line-height:1}
+  .badge.x{background:var(--x);color:var(--panel)}
+  .badge.facebook{background:var(--fb);color:#fff}
+  .who{font-weight:600;font-size:14px}
+  .handle{color:var(--muted);font-size:13px}
+  .when{color:var(--muted);font-size:12.5px;margin-left:auto;white-space:nowrap}
+  .when.approx::after{content:"~";margin-left:2px;opacity:.7}
+  .body{padding:9px 15px 0;white-space:pre-wrap;overflow-wrap:anywhere}
+  .body.clamped{max-height:12.5em;overflow:hidden;-webkit-mask-image:linear-gradient(#000 72%,transparent)}
+  .more{background:none;border:0;color:var(--accent);font-size:13px;cursor:pointer;padding:5px 15px 0;font-family:inherit}
+  .media{margin:12px 0 0;position:relative;display:block;line-height:0;border-top:1px solid var(--line-soft)}
+  .media img{width:100%;height:auto;display:block;background:var(--line-soft)}
+  .play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
+  .play span{width:58px;height:58px;border-radius:50%;background:rgba(0,0,0,.62);display:flex;align-items:center;justify-content:center}
+  .play span::after{content:"";border-left:17px solid #fff;border-top:11px solid transparent;border-bottom:11px solid transparent;margin-left:5px}
+  .vid-only{margin:12px 15px 0;padding:12px;border:1px dashed var(--line);border-radius:8px;color:var(--muted);font-size:13px;text-align:center}
+  .foot{display:flex;gap:14px;padding:11px 15px 13px;align-items:center}
+  .foot a{color:var(--accent);text-decoration:none;font-size:13px}
+  .foot a:hover{text-decoration:underline}
+  .tag{margin-left:auto;font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+
+  .embed{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);margin-bottom:12px;overflow:hidden}
+  .embed .post-head{padding-bottom:9px}
+  .embed .note{padding:0 15px 11px;color:var(--muted);font-size:12.5px}
+  .embed iframe{width:100%;border:0;display:block;background:var(--line-soft)}
+
+  .day{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:22px 2px 9px}
+  .day:first-child{margin-top:4px}
+  .empty{text-align:center;color:var(--muted);padding:60px 20px;border:1px dashed var(--line);border-radius:var(--radius);font-size:14px}
+  .empty code{background:var(--line-soft);padding:2px 6px;border-radius:4px;font-size:12.5px}
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <div class="bar-inner">
+    <div class="title-row">
+      <h1>Social Feed</h1>
+      <div class="stamp"><span id="stamp">loading…</span><button id="reload" title="Reload feed.json">refresh</button></div>
+    </div>
+    <div class="controls">
+      <div class="chips" id="chips">
+        <button class="chip" data-f="all" aria-pressed="true">All</button>
+        <button class="chip" data-f="x" aria-pressed="false">X</button>
+        <button class="chip" data-f="facebook" aria-pressed="false">Facebook</button>
+        <button class="chip" data-f="media" aria-pressed="false">Media only</button>
+      </div>
+      <input type="search" id="q" placeholder="Search posts…" autocomplete="off">
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div id="health"></div>
+  <div id="feed"></div>
+</main>
+
+<script>
+const feedEl   = document.getElementById('feed');
+const healthEl = document.getElementById('health');
+const stampEl  = document.getElementById('stamp');
+const qEl      = document.getElementById('q');
+let ITEMS = [], SOURCES = [], filter = 'all';
+
+const esc = s => (s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function linkify(text){
+  let h = esc(text);
+  h = h.replace(/\bhttps?:\/\/[^\s<]+/g,
+    u => `<a href="${u}" target="_blank" rel="noopener noreferrer">${u.replace(/^https?:\/\//,'')}</a>`);
+  h = h.replace(/(^|\s)@([A-Za-z0-9_.]{2,30})/g, '$1<span style="color:var(--accent)">@$2</span>');
+  h = h.replace(/(^|\s)#([A-Za-z0-9_]{2,40})/g, '$1<span style="color:var(--accent)">#$2</span>');
+  return h;
+}
+
+function relTime(iso){
+  if(!iso) return '';
+  const t = new Date(iso);
+  if (isNaN(t)) return '';
+  const s = (Date.now() - t.getTime())/1000;
+  if (s < 60)     return Math.max(1,Math.floor(s)) + 's';
+  if (s < 3600)   return Math.floor(s/60) + 'm';
+  if (s < 86400)  return Math.floor(s/3600) + 'h';
+  if (s < 604800) return Math.floor(s/86400) + 'd';
+  return t.toLocaleDateString(undefined,{month:'short',day:'numeric',
+    year: t.getFullYear()===new Date().getFullYear()?undefined:'numeric'});
+}
+
+function dayLabel(iso){
+  const t = new Date(iso);
+  if (isNaN(t)) return 'Undated';
+  const today = new Date(); today.setHours(0,0,0,0);
+  const d = new Date(t);   d.setHours(0,0,0,0);
+  const diff = Math.round((today-d)/86400000);
+  if (diff===0) return 'Today';
+  if (diff===1) return 'Yesterday';
+  return t.toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric',
+    year: t.getFullYear()===today.getFullYear()?undefined:'numeric'});
+}
+
+// On a repost the interesting handle is whoever wrote it, not the account we read.
+function shownHandle(p){
+  const a = (p.author||'').trim();
+  return (a && a.toLowerCase() !== (p.handle||'').toLowerCase()) ? a : (p.handle||'');
+}
+
+function renderHealth(){
+  if (!SOURCES.length){ healthEl.innerHTML = ''; return; }
+  const bad  = SOURCES.filter(s => !s.ok && !s.embed_only).length;
+  const soft = SOURCES.filter(s => s.embed_only).length;
+  const ok   = SOURCES.filter(s => s.ok).length;
+
+  const summary = bad
+    ? `<span class="s-bad">${bad} source${bad>1?'s':''} not collecting</span> · ${ok} ok`
+    : soft ? `<span class="s-warn">${ok} collecting, ${soft} fell back to embed</span>`
+           : `<span class="s-ok">all ${ok} source${ok>1?'s':''} collecting</span>`;
+
+  const rows = SOURCES.map(s => {
+    const cls  = s.ok ? 's-ok' : (s.embed_only ? 's-warn' : 's-bad');
+    const word = s.ok ? 'ok'   : (s.embed_only ? 'embed'  : 'failed');
+    const detail = s.ok
+      ? `via ${esc(s.route)}${s.count!=null?` · ${s.count} post${s.count===1?'':'s'}`:''}`
+      : esc(s.error || '');
+    return `<tr><td>${esc(s.platform)}/${esc(s.handle)}</td>
+              <td class="${cls}">${word}</td>
+              <td class="err">${detail}</td></tr>`;
+  }).join('');
+
+  healthEl.innerHTML =
+    `<details class="health"${bad?' open':''}>
+       <summary>${summary}</summary>
+       <table>${rows}</table>
+     </details>`;
+}
+
+function embedCard(s){
+  const el = document.createElement('div');
+  el.className = 'embed';
+  const href = encodeURIComponent(
+    s.handle.startsWith('http') ? s.handle : `https://www.facebook.com/${s.handle}`);
+  el.innerHTML =
+    `<div class="post-head">
+       <span class="badge facebook">f</span>
+       <span class="who">${esc(s.label || s.handle)}</span>
+       <span class="handle">@${esc(s.handle)}</span>
+       <span class="when">live</span>
+     </div>
+     <div class="note">Collection failed for this page, so this is Facebook's own live embed —
+       not searchable, not archived, and not merged into the timeline above.</div>
+     <iframe loading="lazy" height="640" scrolling="no" frameborder="0" allowfullscreen="true"
+       title="${esc(s.label || s.handle)} on Facebook"
+       src="https://www.facebook.com/plugins/page.php?href=${href}&tab=timeline&width=640&height=640&small_header=true&adapt_container_width=true&hide_cover=false&show_facepile=false"></iframe>`;
+  return el;
+}
+
+function card(p){
+  const el = document.createElement('article');
+  el.className = 'post';
+  const mark = p.platform === 'x' ? 'X' : 'f';
+  const when = relTime(p.sort_time || p.published || p.first_seen);
+
+  let html =
+    `<div class="post-head">
+       <span class="badge ${esc(p.platform)}">${mark}</span>
+       <span class="who">${esc(p.source || p.handle)}</span>
+       <span class="handle">@${esc(shownHandle(p))}</span>
+       <span class="when${p.published_exact?'':' approx'}" title="${esc(p.sort_time||'')}">${esc(when)}</span>
+     </div>`;
+  if (p.text) html += `<div class="body">${linkify(p.text)}</div>`;
+  if (p.preview){
+    html += `<a class="media" href="${esc(p.url||p.preview)}" target="_blank" rel="noopener noreferrer">
+               <img src="${esc(p.preview)}" alt="" loading="lazy">
+               ${p.has_video ? '<span class="play"><span></span></span>' : ''}
+             </a>`;
+  } else if (p.has_video){
+    html += `<div class="vid-only">Video attached — no preview frame captured</div>`;
+  }
+  html += `<div class="foot">
+             ${p.url ? `<a href="${esc(p.url)}" target="_blank" rel="noopener noreferrer">Open original</a>` : ''}
+             <span class="tag">${p.repost ? 'repost' : esc(p.platform)}</span>
+           </div>`;
+  el.innerHTML = html;
+
+  const body = el.querySelector('.body');
+  if (body && body.scrollHeight > 230){
+    body.classList.add('clamped');
+    const btn = document.createElement('button');
+    btn.className = 'more';
+    btn.textContent = 'Show more';
+    btn.onclick = () => {
+      const open = body.classList.toggle('clamped');
+      btn.textContent = open ? 'Show more' : 'Show less';
+    };
+    body.after(btn);
+  }
+  return el;
+}
+
+function passes(p, q){
+  if (filter==='x' && p.platform!=='x') return false;
+  if (filter==='facebook' && p.platform!=='facebook') return false;
+  if (filter==='media' && !p.preview && !p.has_video) return false;
+  if (q && !((p.text||'')+' '+(p.source||'')).toLowerCase().includes(q)) return false;
+  return true;
+}
+
+function render(){
+  const q = qEl.value.trim().toLowerCase();
+  const list = ITEMS.filter(p => passes(p,q));
+  feedEl.innerHTML = '';
+
+  if (!list.length){
+    const note = document.createElement('div');
+    note.className = 'empty';
+    note.innerHTML = ITEMS.length
+      ? 'No posts match this filter.'
+      : 'No posts collected yet.<br><br>Run the <b>Collect feed</b> workflow from the Actions tab, then reload.';
+    feedEl.appendChild(note);
+  } else {
+    let lastDay = null;
+    for (const p of list){
+      const d = dayLabel(p.sort_time || p.published || p.first_seen);
+      if (d !== lastDay){
+        const h = document.createElement('div');
+        h.className = 'day';
+        h.textContent = d;
+        feedEl.appendChild(h);
+        lastDay = d;
+      }
+      feedEl.appendChild(card(p));
+    }
+  }
+
+  // Facebook sources with no cookie secret get the platform's own embed. It
+  // goes last: it is a tall iframe and must not push the real timeline down.
+  if (!q && (filter==='all' || filter==='facebook')){
+    const embeds = SOURCES.filter(s => s.embed_only);
+    if (embeds.length){
+      const h = document.createElement('div');
+      h.className = 'day';
+      h.textContent = 'Facebook embeds';
+      feedEl.appendChild(h);
+      embeds.forEach(s => feedEl.appendChild(embedCard(s)));
+    }
+  }
+}
+
+function load(){
+  return fetch('feed.json?t=' + Date.now(), {cache:'no-store'})
+    .then(r => { if(!r.ok) throw new Error(r.status); return r.json(); })
+    .then(data => {
+      ITEMS = (data.items||[]).sort((a,b) =>
+        (b.sort_time||b.published||'').localeCompare(a.sort_time||a.published||''));
+      SOURCES = data.sources || [];
+      const g = data.generated ? new Date(data.generated) : null;
+      stampEl.textContent = g
+        ? `${ITEMS.length} posts · updated ${relTime(data.generated)} ago`
+        : `${ITEMS.length} posts`;
+      stampEl.title = g ? g.toLocaleString() : '';
+      renderHealth();
+      render();
+    })
+    .catch(() => {
+      stampEl.textContent = 'no feed.json yet';
+      healthEl.innerHTML = '';
+      feedEl.innerHTML = `<div class="empty">
+          No <code>feed.json</code> in this folder yet.<br><br>
+          Open the repo's <b>Actions</b> tab, pick <b>Collect feed</b>, and click
+          <b>Run workflow</b>. Reload here when it finishes.
+        </div>`;
+    });
+}
+
+document.getElementById('chips').addEventListener('click', e => {
+  const b = e.target.closest('.chip');
+  if (!b) return;
+  filter = b.dataset.f;
+  document.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed', String(c===b)));
+  render();
+});
+qEl.addEventListener('input', render);
+document.getElementById('reload').addEventListener('click', load);
+
+load();
+setInterval(load, 5*60*1000);          // keep an open tab reasonably fresh
+document.addEventListener('visibilitychange', () => { if (!document.hidden) load(); });
+</script>
+</body>
+</html>
