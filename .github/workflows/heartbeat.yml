@@ -1,0 +1,86 @@
+name: Heartbeat
+
+# GitHub's cron scheduler has never fired for this repo. Every collection so
+# far came from a push - not one run in the Actions tab has a "schedule"
+# event, across seven hours with a */5 cron configured. It is a known and
+# unresolved GitHub behaviour on new repositories, and nothing in this repo
+# can fix it.
+#
+# So this workflow is its own clock. One job wakes every 15 minutes for just
+# under six hours (the job ceiling), dispatches a collection each time, and
+# re-dispatches itself before it expires. Public repos get unlimited free
+# minutes on standard runners, and a job that spends its life asleep costs
+# nothing but wall time.
+
+on:
+  workflow_dispatch:
+  # If GitHub's cron ever does start working, this restarts a chain that has
+  # stopped. It is a safety net, not the mechanism.
+  schedule:
+    - cron: "17 * * * *"
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/heartbeat.yml"
+
+# One heartbeat at a time. The next link queues behind the current one rather
+# than running alongside it - this is what stops a crash from fanning out into
+# many parallel chains.
+concurrency:
+  group: heartbeat
+  cancel-in-progress: false
+
+permissions:
+  actions: write      # needed to dispatch collect.yml and the next heartbeat
+  contents: read
+
+jobs:
+  beat:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350        # 5h50m, comfortably under the 6h job ceiling
+
+    steps:
+      - name: Collect every 15 minutes
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -u
+          echo "$(date +%s)" > /tmp/beat_started
+          # Stop looping with time to spare so the handoff step below is
+          # reached normally rather than by timeout cancellation.
+          END=$(( $(date +%s) + 335*60 ))
+          n=0
+          while [ "$(date +%s)" -lt "$END" ]; do
+            n=$(( n + 1 ))
+            echo "--- beat $n at $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+            # A failed dispatch must not kill the chain; the next beat retries.
+            gh workflow run collect.yml --ref "${GITHUB_REF_NAME}" \
+              || echo "dispatch failed - carrying on to the next beat"
+            sleep 900
+          done
+          echo "loop finished after $n beat(s)"
+
+      - name: Hand off to the next heartbeat
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -u
+          # always() so the chain survives a mid-loop failure - but only hand
+          # off if this job actually did a shift's worth of work. Without this
+          # guard, a job that dies in its first seconds would re-dispatch
+          # immediately and spin.
+          started=$(cat /tmp/beat_started 2>/dev/null || echo 0)
+          if [ "$started" -eq 0 ]; then
+            elapsed=0        # the loop step never got started; treat as no work
+          else
+            elapsed=$(( $(date +%s) - started ))
+          fi
+          if [ "$elapsed" -lt 3600 ]; then
+            echo "Only ${elapsed}s elapsed - not re-dispatching."
+            echo "The chain has stopped. Restart it from the Actions tab:" \
+                 "Heartbeat -> Run workflow."
+            exit 0
+          fi
+          echo "Ran for ${elapsed}s - starting the next heartbeat."
+          gh workflow run heartbeat.yml --ref "${GITHUB_REF_NAME}"
