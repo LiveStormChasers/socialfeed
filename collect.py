@@ -29,6 +29,7 @@ import hashlib
 import io
 import json
 import os
+import random
 import re
 import sys
 import time
@@ -855,12 +856,16 @@ def fetch_with_browser(platform, handle, label, limit, cookies, cfg):
 # per-source dispatch
 # --------------------------------------------------------------------------
 
-def collect_facebook(handle, label, limit, cfg, session, secrets):
+def collect_facebook(handle, label, limit, cfg, session, secrets, budget=None):
     """Union of every route that works, not the first one that does.
 
-    The cheap fetch runs first; the browser only runs if the fetch came up
-    short, since it costs ~15s a page.
+    The cheap fetch always runs. The browser pass is rationed: it is slow, and
+    - the thing that actually bit us - hammering Facebook with back-to-back
+    rendered page loads gets the whole run progressively cut off. `budget`
+    carries the remaining browser allowance and a consecutive-wall counter that
+    trips a breaker for the rest of the run.
     """
+    budget = budget if budget is not None else {"browser": 99, "walls": 0, "eligible": None}
     posts, seen, notes = [], set(), []
 
     def absorb(name, fn):
@@ -881,11 +886,27 @@ def collect_facebook(handle, label, limit, cfg, session, secrets):
 
     absorb("public html", lambda: fetch_fb_public_html(handle, label, limit, session))
 
-    if len(posts) < limit:
+    eligible = budget.get("eligible")
+    may_browse = (budget["browser"] > 0
+                  and (eligible is None or handle in eligible))
+
+    if len(posts) < limit and may_browse:
+        before = len(posts)
+        budget["browser"] -= 1
         absorb("logged-out browser",
                lambda: fetch_with_browser("facebook", handle, label, limit, [], cfg))
+        if len(posts) == before and "login page" in (notes[-1] if notes else ""):
+            budget["walls"] += 1
+            if budget["walls"] >= 3:
+                budget["browser"] = 0
+                log("  ! three login walls in a row - skipping the browser pass "
+                    "for the rest of this run")
+        else:
+            budget["walls"] = 0
+    elif len(posts) < limit and not may_browse:
+        notes.append("browser: skipped (rationed this run)")
 
-    if len(posts) < limit and secrets.get("fb_cookies"):
+    if len(posts) < limit and secrets.get("fb_cookies") and budget["browser"] > 0:
         absorb("logged-in browser",
                lambda: fetch_with_browser("facebook", handle, label, limit,
                                           secrets["fb_cookies"], cfg))
@@ -905,7 +926,7 @@ def collect_facebook(handle, label, limit, cfg, session, secrets):
                 "checked": iso(now_utc())}
 
 
-def collect_source(src, cfg, session, secrets):
+def collect_source(src, cfg, session, secrets, budget=None):
     platform = src["platform"].lower()
     handle = src["handle"].strip().strip("/")
     label = src.get("label") or handle
@@ -925,7 +946,7 @@ def collect_source(src, cfg, session, secrets):
         # server-renders; a real browser can scroll past the login popup for
         # several more. So run both and union the results rather than stopping
         # at the first route that returns anything.
-        return collect_facebook(handle, label, limit, cfg, session, secrets)
+        return collect_facebook(handle, label, limit, cfg, session, secrets, budget)
     else:
         return [], {"platform": platform, "handle": handle, "label": label,
                     "ok": False, "route": "", "error": f"unknown platform '{platform}'",
@@ -1118,9 +1139,29 @@ def run(args):
     session = requests.Session()
     fresh, status = [], []
 
-    for src in sources:
+    previous = load_json(FEED_PATH, {}) or {}
+
+    # Deep (browser) passes are rationed and rotated. Doing every Facebook page
+    # in one run got the whole run progressively blocked: the first few
+    # succeeded, then Facebook refused the rest. Since the feed accumulates
+    # across runs, a few pages per run is enough - each one comes round again
+    # within the hour.
+    fb_handles = [s["handle"] for s in sources if s.get("platform", "").lower() == "facebook"]
+    per_run = max(1, int(cfg.get("browser_pass_per_run", 4)))
+    cursor = int(previous.get("deep_cursor") or 0)
+    eligible = set()
+    if fb_handles:
+        for i in range(min(per_run, len(fb_handles))):
+            eligible.add(fb_handles[(cursor + i) % len(fb_handles)])
+        cursor = (cursor + per_run) % len(fb_handles)
+    if eligible:
+        log(f"Deep pass this run: {', '.join(sorted(eligible))}")
+
+    budget = {"browser": per_run, "walls": 0, "eligible": eligible or None}
+
+    for n, src in enumerate(sources):
         try:
-            posts, st = collect_source(src, cfg, session, secrets)
+            posts, st = collect_source(src, cfg, session, secrets, budget)
         except Exception:
             log(traceback.format_exc())
             posts, st = [], {"platform": src.get("platform"), "handle": src.get("handle"),
@@ -1128,11 +1169,13 @@ def run(args):
                              "error": "unhandled error, see run log", "checked": iso(now_utc())}
         fresh.extend(posts)
         status.append(st)
+        # Space the requests out. Back-to-back hits are what trip the blocking.
+        if n < len(sources) - 1:
+            time.sleep(random.uniform(2.0, 5.0))
 
     if fresh:
         download_previews(fresh, session, cfg)
 
-    previous = load_json(FEED_PATH, {})
     existing = previous.get("items", []) if isinstance(previous, dict) else []
     items, added = merge(existing, fresh, cfg)
     removed = prune_media(items)
@@ -1141,6 +1184,7 @@ def run(args):
     save_json(FEED_PATH, {
         "generated": iso(now_utc()),
         "count": len(items),
+        "deep_cursor": cursor,
         "sources": status,
         "items": items,
     })
