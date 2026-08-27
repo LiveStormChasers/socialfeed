@@ -23,12 +23,13 @@ on:
     paths:
       - ".github/workflows/heartbeat.yml"
 
-# One heartbeat at a time. The next link queues behind the current one rather
-# than running alongside it - this is what stops a crash from fanning out into
-# many parallel chains.
+# One heartbeat at a time, and the newest wins. This is what stops a crash
+# from fanning out into parallel chains - and, just as important, it means
+# pushing a fix to this file supersedes a running heartbeat immediately
+# instead of queueing behind it for the next five hours.
 concurrency:
   group: heartbeat
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 permissions:
   actions: write      # needed to dispatch collect.yml and the next heartbeat
@@ -53,15 +54,21 @@ jobs:
           while [ "$(date +%s)" -lt "$END" ]; do
             n=$(( n + 1 ))
             echo "--- beat $n at $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+            # --repo is required: gh normally reads the repo from a git
+            # checkout, and this job deliberately has none.
             # A failed dispatch must not kill the chain; the next beat retries.
-            gh workflow run collect.yml --ref "${GITHUB_REF_NAME}" \
+            gh workflow run collect.yml \
+                 --repo "${GITHUB_REPOSITORY}" --ref "${GITHUB_REF_NAME}" \
               || echo "dispatch failed - carrying on to the next beat"
             sleep 900
           done
           echo "loop finished after $n beat(s)"
 
       - name: Hand off to the next heartbeat
-        if: always()
+        # Runs after success or failure, but NOT after a cancellation - a
+        # cancelled heartbeat has been deliberately superseded, and handing
+        # off from it would fight whatever replaced it.
+        if: "!cancelled()"
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -83,4 +90,5 @@ jobs:
             exit 0
           fi
           echo "Ran for ${elapsed}s - starting the next heartbeat."
-          gh workflow run heartbeat.yml --ref "${GITHUB_REF_NAME}"
+          gh workflow run heartbeat.yml \
+            --repo "${GITHUB_REPOSITORY}" --ref "${GITHUB_REF_NAME}"
