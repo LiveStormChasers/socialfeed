@@ -1,4 +1,40 @@
 {
+ "max_posts_per_source": 8,
+ "max_feed_items": 600,
+ "keep_days": 30,
+ "download_previews": true,
+ "preview_max_width": 900,
+ "preview_quality": 78,
+ "max_download_bytes": 12000000,
+ "scroll_rounds": 2,
+
+ "_comment": "platform: x | facebook. handle: the part of the URL after the domain, or a full URL. label: what shows in the feed. enabled: false parks a source without deleting it.",
+
+ "sources": [
+  { "platform": "facebook", "handle": "LiveStormChasers",                 "label": "Live Storm Chasers",      "enabled": true },
+  { "platform": "x",        "handle": "LiveStormChasers",                 "label": "Live Storm Chasers",      "enabled": true },
+
+  { "platform": "facebook", "handle": "EricGravesWX",                     "label": "Eric Graves",             "enabled": true },
+  { "platform": "x",        "handle": "graves_wx",                        "label": "Eric Graves",             "enabled": true },
+
+  { "platform": "facebook", "handle": "DylanFedericoWx",                  "label": "Dylan Federico",          "enabled": true },
+  { "platform": "facebook", "handle": "MattDevittWeather",                "label": "Matt Devitt",             "enabled": true },
+  { "platform": "facebook", "handle": "GregDeeWeather",                   "label": "Greg Dee",                "enabled": true },
+  { "platform": "facebook", "handle": "mikesweatherpage",                 "label": "Mike's Weather Page",     "enabled": true },
+  { "platform": "facebook", "handle": "JeffBerardelli",                   "label": "Jeff Berardelli",         "enabled": true },
+  { "platform": "facebook", "handle": "MikeCollierWx",                    "label": "Mike Collier",            "enabled": true },
+  { "platform": "facebook", "handle": "MeteorologistChristopherNunley",   "label": "Christopher Nunley",      "enabled": true },
+  { "platform": "facebook", "handle": "GulfCoastUpdates",                 "label": "Gulf Coast Updates",      "enabled": true },
+
+  { "platform": "facebook", "handle": "TheWeatherChannel",                "label": "The Weather Channel",     "enabled": true },
+  { "platform": "facebook", "handle": "FoxWeather",                       "label": "Fox Weather",             "enabled": true },
+  { "platform": "facebook", "handle": "AccuWeather",                      "label": "AccuWeather",             "enabled": true },
+  { "platform": "facebook", "handle": "WeatherNation",                    "label": "WeatherNation",           "enabled": true },
+
+  { "platform": "x",        "handle": "NWSSPC",                           "label": "Storm Prediction Center", "enabled": false }
+ ]
+}
+{
  "max_posts_per_source": 12,
  "max_feed_items": 300,
  "keep_days": 45,
