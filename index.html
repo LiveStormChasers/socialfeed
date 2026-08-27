@@ -200,7 +200,9 @@
   .when.approx::after{content:"~";opacity:.6;margin-left:1px}
 
   .body{padding:12px 16px 0;white-space:pre-wrap;overflow-wrap:anywhere;font-size:14.5px;line-height:1.6}
-  .body.clamped{max-height:8.2em;overflow:hidden;-webkit-mask-image:linear-gradient(#000 68%,transparent)}
+  /* The preview is cut by word count now, not by height, so every card shows
+     a comparable amount of text instead of a variable slice. */
+  .ell{color:var(--muted)}
   .more{
     background:none;border:0;color:var(--accent);cursor:pointer;font:600 12.5px/1 "Plus Jakarta Sans",sans-serif;
     padding:8px 16px 0;
@@ -396,6 +398,23 @@ function embedCard(s){
   return el;
 }
 
+/* ---- post body: a preview, with the rest behind "Read more" ------------ */
+const WORD_LIMIT=25;
+const expanded=new Set();     // post ids the reader has opened
+
+function wordsOf(t){ const s=String(t||'').trim(); return s?s.split(/\s+/):[]; }
+
+function bodyHtml(p,open){
+  const w=wordsOf(p.text);
+  if(open || w.length<=WORD_LIMIT) return linkify(p.text);
+  // Cut on a word boundary and keep the line breaks that fall inside the
+  // preview, so a post that opens with a headline still reads like one.
+  let count=0, cut=p.text.length;
+  const re=/\S+/g; let m;
+  while((m=re.exec(p.text))){ if(++count===WORD_LIMIT){ cut=m.index+m[0].length; break; } }
+  return linkify(p.text.slice(0,cut))+'<span class="ell">…</span>';
+}
+
 function card(p){
   const el=document.createElement('article'); el.className='post';
   const h=hue(p.handle);
@@ -408,7 +427,11 @@ function card(p){
       </div>
       <span class="when${p.published_exact?'':' approx'}" title="${esc(p.sort_time||'')}">${esc(when)}</span>
     </div>`;
-  if(p.text) html+=`<div class="body">${linkify(p.text)}</div>`;
+  if(p.text){
+    const w=wordsOf(p.text), long=w.length>WORD_LIMIT, open=expanded.has(p.id);
+    html+=`<div class="body">${bodyHtml(p,open)}</div>`;
+    if(long) html+=`<button class="more" type="button">${open?'Show less':'Read more'}</button>`;
+  }
   if(p.preview){
     html+=`<a class="media" href="${esc(p.url||p.preview)}" target="_blank" rel="noopener noreferrer">
       <img src="${esc(p.preview)}" alt="" loading="lazy">
@@ -427,13 +450,17 @@ function card(p){
     const show=()=>{img.classList.add('in'); layout();};
     if(img.complete) show(); else { img.addEventListener('load',show,{once:true}); img.addEventListener('error',show,{once:true}); }
   }
-  const body=el.querySelector('.body');
-  if(body && body.scrollHeight>150){
-    body.classList.add('clamped');
-    const b=document.createElement('button'); b.className='more'; b.textContent='Show more';
-    b.onclick=()=>{ const open=body.classList.toggle('clamped');
-      b.textContent=open?'Show more':'Show less'; layout(); };
-    body.after(b);
+  const btn=el.querySelector('.more');
+  if(btn){
+    btn.onclick=()=>{
+      const open=!expanded.has(p.id);
+      // Remembered by post id, so the three-minute refresh does not collapse
+      // something the reader just opened.
+      if(open) expanded.add(p.id); else expanded.delete(p.id);
+      el.querySelector('.body').innerHTML=bodyHtml(p,open);
+      btn.textContent=open?'Show less':'Read more';
+      layout();               // the card changed height; re-measure the masonry
+    };
   }
   return el;
 }
