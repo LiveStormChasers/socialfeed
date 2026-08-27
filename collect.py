@@ -725,18 +725,41 @@ FB_EXTRACT = r"""
 # rather than trying to dismiss it through the UI.
 CLEAR_OVERLAY = r"""
 () => {
-  document.querySelectorAll('div[role="dialog"], [data-nosnippet]').forEach(d => {
-    const t = (d.innerText || '').toLowerCase();
-    if (t.includes('log in') || t.includes('sign up') || t.includes('create new account')) d.remove();
-  });
-  // FB pins the body when the modal is up.
-  for (const el of [document.body, document.documentElement]) {
-    el.style.overflow = 'auto';
-    el.style.position = 'static';
-    el.style.height = 'auto';
+  const kill = el => { try { el && el.remove(); } catch(e){} };
+
+  // The login CTA is a form, not a dialog, and its wrapper carries no text -
+  // so match it structurally and climb to whatever fixed layer contains it.
+  const form = document.querySelector('#login_popup_cta_form');
+  if (form) {
+    let n = form;
+    for (let i = 0; i < 10 && n.parentElement && n.parentElement !== document.body; i++) {
+      const pos = getComputedStyle(n.parentElement).position;
+      n = n.parentElement;
+      if (pos === 'fixed' || pos === 'sticky') break;
+    }
+    kill(n);
   }
-  document.querySelectorAll('div[data-testid="cookie-policy-manage-dialog"]').forEach(d => d.remove());
-  return document.querySelectorAll('div[role="article"], article').length;
+
+  // Modals proper. Do not test their text: the outer node is often empty.
+  document.querySelectorAll('[role="dialog"], [aria-modal="true"]').forEach(kill);
+  document.querySelectorAll('div[data-testid="cookie-policy-manage-dialog"]').forEach(kill);
+
+  // Any leftover fixed layer covering most of the viewport is a gate, not content.
+  document.querySelectorAll('body > div, body > div > div').forEach(d => {
+    const s = getComputedStyle(d);
+    if (s.position !== 'fixed') return;
+    const r = d.getBoundingClientRect();
+    if (r.height > window.innerHeight * 0.6 && r.width > window.innerWidth * 0.6) kill(d);
+  });
+
+  // Facebook pins the document while the gate is up.
+  for (const el of [document.body, document.documentElement]) {
+    el.style.setProperty('overflow', 'auto', 'important');
+    el.style.setProperty('position', 'static', 'important');
+    el.style.setProperty('height', 'auto', 'important');
+    el.style.removeProperty('padding-right');
+  }
+  return document.querySelectorAll('div[role="article"]').length;
 }
 """
 
@@ -772,21 +795,40 @@ def fetch_with_browser(platform, handle, label, limit, cookies, cfg):
         except Exception as exc:
             vlog(f"overlay clear failed: {exc}")
 
+        # A login *popup* over readable content is not a wall - only an actual
+        # redirect to the login page is. Check the path, not the whole URL.
         current = page.url or ""
-        if "/login" in current or "checkpoint" in current or "/i/flow/login" in current:
+        path = urlsplit(current).path
+        walled = (path.startswith("/login") or path.startswith("/checkpoint")
+                  or "/i/flow/login" in current)
+        if walled:
             ctx.close(); browser.close()
             raise RuntimeError("redirected to a login page" +
                                (" — session cookies expired" if cookies else
                                 " — this page is not viewable logged out"))
 
         page.wait_for_selector(wait, timeout=20000)
-        for _ in range(int(cfg.get("scroll_rounds", 3))):
-            page.mouse.wheel(0, 2200)
-            page.wait_for_timeout(1200)
+
+        # Scroll until the post count stops growing. Facebook re-inserts the
+        # login gate as you go, so clear it every round or scrolling stops.
+        seen_before = 0
+        stalled = 0
+        for _ in range(int(cfg.get("scroll_rounds", 6))):
+            page.mouse.wheel(0, 2600)
+            page.wait_for_timeout(1400)
             try:
-                page.evaluate(CLEAR_OVERLAY)   # the modal can re-appear on scroll
+                found = page.evaluate(CLEAR_OVERLAY)
             except Exception:
-                pass
+                found = 0
+            if found and found <= seen_before:
+                stalled += 1
+                if stalled >= 2:
+                    break
+            else:
+                stalled = 0
+            seen_before = max(seen_before, found or 0)
+        vlog(f"after scrolling, {seen_before} article node(s) present")
+
         raw = page.evaluate(script, limit)
         ctx.close()
         browser.close()
@@ -813,6 +855,56 @@ def fetch_with_browser(platform, handle, label, limit, cookies, cfg):
 # per-source dispatch
 # --------------------------------------------------------------------------
 
+def collect_facebook(handle, label, limit, cfg, session, secrets):
+    """Union of every route that works, not the first one that does.
+
+    The cheap fetch runs first; the browser only runs if the fetch came up
+    short, since it costs ~15s a page.
+    """
+    posts, seen, notes = [], set(), []
+
+    def absorb(name, fn):
+        try:
+            got = fn() or []
+        except Exception as exc:
+            notes.append(f"{name}: {type(exc).__name__}: {exc}")
+            return
+        added = 0
+        for post in got:
+            if post["id"] in seen:
+                continue
+            seen.add(post["id"])
+            posts.append(post)
+            added += 1
+        notes.append(f"{name}: +{added}")
+        vlog(f"{name} contributed {added} new post(s)")
+
+    absorb("public html", lambda: fetch_fb_public_html(handle, label, limit, session))
+
+    if len(posts) < limit:
+        absorb("logged-out browser",
+               lambda: fetch_with_browser("facebook", handle, label, limit, [], cfg))
+
+    if len(posts) < limit and secrets.get("fb_cookies"):
+        absorb("logged-in browser",
+               lambda: fetch_with_browser("facebook", handle, label, limit,
+                                          secrets["fb_cookies"], cfg))
+
+    posts.sort(key=lambda p: p.get("published") or "", reverse=True)
+    posts = posts[:limit]
+
+    if posts:
+        log(f"  facebook/{handle}: {len(posts)} post(s) [{'; '.join(notes)}]")
+        return posts, {"platform": "facebook", "handle": handle, "label": label,
+                       "ok": True, "route": "; ".join(notes), "error": "",
+                       "count": len(posts), "checked": iso(now_utc())}
+
+    log(f"  facebook/{handle}: FAILED - {'; '.join(notes)}")
+    return [], {"platform": "facebook", "handle": handle, "label": label, "ok": False,
+                "route": "", "error": "; ".join(notes)[:400], "embed_only": True,
+                "checked": iso(now_utc())}
+
+
 def collect_source(src, cfg, session, secrets):
     platform = src["platform"].lower()
     handle = src["handle"].strip().strip("/")
@@ -828,18 +920,12 @@ def collect_source(src, cfg, session, secrets):
                            lambda: fetch_with_browser("x", handle, label, limit,
                                                       secrets["x_cookies"], cfg)))
     elif platform == "facebook":
-        # Public Pages render for logged-out visitors, so both of these run
-        # without an account. Cookies are only a last resort.
-        routes = [
-            ("public html", lambda: fetch_fb_public_html(handle, label, limit, session)),
-            ("public html retry", lambda: (time.sleep(4), fetch_fb_public_html(handle, label, limit, session))[1]),
-            ("logged-out browser",
-             lambda: fetch_with_browser("facebook", handle, label, limit, [], cfg)),
-        ]
-        if secrets.get("fb_cookies"):
-            routes.append(("logged-in browser",
-                           lambda: fetch_with_browser("facebook", handle, label, limit,
-                                                      secrets["fb_cookies"], cfg)))
+        # Facebook is different from X: the routes are not interchangeable, they
+        # see different amounts. A plain fetch returns the one post the page
+        # server-renders; a real browser can scroll past the login popup for
+        # several more. So run both and union the results rather than stopping
+        # at the first route that returns anything.
+        return collect_facebook(handle, label, limit, cfg, session, secrets)
     else:
         return [], {"platform": platform, "handle": handle, "label": label,
                     "ok": False, "route": "", "error": f"unknown platform '{platform}'",
