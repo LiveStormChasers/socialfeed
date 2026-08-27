@@ -1175,7 +1175,9 @@ def collapse_twins(items):
         if not winner.get("preview") and loser.get("preview"):
             winner["preview"] = loser["preview"]
         best[key] = winner
-    return collapse_prefixes(list(best.values()) + passthrough)
+    # Exact first (same post number), then the text fallback for posts whose
+    # only permalink is a pfbid and so carries no number to match on.
+    return collapse_prefixes(collapse_by_post_number(list(best.values()) + passthrough))
 
 
 def dedup_text(t):
@@ -1188,20 +1190,17 @@ def dedup_text(t):
     The fire is now...", so the short one is not literally a prefix of the
     long one until the marker is removed.
     """
-    s = re.sub(r"\s+", "", (t or "")).lower()
-    s = re.sub(r"(?:seemore)+$", "", s)
-    # Dots and ellipses are the one thing the two routes never agree on. The
-    # same post came back as "...the Atlantic.….." from the rendered page and
-    # "...the Atlantic..." from the page JSON - a mix of the ellipsis character
-    # and plain periods, in different amounts. Collapse any run of them to a
-    # single stop, then drop a trailing one, so both sides read the same.
-    s = re.sub(r"[.…]{2,}", ".", s)
-    s = re.sub(r"[.…]+$", "", s)
-    # One route keeps a leading marker emoji ("🔴 How to see...") and the other
-    # drops it, which is enough to defeat both the equality and the prefix
-    # test. Only leading decoration is stripped - emoji inside the body still
-    # distinguish one post from another.
-    return re.sub(r"^[^0-9a-z]+", "", s)
+    # Keep only letters and digits.
+    #
+    # The two routes disagree about punctuation constantly, and every time I
+    # patched one difference another surfaced: trailing "..." against "…", a
+    # leading "🔴", then a "🌅" in the middle of a sentence that the rendered
+    # page dropped and the page JSON kept. Every one of those defeated the
+    # match while the words were identical. So compare the words and ignore
+    # the decoration entirely - it is only ever used for matching, never for
+    # display. Two genuinely different posts still differ in their letters.
+    s = re.sub(r"[^0-9a-z]+", "", (t or "").lower())
+    return re.sub(r"(?:seemore)+$", "", s)
 
 
 # Facebook's rendered page collapses long posts behind "See more", so the
@@ -1214,6 +1213,55 @@ def dedup_text(t):
 # live feed, 40 folds exactly the genuine duplicates and nothing else, and it
 # is still paired with "same account" and "within a day".
 PREFIX_MIN = 40
+
+# When Facebook has visibly cut the text off, a much shorter overlap is still
+# conclusive - but not a handful of letters, which any two posts might share.
+TRUNCATED_MIN = 15
+
+TRUNCATION_MARK = re.compile(r"(?:\.{2,}|…|see\s*more)\s*$", re.I)
+
+
+def looks_truncated(text):
+    """Did Facebook cut this body off rather than give us the whole thing?
+
+    The rendered page collapses a long post behind "See more" and leaves an
+    ellipsis - sometimes the character, sometimes plain dots, sometimes both.
+    That marker is Facebook saying "there is more", which is exactly what
+    makes a short body trustworthy as a prefix of a longer one.
+    """
+    return bool(TRUNCATION_MARK.search((text or "").strip()))
+
+
+def collapse_by_post_number(items):
+    """Merge records whose permalinks carry the same Facebook post number.
+
+    This is the exact test - no text, no timestamps, no guessing. It also
+    rescues records stored under an older identity scheme, which text matching
+    cannot always reach: whatever id they were saved with, if two of them point
+    at post 1592783045831172 they are one post.
+    """
+    best, passthrough = {}, []
+    for p in items:
+        number = (facebook_post_number(p.get("url"))
+                  if (p.get("platform") or "").lower() == "facebook" else "")
+        if not number:
+            passthrough.append(p)
+            continue
+        key = ("facebook", number)
+        prev = best.get(key)
+        if prev is None:
+            best[key] = p
+            continue
+        winner, loser = (p, prev) if richness(p) > richness(prev) else (prev, p)
+        seen = [x.get("first_seen") for x in (winner, loser) if x.get("first_seen")]
+        if seen:
+            winner["first_seen"] = min(seen)
+        if not winner.get("preview") and loser.get("preview"):
+            winner["preview"] = loser["preview"]
+        if not winner.get("images") and loser.get("images"):
+            winner["images"] = loser["images"]
+        best[key] = winner
+    return list(best.values()) + passthrough
 
 
 def collapse_prefixes(items):
@@ -1253,10 +1301,19 @@ def collapse_prefixes(items):
                 # the prefix rule's length floor, so it entered the feed again
                 # on every run under a new pfbid.
                 same = body == kbody
-                # A prefix only proves anything once it is long enough that two
-                # different posts are unlikely to share it.
-                prefix = (len(body) >= PREFIX_MIN and len(kbody) >= PREFIX_MIN
-                          and (kbody.startswith(body) or body.startswith(kbody)))
+                # A prefix normally has to be long enough that two different
+                # posts are unlikely to share it. But if the shorter body ends
+                # in a truncation marker, we are not guessing: Facebook told us
+                # it cut the text off, and a cut-off body IS a prefix of the
+                # whole one. That evidence beats any length threshold, and it
+                # stops the floor from being lowered every time a slightly
+                # shorter post turns up.
+                is_prefix = kbody.startswith(body) or body.startswith(kbody)
+                shorter = p if len(body) <= len(kbody) else k
+                long_enough = (len(body) >= PREFIX_MIN and len(kbody) >= PREFIX_MIN)
+                cut_off = (looks_truncated(shorter.get("text"))
+                           and min(len(body), len(kbody)) >= TRUNCATED_MIN)
+                prefix = is_prefix and (long_enough or cut_off)
                 if (same or prefix) and within_a_day(p, k):
                     match = k
                     break
