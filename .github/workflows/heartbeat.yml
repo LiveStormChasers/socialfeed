@@ -6,7 +6,7 @@ name: Heartbeat
 # unresolved GitHub behaviour on new repositories, and nothing in this repo
 # can fix it.
 #
-# So this workflow is its own clock. One job wakes every 15 minutes for just
+# So this workflow is its own clock. One job wakes every 10 minutes for just
 # under six hours (the job ceiling), dispatches a collection each time, and
 # re-dispatches itself before it expires. Public repos get unlimited free
 # minutes on standard runners, and a job that spends its life asleep costs
@@ -41,7 +41,7 @@ jobs:
     timeout-minutes: 350        # 5h50m, comfortably under the 6h job ceiling
 
     steps:
-      - name: Collect every 15 minutes
+      - name: Collect every 10 minutes
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -60,7 +60,7 @@ jobs:
             gh workflow run collect.yml \
                  --repo "${GITHUB_REPOSITORY}" --ref "${GITHUB_REF_NAME}" \
               || echo "dispatch failed - carrying on to the next beat"
-            sleep 900
+            sleep 600
           done
           echo "loop finished after $n beat(s)"
 

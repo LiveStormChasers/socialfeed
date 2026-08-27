@@ -15,7 +15,7 @@ on:
   # The heartbeat workflow is what actually drives the cadence - GitHub's cron
   # has never fired for this repo. This stays as a backup in case it starts.
   schedule:
-    - cron: "*/15 * * * *"
+    - cron: "*/10 * * * *"
   push:
     branches: [main]
     paths:
