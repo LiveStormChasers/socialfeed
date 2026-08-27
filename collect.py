@@ -24,6 +24,7 @@ Local use:
 """
 
 import argparse
+import base64
 import hashlib
 import io
 import json
@@ -401,37 +402,104 @@ def deep_collect(node, want_keys, limit=24):
 
 
 NOT_A_POST = {"Comment", "Reply", "Feedback", "CommentsEdge", "User", "Page", "Group"}
+URL_FIELDS = ("wwwURL", "url", "permalink_url", "permalink")
 
 
-def looks_like_fb_post(node):
-    if not isinstance(node, dict):
-        return False
-    if not isinstance(node.get("creation_time"), (int, float)):
-        return False
-    # Comments carry creation_time and message.text too — same shape as a post.
-    if node.get("__typename") in NOT_A_POST or node.get("is_comment"):
-        return False
+def decode_story_id(sid):
+    """Facebook's encoded story id embeds the numeric post id.
+
+    'UzpfSTEwMDA2MzY1NjAxNjQzNToxNjg2ODAxNTcwMTE4MzYx' base64-decodes to
+    'S:_I100063656016435:1686801570118361' - the trailing number is the post.
+    """
+    if not isinstance(sid, str) or not sid.startswith("Uzpf"):
+        return None
+    try:
+        raw = base64.b64decode(sid + "==").decode("utf-8", "replace")
+    except Exception:
+        return None
+    m = re.search(r"(\d{6,})\s*$", raw)
+    return m.group(1) if m else None
+
+
+def fragment_key(node):
+    """Which post a fragment belongs to, or None if it isn't part of one."""
+    pid = node.get("post_id")
+    if isinstance(pid, str) and pid.strip():
+        return pid.strip()
+    return decode_story_id(node.get("id"))
+
+
+def fragment_payload(node):
+    """The useful bits this fragment carries, if any."""
+    out = {}
+
     msg = node.get("message")
-    has_text = isinstance(msg, dict) and isinstance(msg.get("text"), str)
-    has_ident = any(isinstance(node.get(k), str) for k in ("wwwURL", "url", "permalink", "post_id"))
-    return has_text or has_ident
+    if isinstance(msg, dict) and isinstance(msg.get("text"), str) and msg["text"].strip():
+        out["text"] = msg["text"].strip()
+
+    ct = node.get("creation_time")
+    if isinstance(ct, (int, float)) and ct > 0:
+        out["created"] = float(ct)
+
+    for f in URL_FIELDS:
+        v = node.get(f)
+        if isinstance(v, str) and v.startswith("http") and "facebook.com" in v:
+            out["url"] = v
+            break
+
+    if "attachments" in node or "comet_sections" in node:
+        imgs = [u for u in deep_collect(node, MEDIA_KEYS)
+                if isinstance(u, str) and ("scontent" in u or "fbcdn" in u)]
+        vids = [u for u in deep_collect(node, VIDEO_KEYS)
+                if isinstance(u, str) and u.startswith("http")]
+        if imgs:
+            out["images"] = imgs
+        if vids:
+            out["videos"] = vids
+
+    return out
 
 
 def harvest_fb_posts(node, found=None):
-    """Structural search for post-shaped objects anywhere in the payload."""
+    """Collect Facebook posts, merging the fragments each one is split across.
+
+    A single post arrives as several objects: one carries creation_time and
+    attachments, another the message text, another the permalink. They share a
+    post_id (or an encoded id that contains it). Treating each fragment as its
+    own post yields textless duplicates, so merge by identity instead.
+    """
     if found is None:
         found = {}
     for n in walk_json(node):
-        if looks_like_fb_post(n):
-            key = (n.get("post_id") or n.get("wwwURL") or n.get("url")
-                   or str(n.get("creation_time")))
-            if key not in found:
-                found[key] = n
+        if not isinstance(n, dict):
+            continue
+        if n.get("__typename") in NOT_A_POST or n.get("is_comment"):
+            continue
+        key = fragment_key(n)
+        if not key:
+            continue
+        part = fragment_payload(n)
+        if not part:
+            continue
+        slot = found.setdefault(key, {})
+        for field in ("text", "created", "url"):
+            if field in part and field not in slot:
+                slot[field] = part[field]
+        for field in ("images", "videos"):
+            if field in part:
+                merged = slot.setdefault(field, [])
+                for u in part[field]:
+                    if u not in merged:
+                        merged.append(u)
     return found
 
 
 def script_payloads(html):
-    """Every JSON object embedded in a <script> tag, best effort."""
+    """Every JSON object embedded in a <script> tag, best effort.
+
+    Facebook ships its page data as <script type="application/json"> blobs;
+    anything that is not parseable JSON is skipped rather than raising.
+    """
     for m in re.finditer(r"<script[^>]*>(.*?)</script>", html, re.S):
         blob = m.group(1).strip()
         if not blob.startswith("{") or len(blob) < 80:
@@ -442,31 +510,21 @@ def script_payloads(html):
             continue
 
 
-def normalise_fb_post(node, handle, label):
-    msg = node.get("message") or {}
-    text = (msg.get("text") if isinstance(msg, dict) else "") or ""
-    text = text.strip()
-
-    url = ""
-    for k in ("wwwURL", "url", "permalink"):
-        v = node.get(k)
-        if isinstance(v, str) and v.startswith("http"):
-            url = v
-            break
-    if not url and isinstance(node.get("post_id"), str):
-        url = f"https://www.facebook.com/{handle}/posts/{node['post_id']}"
+def normalise_fb_post(key, slot, handle, label):
+    text = (slot.get("text") or "").strip()
+    url = slot.get("url") or ""
+    if not url and key.isdigit():
+        url = f"https://www.facebook.com/{handle}/posts/{key}"
 
     ts = None
-    ct = node.get("creation_time")
-    if isinstance(ct, (int, float)) and ct > 0:
-        ts = datetime.fromtimestamp(ct, tz=timezone.utc)
+    if slot.get("created"):
+        ts = datetime.fromtimestamp(slot["created"], tz=timezone.utc)
 
-    images = [u for u in deep_collect(node, MEDIA_KEYS)
-              if isinstance(u, str) and ("scontent" in u or "fbcdn" in u)][:4]
-    videos = [u for u in deep_collect(node, VIDEO_KEYS) if isinstance(u, str) and u.startswith("http")]
+    images = (slot.get("images") or [])[:4]
+    videos = slot.get("videos") or []
 
     return {
-        "id": post_id(url, text, "facebook", handle),
+        "id": post_id(url, text or key, "facebook", handle),
         "platform": "facebook",
         "source": label,
         "handle": handle,
@@ -509,7 +567,7 @@ def fetch_fb_public_html(handle, label, limit, session):
                 last = "page rendered but held no post objects"
                 continue
 
-            posts = [normalise_fb_post(n, handle, label) for n in found.values()]
+            posts = [normalise_fb_post(k, v, handle, label) for k, v in found.items()]
             posts = [p for p in posts if p["text"] or p["images"] or p["has_video"]]
             posts.sort(key=lambda p: p.get("published") or "", reverse=True)
             if posts:
@@ -769,6 +827,7 @@ def collect_source(src, cfg, session, secrets):
         # without an account. Cookies are only a last resort.
         routes = [
             ("public html", lambda: fetch_fb_public_html(handle, label, limit, session)),
+            ("public html retry", lambda: (time.sleep(4), fetch_fb_public_html(handle, label, limit, session))[1]),
             ("logged-out browser",
              lambda: fetch_with_browser("facebook", handle, label, limit, [], cfg)),
         ]
