@@ -762,11 +762,20 @@ FB_EXTRACT = r"""
   const out = [], seen = new Set();
   // Why nodes get discarded, so a shallow run can be diagnosed from the log
   // instead of guessed at.
-  const drop = { nested: 0, noKey: 0, duplicate: 0, empty: 0 };
-  for (const a of document.querySelectorAll('div[role="article"]')) {
-    if (out.length >= limit) break;
-    if (a.parentElement && a.parentElement.closest('div[role="article"]')) { drop.nested++; continue; }
+  const drop = { nested: 0, salvaged: 0, noKey: 0, duplicate: 0, empty: 0 };
 
+  const chrome = new RegExp(
+    '^(?:like|comment|share|send|reply|see more|see less|all reactions'
+    + '|most relevant|top comments|follow|message|\u00b7|and \d+ others'
+    + '|just now|yesterday|today'
+    + '|\d+\s*(?:s|m|h|d|w|min|mins|hr|hrs|hour|hours|day|days|week|weeks)'
+    + '|(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\s+\d{1,2}.*'
+    + '|\d+\s*(?:comments?|shares?|views?|likes?|reactions?)'
+    + ')$', 'i');
+
+  // Everything needed to turn one article node into a post, so the same
+  // reading can be applied to a nested node that had to be salvaged.
+  function read(a) {
     let url = '', rawTime = '';
     for (const l of a.querySelectorAll('a[href]')) {
       const h = l.getAttribute('href') || '';
@@ -787,24 +796,14 @@ FB_EXTRACT = r"""
     const body = a.querySelector('div[data-ad-preview="message"], div[data-ad-comet-preview="message"], [data-testid="post_message"]');
     if (body) text = body.innerText.trim();
     else {
-      // Keeping only lines over 25 characters threw away every short post, so
-      // this now keeps short lines too - but that let the page's own chrome in
-      // as body text: one card read "Chief Meteorologist Mike Collier / Just
-      // now", which is the byline and the timestamp, not the post. Anything
-      // that is plainly the surrounding furniture is dropped by name.
-      const chrome = new RegExp(
-        '^(?:like|comment|share|send|reply|see more|see less|all reactions'
-        + '|most relevant|top comments|follow|message|·|and \\d+ others'
-        + '|just now|yesterday|today'
-        + '|\\d+\\s*(?:s|m|h|d|w|min|mins|hr|hrs|hour|hours|day|days|week|weeks)'
-        + '|(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\\s+\\d{1,2}.*'
-        + '|\\d+\\s*(?:comments?|shares?|views?|likes?|reactions?)'
-        + ')$', 'i');
+      // Short lines have to be kept - "DOLLY, is that you?" is nineteen
+      // characters - but that let the page's own furniture in as body text:
+      // one card read "Chief Meteorologist Mike Collier / Just now", which is
+      // the byline and the timestamp. Drop the furniture by name instead.
       text = (a.innerText || '').split('\n')
         .map(l => l.trim())
-        // The byline is not always the bare page name - Mike Collier's card
-        // reads "Chief Meteorologist Mike Collier". A short line carrying the
-        // page's name is a byline; a long one is someone writing about them.
+        // The byline is not always the bare page name. A short line carrying
+        // the page's name is a byline; a long one is someone writing about it.
         .filter(l => l.length > 3 && !chrome.test(l)
                      && !(name && l.toLowerCase().includes(name) && l.length < 60))
         .slice(0, 8).join('\n').trim();
@@ -827,12 +826,36 @@ FB_EXTRACT = r"""
     });
 
     const key = url || text.slice(0, 120) || (images[0] || '');
-    if (!key) { drop.noKey++; continue; }
-    if (seen.has(key)) { drop.duplicate++; continue; }
+    if (!key) { drop.noKey++; return null; }
+    if (seen.has(key)) { drop.duplicate++; return null; }
+    if (!text && !images.length && !videos.length) { drop.empty++; return null; }
     seen.add(key);
-    if (!text && !images.length && !videos.length) { drop.empty++; continue; }
-    out.push({ url, text, iso_time: '', raw_time: rawTime,
-               images: images.slice(0, 4), videos, author: '', repost: false });
+    return { url, text, iso_time: '', raw_time: rawTime,
+             images: images.slice(0, 4), videos, author: '', repost: false };
+  }
+
+  // A shared post nests one article inside another: normally the outer node is
+  // the post and the inner is what it shared, so the inner is skipped. But
+  // Facebook also renders outer shells it never fills for a logged-out
+  // visitor, and skipping their children threw real posts away with them. So
+  // nested nodes are held back rather than discarded, and read afterwards only
+  // where their parent produced nothing.
+  const all = Array.prototype.slice.call(document.querySelectorAll('div[role="article"]'));
+  const nestedOf = a => (a.parentElement ? a.parentElement.closest('div[role="article"]') : null);
+  const top = all.filter(a => !nestedOf(a));
+  const held = all.filter(a => nestedOf(a)).map(a => ({ node: a, parent: nestedOf(a) }));
+
+  const produced = new Set();
+  for (const a of top) {
+    if (out.length >= limit) break;
+    const post = read(a);
+    if (post) { out.push(post); produced.add(a); }
+  }
+  for (const h of held) {
+    if (out.length >= limit) break;
+    if (produced.has(h.parent)) { drop.nested++; continue; }
+    const post = read(h.node);
+    if (post) { out.push(post); drop.salvaged++; }
   }
   return { posts: out, drop };
 }
