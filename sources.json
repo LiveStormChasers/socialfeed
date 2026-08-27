@@ -14,7 +14,7 @@
 
  "sources": [
   { "platform": "facebook", "handle": "EricGravesWX",                   "label": "Eric Graves",             "enabled": true },
-  { "platform": "x",        "handle": "graves_wx",                      "label": "Eric Graves",             "enabled": true },
+  { "platform": "x",        "handle": "graves_wx",                      "label": "Eric Graves",             "enabled": false, "_why": "parked: X syndication returns 429 from the runner, and this handle was never confirmed as his" },
   { "platform": "facebook", "handle": "ericsnitilwx",                   "label": "Eric Snitil",             "enabled": true },
   { "platform": "facebook", "handle": "DylanFedericoWx",                "label": "Dylan Federico",          "enabled": true },
   { "platform": "facebook", "handle": "MattDevittWeather",              "label": "Matt Devitt",             "enabled": true },
