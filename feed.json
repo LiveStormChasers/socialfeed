@@ -1,96 +1,37 @@
 {
- "generated": "2026-08-27T03:01:55Z",
- "count": 37,
- "order_cursor": 6,
+ "generated": "2026-08-27T03:32:34Z",
+ "count": 39,
+ "order_cursor": 12,
  "sources": [
-  {
-   "platform": "facebook",
-   "handle": "EricGravesWX",
-   "label": "Eric Graves",
-   "ok": true,
-   "route": "public html: +1; logged-out browser: +1",
-   "error": "",
-   "count": 2,
-   "checked": "2026-08-27T02:59:22Z"
-  },
-  {
-   "platform": "x",
-   "handle": "graves_wx",
-   "label": "Eric Graves",
-   "ok": false,
-   "route": "",
-   "error": "syndication page: HTTPError: 429 Client Error: Too Many Requests for url: https://syndication.twitter.com/srv/timeline-profile/screen-name/graves_wx; syndication cdn: JSONDecodeError: Expecting value: line 1 column 1 (char 0)",
-   "checked": "2026-08-27T02:59:29Z"
-  },
-  {
-   "platform": "facebook",
-   "handle": "ericsnitilwx",
-   "label": "Eric Snitil",
-   "ok": true,
-   "route": "public html: +1; logged-out browser: +1",
-   "error": "",
-   "count": 2,
-   "checked": "2026-08-27T02:59:45Z"
-  },
-  {
-   "platform": "facebook",
-   "handle": "DylanFedericoWx",
-   "label": "Dylan Federico",
-   "ok": true,
-   "route": "public html: +1; logged-out browser: +1",
-   "error": "",
-   "count": 2,
-   "checked": "2026-08-27T03:00:00Z"
-  },
-  {
-   "platform": "facebook",
-   "handle": "MattDevittWeather",
-   "label": "Matt Devitt",
-   "ok": true,
-   "route": "public html: +1; logged-out browser: +1",
-   "error": "",
-   "count": 2,
-   "checked": "2026-08-27T03:00:16Z"
-  },
-  {
-   "platform": "facebook",
-   "handle": "GregDeeWeather",
-   "label": "Greg Dee",
-   "ok": true,
-   "route": "public html: +1; browser: skipped (rationed this run)",
-   "error": "",
-   "count": 1,
-   "checked": "2026-08-27T03:00:21Z"
-  },
   {
    "platform": "facebook",
    "handle": "mikesweatherpage",
    "label": "Mike's Weather Page",
    "ok": true,
-   "route": "public html: +1; browser: skipped (rationed this run)",
+   "route": "public html: +1; logged-out browser: +1",
    "error": "",
-   "count": 1,
-   "checked": "2026-08-27T03:00:26Z"
+   "count": 2,
+   "checked": "2026-08-27T03:30:35Z"
   },
   {
    "platform": "facebook",
    "handle": "JeffBerardelli",
    "label": "Jeff Berardelli",
    "ok": true,
-   "route": "public html: +1; browser: skipped (rationed this run)",
+   "route": "public html: +1; logged-out browser: +1",
    "error": "",
-   "count": 1,
-   "checked": "2026-08-27T03:00:33Z"
+   "count": 2,
+   "checked": "2026-08-27T03:30:48Z"
   },
   {
    "platform": "facebook",
    "handle": "MikeCollierWx",
    "label": "Mike Collier",
-   "ok": true,
-   "route": "public html: +1; browser: skipped (rationed this run)",
-   "error": "",
-   "count": 1,
-   "checked": "2026-08-27T03:00:38Z"
+   "ok": false,
+   "route": "",
+   "error": "public html: RuntimeError: page rendered but held no post objects; logged-out browser: RuntimeError: redirected to a login page — this page is not viewable logged out",
+   "embed_only": true,
+   "checked": "2026-08-27T03:30:56Z"
   },
   {
    "platform": "facebook",
@@ -98,9 +39,9 @@
    "label": "Christopher Nunley",
    "ok": false,
    "route": "",
-   "error": "public html: RuntimeError: page rendered but held no post objects; browser: skipped (rationed this run)",
+   "error": "public html: RuntimeError: page rendered but held no post objects; logged-out browser: RuntimeError: redirected to a login page — this page is not viewable logged out",
    "embed_only": true,
-   "checked": "2026-08-27T03:00:47Z"
+   "checked": "2026-08-27T03:31:06Z"
   },
   {
    "platform": "facebook",
@@ -110,7 +51,7 @@
    "route": "",
    "error": "public html: RuntimeError: page rendered but held no post objects; browser: skipped (rationed this run)",
    "embed_only": true,
-   "checked": "2026-08-27T03:00:55Z"
+   "checked": "2026-08-27T03:31:11Z"
   },
   {
    "platform": "facebook",
@@ -120,7 +61,7 @@
    "route": "",
    "error": "public html: RuntimeError: page rendered but held no post objects; browser: skipped (rationed this run)",
    "embed_only": true,
-   "checked": "2026-08-27T03:01:00Z"
+   "checked": "2026-08-27T03:31:18Z"
   },
   {
    "platform": "facebook",
@@ -130,7 +71,7 @@
    "route": "",
    "error": "public html: RuntimeError: page rendered but held no post objects; browser: skipped (rationed this run)",
    "embed_only": true,
-   "checked": "2026-08-27T03:01:08Z"
+   "checked": "2026-08-27T03:31:23Z"
   },
   {
    "platform": "facebook",
@@ -140,7 +81,7 @@
    "route": "",
    "error": "public html: RuntimeError: page rendered but held no post objects; browser: skipped (rationed this run)",
    "embed_only": true,
-   "checked": "2026-08-27T03:01:17Z"
+   "checked": "2026-08-27T03:31:30Z"
   },
   {
    "platform": "facebook",
@@ -150,7 +91,7 @@
    "route": "",
    "error": "public html: RuntimeError: page rendered but held no post objects; browser: skipped (rationed this run)",
    "embed_only": true,
-   "checked": "2026-08-27T03:01:25Z"
+   "checked": "2026-08-27T03:31:35Z"
   },
   {
    "platform": "facebook",
@@ -160,7 +101,7 @@
    "route": "",
    "error": "public html: RuntimeError: page rendered but held no post objects; browser: skipped (rationed this run)",
    "embed_only": true,
-   "checked": "2026-08-27T03:01:33Z"
+   "checked": "2026-08-27T03:31:41Z"
   },
   {
    "platform": "facebook",
@@ -170,7 +111,7 @@
    "route": "",
    "error": "public html: RuntimeError: page rendered but held no post objects; browser: skipped (rationed this run)",
    "embed_only": true,
-   "checked": "2026-08-27T03:01:39Z"
+   "checked": "2026-08-27T03:31:47Z"
   },
   {
    "platform": "facebook",
@@ -180,7 +121,7 @@
    "route": "",
    "error": "public html: RuntimeError: page rendered but held no post objects; browser: skipped (rationed this run)",
    "embed_only": true,
-   "checked": "2026-08-27T03:01:48Z"
+   "checked": "2026-08-27T03:31:54Z"
   },
   {
    "platform": "facebook",
@@ -190,7 +131,66 @@
    "route": "",
    "error": "public html: RuntimeError: page rendered but held no post objects; browser: skipped (rationed this run)",
    "embed_only": true,
-   "checked": "2026-08-27T03:01:53Z"
+   "checked": "2026-08-27T03:32:01Z"
+  },
+  {
+   "platform": "facebook",
+   "handle": "EricGravesWX",
+   "label": "Eric Graves",
+   "ok": false,
+   "route": "",
+   "error": "public html: RuntimeError: page rendered but held no post objects; browser: skipped (rationed this run)",
+   "embed_only": true,
+   "checked": "2026-08-27T03:32:06Z"
+  },
+  {
+   "platform": "x",
+   "handle": "graves_wx",
+   "label": "Eric Graves",
+   "ok": false,
+   "route": "",
+   "error": "syndication page: HTTPError: 429 Client Error: Too Many Requests for url: https://syndication.twitter.com/srv/timeline-profile/screen-name/graves_wx; syndication cdn: JSONDecodeError: Expecting value: line 1 column 1 (char 0)",
+   "checked": "2026-08-27T03:32:13Z"
+  },
+  {
+   "platform": "facebook",
+   "handle": "ericsnitilwx",
+   "label": "Eric Snitil",
+   "ok": false,
+   "route": "",
+   "error": "public html: RuntimeError: page rendered but held no post objects; browser: skipped (rationed this run)",
+   "embed_only": true,
+   "checked": "2026-08-27T03:32:19Z"
+  },
+  {
+   "platform": "facebook",
+   "handle": "DylanFedericoWx",
+   "label": "Dylan Federico",
+   "ok": false,
+   "route": "",
+   "error": "public html: RuntimeError: page rendered but held no post objects; browser: skipped (rationed this run)",
+   "embed_only": true,
+   "checked": "2026-08-27T03:32:24Z"
+  },
+  {
+   "platform": "facebook",
+   "handle": "MattDevittWeather",
+   "label": "Matt Devitt",
+   "ok": false,
+   "route": "",
+   "error": "public html: RuntimeError: page rendered but held no post objects; browser: skipped (rationed this run)",
+   "embed_only": true,
+   "checked": "2026-08-27T03:32:29Z"
+  },
+  {
+   "platform": "facebook",
+   "handle": "GregDeeWeather",
+   "label": "Greg Dee",
+   "ok": false,
+   "route": "",
+   "error": "public html: RuntimeError: page rendered but held no post objects; browser: skipped (rationed this run)",
+   "embed_only": true,
+   "checked": "2026-08-27T03:32:33Z"
   }
  ],
  "items": [
@@ -682,6 +682,26 @@
    "sort_time": "2026-08-27T00:31:36Z"
   },
   {
+   "id": "929ccc386e209292",
+   "platform": "facebook",
+   "source": "Mike's Weather Page",
+   "handle": "mikesweatherpage",
+   "author": "mikesweatherpage",
+   "url": "https://www.facebook.com/mikesweatherpage/posts/pfbid06qWC8AR3VvUW8sg8Ykfxy9hUtSJLkrVtmv6mFzFCa1Mfm5ouev7R5WkT3d2QbWu1l",
+   "text": "I'm not going to post something to worry about until there's something to worry about. Invest 96 still 60%. We will sea. Models still all over the place. Over 4 million…",
+   "published": "2026-08-27T00:30:35Z",
+   "published_exact": false,
+   "images": [
+    "https://scontent-iad3-1.xx.fbcdn.net/v/t39.30808-6/788047070_1614491883367476_2720793312803674842_n.jpg?stp=dst-jpegr_tt6&cstp=mx2048x1536&ctp=s720x720&_nc_cat=1&ccb=1-7&_nc_sid=833d8c&_nc_ohc=gOgFegQH8CIQ7kNvwHEhytd&_nc_oc=AdqcL7y91HPd7TN16AlZhY_VLJjbDbNOdTMWT2wWWSh1kxSP0ATnd2eIdPjcseo92UI&_nc_zt=23&se=-1&_nc_ht=scontent-iad3-1.xx&_nc_gid=IAQ_Z5Q6RchsXpAvOjMr3w&_nc_ss=79289&oh=00_AQF6amM8Iwnwf6lO5SF2dSLfyUNpA8VzjkNVnzCFkBKN6g&oe=6A959D94"
+   ],
+   "has_video": false,
+   "video_url": "",
+   "repost": false,
+   "preview": "media/33c7465c20778174ec8e.jpg",
+   "first_seen": "2026-08-27T03:32:34Z",
+   "sort_time": "2026-08-27T00:30:35Z"
+  },
+  {
    "id": "e1e54cf90c31e81c",
    "platform": "facebook",
    "source": "Christopher Nunley",
@@ -790,12 +810,12 @@
    "published": "2026-08-27T00:02:20Z",
    "published_exact": true,
    "images": [
-    "https://scontent-qro3-1.xx.fbcdn.net/v/t39.30808-6/788047070_1614491883367476_2720793312803674842_n.jpg?stp=dst-jpegr_tt6&cstp=mx2048x1536&ctp=s720x720&_nc_cat=1&ccb=1-7&_nc_sid=833d8c&_nc_ohc=gOgFegQH8CIQ7kNvwF3BDdJ&_nc_oc=AdphhmAYBb2zlW8broPf0r7MZLpxVzn8irkR2TvW36v2c210n65B8Hn0lqBGpxpsdYw&_nc_zt=23&se=-1&_nc_ht=scontent-qro3-1.xx&_nc_gid=Ou4Y8nVBnHjeYRNyHcgnRA&_nc_ss=70289&oh=00_AQFM9WrRm8KGW5Fz8KT8SZZkYvIirNpLT0RB4AI-uAv3hA&oe=6A956554"
+    "https://scontent-iad3-1.xx.fbcdn.net/v/t39.30808-6/788047070_1614491883367476_2720793312803674842_n.jpg?stp=dst-jpegr_tt6&cstp=mx2048x1536&ctp=s720x720&_nc_cat=1&ccb=1-7&_nc_sid=833d8c&_nc_ohc=gOgFegQH8CIQ7kNvwHEhytd&_nc_oc=AdqcL7y91HPd7TN16AlZhY_VLJjbDbNOdTMWT2wWWSh1kxSP0ATnd2eIdPjcseo92UI&_nc_zt=23&se=-1&_nc_ht=scontent-iad3-1.xx&_nc_gid=Lje1Z8AZs3hdpQQzE6s-2A&_nc_ss=70289&oh=00_AQEpsasMny2JvwKxAMQxMWz8qncqsiorzLF76yeFxskuCA&oe=6A959D94"
    ],
    "has_video": false,
    "video_url": "",
    "repost": false,
-   "preview": "media/6beeaaa836bf6f25095f.jpg",
+   "preview": "media/ce1a91f048fb7af73d07.jpg",
    "first_seen": "2026-08-27T00:36:38Z",
    "sort_time": "2026-08-27T00:02:20Z"
   },
@@ -820,6 +840,26 @@
    "sort_time": "2026-08-27T00:00:16Z"
   },
   {
+   "id": "c4b07cceb11a3a1f",
+   "platform": "facebook",
+   "source": "Jeff Berardelli",
+   "handle": "JeffBerardelli",
+   "author": "JeffBerardelli",
+   "url": "https://www.facebook.com/JeffBerardelli/posts/pfbid02CnPU7jL42GL8Nw81sMLqKqN6CRJh3MxmPvv1a1yxehNRW1uJSfy2jGUNX4LzJX1il",
+   "text": "Live look at the Tropics right now from our exclusive Hi Res Tracker. \nI think I spot the issue. It’s Formidable!…",
+   "published": "2026-08-26T23:30:48Z",
+   "published_exact": false,
+   "images": [
+    "https://scontent-iad3-2.xx.fbcdn.net/v/t39.99422-6/778985438_2246956359463001_8650325869874212453_n.png?stp=dst-jpg_tt6&cstp=mx1480x1080&ctp=s720x720&_nc_cat=105&ccb=1-7&_nc_sid=833d8c&_nc_ohc=26AgOC4I0XYQ7kNvwERMA3H&_nc_oc=Ado7VO0gyOz1eiCd-GpBoi86NkRBBgS8IzpvF39dB537B-4tVLS9G8eCitunBzH2yd4&_nc_zt=14&_nc_ht=scontent-iad3-2.xx&_nc_gid=IipOwWT1_kXrYlvbEqxdMA&_nc_ss=79289&oh=00_AQGwVbryZvCSBZh4xVLirwfRH6GlwZDPH835R1Uz2BCrsQ&oe=6A9565F7"
+   ],
+   "has_video": false,
+   "video_url": "",
+   "repost": false,
+   "preview": "media/209cc12d50f7be82aea8.jpg",
+   "first_seen": "2026-08-27T00:36:38Z",
+   "sort_time": "2026-08-26T23:30:48Z"
+  },
+  {
    "id": "7035bb1d665afbc8",
    "platform": "facebook",
    "source": "Matt Devitt",
@@ -840,7 +880,7 @@
    "sort_time": "2026-08-26T23:02:42Z"
   },
   {
-   "id": "c4b07cceb11a3a1f",
+   "id": "3dc1b282f0fd9933",
    "platform": "facebook",
    "source": "Jeff Berardelli",
    "handle": "JeffBerardelli",
@@ -850,13 +890,13 @@
    "published": "2026-08-26T22:50:59Z",
    "published_exact": true,
    "images": [
-    "https://scontent-iad3-2.xx.fbcdn.net/v/t39.99422-6/778985438_2246956359463001_8650325869874212453_n.png?stp=dst-jpg_tt6&cstp=mx1480x1080&ctp=s720x720&_nc_cat=105&ccb=1-7&_nc_sid=833d8c&_nc_ohc=26AgOC4I0XYQ7kNvwG0MbCA&_nc_oc=AdqjTu0IpYHgVBZxxAJNiirQNrrn6mbC_6Lc9YzEy7-ErwRhp5qLg3pmrm6omiK11qI&_nc_zt=14&_nc_ht=scontent-iad3-2.xx&_nc_gid=O-hU6iA8VkGSsIz9_U5w-g&_nc_ss=70289&oh=00_AQHij0tDViXW18-uPXojFc7FBkcFOo00gZM31eqc-eR0ng&oe=6A9565F7"
+    "https://scontent-iad3-2.xx.fbcdn.net/v/t39.99422-6/778985438_2246956359463001_8650325869874212453_n.png?stp=dst-jpg_tt6&cstp=mx1480x1080&ctp=s720x720&_nc_cat=105&ccb=1-7&_nc_sid=833d8c&_nc_ohc=26AgOC4I0XYQ7kNvwERMA3H&_nc_oc=Ado7VO0gyOz1eiCd-GpBoi86NkRBBgS8IzpvF39dB537B-4tVLS9G8eCitunBzH2yd4&_nc_zt=14&_nc_ht=scontent-iad3-2.xx&_nc_gid=Pe6b7qHyoK5tmJq7-ZA1ZQ&_nc_ss=70289&oh=00_AQHlQlcIPIO5rYLHWv4tWpy2fXTAVYKKd3BJwVJZ-1CDzw&oe=6A9565F7"
    ],
    "has_video": false,
    "video_url": "",
    "repost": false,
-   "preview": "media/04a88e7139d72217053f.jpg",
-   "first_seen": "2026-08-27T00:36:38Z",
+   "preview": "media/606d52b593f3908ece5e.jpg",
+   "first_seen": "2026-08-27T03:32:34Z",
    "sort_time": "2026-08-26T22:50:59Z"
   },
   {
