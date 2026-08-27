@@ -129,16 +129,56 @@ def facebook_post_number(url):
     return next((g for g in m.groups() if g), "")
 
 
-def post_id(url, text, platform, handle):
+FB_MEDIA_ID = re.compile(r"(\d{6,}_\d{6,}_\d{6,})")
+
+
+def facebook_media_id(images):
+    """The CDN's id for the post's first photo.
+
+    Stable exactly where the permalink is not. A pfbid link is minted fresh on
+    every view, so it identifies a *sighting* rather than a post - but the
+    photo keeps the same id across both routes and across runs.
+    """
+    for src in (images or []):
+        name = str(src).split("?")[0].rsplit("/", 1)[-1]
+        m = FB_MEDIA_ID.search(name)
+        if m:
+            return m.group(1)
+    return ""
+
+
+def facebook_identity(url, images, text, handle):
+    """One key for a Facebook post, whichever route found it.
+
+    Every duplicate in this feed has been the same failure: two routes
+    describing one post with no key in common. So the routes no longer get to
+    invent their own identity - both call this, and it works down a ladder
+    from most to least reliable:
+
+      1. the post number in the permalink - exact, and shared by both routes
+      2. the photo's CDN id - survives a rotating pfbid link
+      3. the post's own words
+      4. the URL, as a last resort
+    """
+    number = facebook_post_number(url)
+    if number:
+        # Facebook post numbers are unique on their own, so no handle here:
+        # a route that mislabels the page still lands on the same post.
+        return f"facebook:post:{number}"
+    media = facebook_media_id(images)
+    if media:
+        return f"facebook:media:{(handle or '').lower()}:{media}"
+    body = dedup_text(text)[:180]
+    if body:
+        return f"facebook:text:{(handle or '').lower()}:{body}"
+    return canonical_url(url) or f"facebook:{(handle or '').lower()}"
+
+
+def post_id(url, text, platform, handle, images=None):
     if (platform or "").lower() == "facebook":
-        number = facebook_post_number(url)
-        if number:
-            # Facebook post ids are unique on their own, so no handle here -
-            # that way a route that mislabels the page still lands on the
-            # same post rather than inventing a second one.
-            key = f"facebook:post:{number}"
-            return hashlib.sha1(key.encode("utf-8")).hexdigest()[:16]
-    key = canonical_url(url) if url else f"{platform}:{handle}:{(text or '')[:180]}"
+        key = facebook_identity(url, images, text, handle)
+    else:
+        key = canonical_url(url) if url else f"{platform}:{handle}:{(text or '')[:180]}"
     return hashlib.sha1(key.encode("utf-8", "replace")).hexdigest()[:16]
 
 
@@ -565,11 +605,22 @@ def normalise_fb_post(key, slot, handle, label):
     # post they both linked to identically. The permalink is the one thing both
     # routes see the same, so prefer the number in it and fall back to the
     # fragment key only when the URL carries no number of its own.
-    identity = (url if facebook_post_number(url)
+    # No route-specific identity any more - the same ladder decides for both,
+    # so the page JSON and the rendered page cannot disagree about what post
+    # this is. When the permalink is a pfbid (which rotates on every view) and
+    # there is no photo and no text to fall back on, the fragment key is still
+    # the most stable thing we hold, so keep it as the URL of last resort.
+    # Keep the fragment key authoritative. It is the one stable number this
+    # route has, and dropping it for the raw permalink would bring back the
+    # older bug where a post served as /posts/<number> one run and
+    # /posts/pfbid... the next entered the feed twice. Where this route and the
+    # browser route still end up with different keys, collapse_by_media below
+    # reconciles them on the photo, which both of them see.
+    identity = (url if (url and facebook_post_number(url))
                 else f"https://www.facebook.com/{handle}/posts/{key}")
 
     return {
-        "id": post_id(identity, text or key, "facebook", handle),
+        "id": post_id(identity, text, "facebook", handle, images),
         "platform": "facebook",
         "source": label,
         "handle": handle,
@@ -666,7 +717,8 @@ def parse_cookies(raw, default_domain):
 
 
 X_EXTRACT = r"""
-(limit) => {
+(opts) => {
+  const limit = opts.limit;
   const out = [];
   for (const a of document.querySelectorAll('article[data-testid="tweet"], article[role="article"]')) {
     if (out.length >= limit) break;
@@ -705,7 +757,8 @@ X_EXTRACT = r"""
 """
 
 FB_EXTRACT = r"""
-(limit) => {
+(opts) => {
+  const limit = opts.limit, name = (opts.name || '').toLowerCase();
   const out = [], seen = new Set();
   // Why nodes get discarded, so a shallow run can be diagnosed from the log
   // instead of guessed at.
@@ -734,13 +787,26 @@ FB_EXTRACT = r"""
     const body = a.querySelector('div[data-ad-preview="message"], div[data-ad-comet-preview="message"], [data-testid="post_message"]');
     if (body) text = body.innerText.trim();
     else {
-      // The fallback used to keep only lines over 25 characters, which threw
-      // away every short post - "DOLLY, is that you?" is nineteen. Anything
-      // that is not obviously chrome now counts as a line of the body.
-      const chrome = /^(like|comment|share|see more|all reactions|most relevant|·|\d+[smhdw])$/i;
+      // Keeping only lines over 25 characters threw away every short post, so
+      // this now keeps short lines too - but that let the page's own chrome in
+      // as body text: one card read "Chief Meteorologist Mike Collier / Just
+      // now", which is the byline and the timestamp, not the post. Anything
+      // that is plainly the surrounding furniture is dropped by name.
+      const chrome = new RegExp(
+        '^(?:like|comment|share|send|reply|see more|see less|all reactions'
+        + '|most relevant|top comments|follow|message|·|and \\d+ others'
+        + '|just now|yesterday|today'
+        + '|\\d+\\s*(?:s|m|h|d|w|min|mins|hr|hrs|hour|hours|day|days|week|weeks)'
+        + '|(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\\s+\\d{1,2}.*'
+        + '|\\d+\\s*(?:comments?|shares?|views?|likes?|reactions?)'
+        + ')$', 'i');
       text = (a.innerText || '').split('\n')
         .map(l => l.trim())
-        .filter(l => l.length > 3 && !chrome.test(l))
+        // The byline is not always the bare page name - Mike Collier's card
+        // reads "Chief Meteorologist Mike Collier". A short line carrying the
+        // page's name is a byline; a long one is someone writing about them.
+        .filter(l => l.length > 3 && !chrome.test(l)
+                     && !(name && l.toLowerCase().includes(name) && l.length < 60))
         .slice(0, 8).join('\n').trim();
     }
     text = text.replace(/\s*See more\s*$/i, '').trim();
@@ -901,7 +967,7 @@ def fetch_with_browser(platform, handle, label, limit, cookies, cfg):
             seen_before = max(seen_before, found or 0)
         vlog(f"after scrolling, {seen_before} article node(s) present")
 
-        result = page.evaluate(script, limit)
+        result = page.evaluate(script, {"limit": limit, "name": label or handle})
         # The X extractor still returns a bare list; the Facebook one returns
         # {posts, drop} so a shallow run says why.
         if isinstance(result, dict):
@@ -922,7 +988,8 @@ def fetch_with_browser(platform, handle, label, limit, cookies, cfg):
         vids = [v for v in (item.get("videos") or [])]
         text = (item.get("text") or "").strip()
         posts.append({
-            "id": post_id(item.get("url"), text, platform, handle),
+            "id": post_id(item.get("url"), text, platform, handle,
+                          item.get("images") or []),
             "platform": platform, "source": label, "handle": handle,
             "author": item.get("author") or handle, "url": item.get("url") or "",
             "text": text, "published": iso(ts) if ts else "",
@@ -1177,7 +1244,10 @@ def collapse_twins(items):
         best[key] = winner
     # Exact first (same post number), then the text fallback for posts whose
     # only permalink is a pfbid and so carries no number to match on.
-    return collapse_prefixes(collapse_by_post_number(list(best.values()) + passthrough))
+    # Exact signals first - post number, then the photo - and only then the
+    # text fallback, for posts that offer neither.
+    merged = collapse_by_post_number(list(best.values()) + passthrough)
+    return collapse_prefixes(collapse_by_media(merged))
 
 
 def dedup_text(t):
@@ -1260,6 +1330,42 @@ def collapse_by_post_number(items):
             winner["preview"] = loser["preview"]
         if not winner.get("images") and loser.get("images"):
             winner["images"] = loser["images"]
+        best[key] = winner
+    return list(best.values()) + passthrough
+
+
+def collapse_by_media(items):
+    """Merge records from one account that carry the same photo.
+
+    The two routes cannot always agree on a key: the page JSON holds a stable
+    post number the rendered page never sees, and the rendered page only has a
+    pfbid permalink, which is minted fresh on every view. Both of them do see
+    the photo, and the CDN's id for it does not change - so where a post has
+    one, it settles the question without any text matching at all.
+
+    Scoped to the account, because two pages can legitimately post the same
+    photo and those are two posts.
+    """
+    best, passthrough = {}, []
+    for p in items:
+        media = (facebook_media_id(p.get("images"))
+                 if (p.get("platform") or "").lower() == "facebook" else "")
+        if not media:
+            passthrough.append(p)
+            continue
+        key = ((p.get("handle") or "").lower(), media)
+        prev = best.get(key)
+        if prev is None:
+            best[key] = p
+            continue
+        winner, loser = (p, prev) if richness(p) > richness(prev) else (prev, p)
+        seen = [x.get("first_seen") for x in (winner, loser) if x.get("first_seen")]
+        if seen:
+            winner["first_seen"] = min(seen)
+        if not winner.get("preview") and loser.get("preview"):
+            winner["preview"] = loser["preview"]
+        if not winner.get("text") and loser.get("text"):
+            winner["text"] = loser["text"]
         best[key] = winner
     return list(best.values()) + passthrough
 
