@@ -668,9 +668,12 @@ X_EXTRACT = r"""
 FB_EXTRACT = r"""
 (limit) => {
   const out = [], seen = new Set();
+  // Why nodes get discarded, so a shallow run can be diagnosed from the log
+  // instead of guessed at.
+  const drop = { nested: 0, noKey: 0, duplicate: 0, empty: 0 };
   for (const a of document.querySelectorAll('div[role="article"]')) {
     if (out.length >= limit) break;
-    if (a.parentElement && a.parentElement.closest('div[role="article"]')) continue;
+    if (a.parentElement && a.parentElement.closest('div[role="article"]')) { drop.nested++; continue; }
 
     let url = '', rawTime = '';
     for (const l of a.querySelectorAll('a[href]')) {
@@ -691,7 +694,16 @@ FB_EXTRACT = r"""
     let text = '';
     const body = a.querySelector('div[data-ad-preview="message"], div[data-ad-comet-preview="message"], [data-testid="post_message"]');
     if (body) text = body.innerText.trim();
-    else text = (a.innerText || '').split('\n').filter(l => l.trim().length > 25).slice(0, 6).join('\n').trim();
+    else {
+      // The fallback used to keep only lines over 25 characters, which threw
+      // away every short post - "DOLLY, is that you?" is nineteen. Anything
+      // that is not obviously chrome now counts as a line of the body.
+      const chrome = /^(like|comment|share|see more|all reactions|most relevant|·|\d+[smhdw])$/i;
+      text = (a.innerText || '').split('\n')
+        .map(l => l.trim())
+        .filter(l => l.length > 3 && !chrome.test(l))
+        .slice(0, 8).join('\n').trim();
+    }
     text = text.replace(/\s*See more\s*$/i, '').trim();
 
     const images = [];
@@ -709,14 +721,15 @@ FB_EXTRACT = r"""
       videos.push(src.startsWith('blob:') ? '' : src);
     });
 
-    const key = url || text.slice(0, 120);
-    if (!key || seen.has(key)) continue;
+    const key = url || text.slice(0, 120) || (images[0] || '');
+    if (!key) { drop.noKey++; continue; }
+    if (seen.has(key)) { drop.duplicate++; continue; }
     seen.add(key);
-    if (!text && !images.length && !videos.length) continue;
+    if (!text && !images.length && !videos.length) { drop.empty++; continue; }
     out.push({ url, text, iso_time: '', raw_time: rawTime,
                images: images.slice(0, 4), videos, author: '', repost: false });
   }
-  return out;
+  return { posts: out, drop };
 }
 """
 
@@ -849,8 +862,18 @@ def fetch_with_browser(platform, handle, label, limit, cookies, cfg):
             seen_before = max(seen_before, found or 0)
         vlog(f"after scrolling, {seen_before} article node(s) present")
 
-        raw = page.evaluate(script, limit)
-        vlog(f"extractor returned {len(raw or [])} post(s) from {seen_before} node(s)")
+        result = page.evaluate(script, limit)
+        # The X extractor still returns a bare list; the Facebook one returns
+        # {posts, drop} so a shallow run says why.
+        if isinstance(result, dict):
+            raw = result.get("posts") or []
+            drop = result.get("drop") or {}
+            reasons = ", ".join(f"{k}={v}" for k, v in drop.items() if v)
+            vlog(f"extractor returned {len(raw)} post(s) from {seen_before} node(s)"
+                 + (f" (discarded: {reasons})" if reasons else ""))
+        else:
+            raw = result or []
+            vlog(f"extractor returned {len(raw)} post(s) from {seen_before} node(s)")
         ctx.close()
         browser.close()
 
@@ -1165,13 +1188,22 @@ def collapse_prefixes(items):
         for p in group:
             body = dedup_text(p.get("text"))
             match = None
-            if len(body) >= PREFIX_MIN:
-                for k in kept:
-                    kbody = dedup_text(k.get("text"))
-                    if kbody.startswith(body) or body.startswith(kbody):
-                        if within_a_day(p, k):
-                            match = k
-                            break
+            for k in kept:
+                kbody = dedup_text(k.get("text"))
+                if not body or not kbody:
+                    continue
+                # Identical wording is the same post at any length. "DOLLY, is
+                # that you?" is nineteen characters and was slipping through
+                # the prefix rule's length floor, so it entered the feed again
+                # on every run under a new pfbid.
+                same = body == kbody
+                # A prefix only proves anything once it is long enough that two
+                # different posts are unlikely to share it.
+                prefix = (len(body) >= PREFIX_MIN and len(kbody) >= PREFIX_MIN
+                          and (kbody.startswith(body) or body.startswith(kbody)))
+                if (same or prefix) and within_a_day(p, k):
+                    match = k
+                    break
             if match is None:
                 kept.append(p)
                 continue
