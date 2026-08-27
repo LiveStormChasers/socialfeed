@@ -146,19 +146,39 @@ jobs:
 
       - name: Commit updated feed
         run: |
+          set -u
           git config user.name  "feed-bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add feed.json media
-          if git diff --staged --quiet; then
-            echo "No new posts - nothing to commit."
-          else
-            git commit -m "Update feed ($(date -u '+%Y-%m-%d %H:%M UTC'))"
-            for i in 1 2 3; do
-              git pull --rebase --autostash origin "${GITHUB_REF_NAME}" && break
-              sleep 5
-            done
-            git push
-          fi
+
+          # feed.json is a generated file, so rebasing this run's version onto
+          # another run's conflicts every single time - and a conflicted
+          # feed.json carries git markers, which makes it invalid JSON. That is
+          # what broke the run where two collections landed 49 seconds apart.
+          #
+          # So do not rebase it. If the push is rejected, discard our copy,
+          # take the one that actually landed, and fold this run's shard
+          # results into THAT. merge() dedups by post id, so redoing it is
+          # safe and neither run's posts are lost.
+          for attempt in 1 2 3; do
+            git add feed.json media
+            if git diff --staged --quiet; then
+              echo "No new posts - nothing to commit."
+              exit 0
+            fi
+            git commit -q -m "Update feed ($(date -u '+%Y-%m-%d %H:%M UTC'))"
+            if git push -q origin "HEAD:${GITHUB_REF_NAME}"; then
+              echo "pushed on attempt ${attempt}"
+              exit 0
+            fi
+            echo "push rejected - another run landed first, re-merging onto it"
+            git fetch -q origin "${GITHUB_REF_NAME}"
+            git reset --hard -q "origin/${GITHUB_REF_NAME}"
+            # parts/ is untracked artifact data, so it survives the reset.
+            # --no-retry: this is a re-merge, not a reason to hit Facebook again.
+            python collect.py --verbose --merge parts --no-retry
+          done
+          echo "could not push after 3 attempts - the next run will pick this up"
+          exit 1
 
       - name: Summary
         if: always()
@@ -169,7 +189,13 @@ jobs:
             if [ -f feed.json ]; then
               python - <<'PY'
           import json
-          d = json.load(open("feed.json"))
+          # Never let the summary be the thing that fails the run - if the feed
+          # is unreadable, say so here and let the real error stand out.
+          try:
+              d = json.load(open("feed.json"))
+          except Exception as exc:
+              print(f"feed.json could not be read: {type(exc).__name__}: {exc}")
+              raise SystemExit(0)
           print(f"**{d.get('count', 0)} posts** · generated {d.get('generated','?')}")
           print()
           print("| Source | Status | Route / error |")
