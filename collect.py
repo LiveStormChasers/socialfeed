@@ -557,8 +557,16 @@ def normalise_fb_post(key, slot, handle, label):
 
     # Identity must not depend on which URL form Facebook served: the same post
     # appears as /posts/<numeric id> on one run and /posts/pfbid... on the next.
-    # `key` is the numeric post id from the fragments, so hash that instead.
-    identity = f"https://www.facebook.com/{handle}/posts/{key}"
+    #
+    # But the fragment key is not always the number in the permalink. A reel
+    # carries one id in the page JSON and a different one in its
+    # /reel/<id> link, so keying off the JSON id gave the same reel two
+    # identities - the page-JSON route and the browser route disagreed about a
+    # post they both linked to identically. The permalink is the one thing both
+    # routes see the same, so prefer the number in it and fall back to the
+    # fragment key only when the URL carries no number of its own.
+    identity = (url if facebook_post_number(url)
+                else f"https://www.facebook.com/{handle}/posts/{key}")
 
     return {
         "id": post_id(identity, text or key, "facebook", handle),
@@ -1188,7 +1196,12 @@ def dedup_text(t):
     # and plain periods, in different amounts. Collapse any run of them to a
     # single stop, then drop a trailing one, so both sides read the same.
     s = re.sub(r"[.…]{2,}", ".", s)
-    return re.sub(r"[.…]+$", "", s)
+    s = re.sub(r"[.…]+$", "", s)
+    # One route keeps a leading marker emoji ("🔴 How to see...") and the other
+    # drops it, which is enough to defeat both the equality and the prefix
+    # test. Only leading decoration is stripped - emoji inside the body still
+    # distinguish one post from another.
+    return re.sub(r"^[^0-9a-z]+", "", s)
 
 
 # Facebook's rendered page collapses long posts behind "See more", so the
