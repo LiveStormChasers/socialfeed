@@ -1112,6 +1112,27 @@ def prune_media(items):
 # main
 # --------------------------------------------------------------------------
 
+def rotate_sources(sources, cursor, step):
+    """Start each run at a different point in the source list.
+
+    Returns (ordered_sources, cursor_for_next_run). Facebook stops answering
+    partway through a run, so whoever is at the back of the list never gets
+    collected. Rotating the starting point spreads that loss around instead of
+    letting it fall on the same accounts every time.
+    """
+    if not sources:
+        return sources, 0
+    try:
+        start = int(cursor or 0) % len(sources)
+    except (TypeError, ValueError):
+        start = 0
+    try:
+        step = max(1, int(step))
+    except (TypeError, ValueError):
+        step = 1
+    return sources[start:] + sources[:start], (start + step) % len(sources)
+
+
 def run(args):
     global VERBOSE
     VERBOSE = args.verbose
@@ -1141,19 +1162,22 @@ def run(args):
 
     previous = load_json(FEED_PATH, {}) or {}
 
-    # Deep (browser) passes are rationed and rotated. Doing every Facebook page
-    # in one run got the whole run progressively blocked: the first few
-    # succeeded, then Facebook refused the rest. Since the feed accumulates
-    # across runs, a few pages per run is enough - each one comes round again
-    # within the hour.
-    fb_handles = [s["handle"] for s in sources if s.get("platform", "").lower() == "facebook"]
+    # Facebook cuts a run off after roughly its first eight page requests -
+    # cheap fetches included, not just the browser ones - so a source's
+    # POSITION in the run decides whether it is collected at all. Rotating
+    # where the list starts each run means nothing is permanently stuck in a
+    # losing slot: over a few runs every source gets an early position, and
+    # since the feed accumulates, partial runs still converge on full coverage.
+    sources, cursor = rotate_sources(sources, previous.get("order_cursor"),
+                                     cfg.get("rotate_by", 6))
+    log(f"Run order starts at {sources[0].get('platform')}/{sources[0].get('handle')}")
+
+    # The browser pass is the expensive route, so spend it on the sources at
+    # the front of this run's order - the slots least likely to be refused.
     per_run = max(1, int(cfg.get("browser_pass_per_run", 4)))
-    cursor = int(previous.get("deep_cursor") or 0)
-    eligible = set()
-    if fb_handles:
-        for i in range(min(per_run, len(fb_handles))):
-            eligible.add(fb_handles[(cursor + i) % len(fb_handles)])
-        cursor = (cursor + per_run) % len(fb_handles)
+    eligible = set(list(dict.fromkeys(
+        s["handle"] for s in sources
+        if s.get("platform", "").lower() == "facebook"))[:per_run])
     if eligible:
         log(f"Deep pass this run: {', '.join(sorted(eligible))}")
 
@@ -1171,7 +1195,7 @@ def run(args):
         status.append(st)
         # Space the requests out. Back-to-back hits are what trip the blocking.
         if n < len(sources) - 1:
-            time.sleep(random.uniform(2.0, 5.0))
+            time.sleep(random.uniform(3.0, 7.0))
 
     if fresh:
         download_previews(fresh, session, cfg)
@@ -1184,7 +1208,7 @@ def run(args):
     save_json(FEED_PATH, {
         "generated": iso(now_utc()),
         "count": len(items),
-        "deep_cursor": cursor,
+        "order_cursor": cursor,
         "sources": status,
         "items": items,
     })
