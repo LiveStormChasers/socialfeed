@@ -1193,9 +1193,14 @@ def dedup_text(t):
 
 # Facebook's rendered page collapses long posts behind "See more", so the
 # browser route sees a truncated body; the JSON route sees the whole thing.
-# Below this length a "prefix" is too weak to prove anything - two posts can
-# easily open with the same forty characters.
-PREFIX_MIN = 60
+# Below this length a "prefix" is too weak to prove anything on its own.
+#
+# This is the fallback for posts whose only permalink is a pfbid, which
+# carries no post number to match on. 60 was too strict - a real duplicate in
+# the feed shared a 48-character opening and survived. Checked against the
+# live feed, 40 folds exactly the genuine duplicates and nothing else, and it
+# is still paired with "same account" and "within a day".
+PREFIX_MIN = 40
 
 
 def collapse_prefixes(items):
