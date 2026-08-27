@@ -1,22 +1,28 @@
 name: Collect feed
 
+# Facebook throttles by source IP: after roughly eight page requests from one
+# address it stops refusing and starts answering HTTP 200 with a ~430KB shell
+# that has no posts in it, where a real page is ~950KB-1MB. One job asking for
+# nineteen pages therefore only ever got the first few.
+#
+# Every GitHub-hosted job is a fresh VM, so the fix is to stop asking from one
+# address. Five parallel shards ask for about four pages each - under the
+# threshold - and a merge job folds the results into feed.json. Only the merge
+# job writes feed.json; five jobs committing the same file would lose posts.
+
 on:
+  workflow_dispatch:
+  # The heartbeat workflow is what actually drives the cadence - GitHub's cron
+  # has never fired for this repo. This stays as a backup in case it starts.
   schedule:
-    # Every 15 minutes. Not a GitHub limit - a Facebook one. At */5 with ~19
-    # sources this made ~230 requests an hour from one datacenter IP, and
-    # Facebook started refusing everything after the first eight sources of a
-    # run. Volume is the constraint, not speed. The feed accumulates across
-    # runs anyway, so slower polling loses nothing but flakiness.
     - cron: "*/15 * * * *"
-  workflow_dispatch:        # run it by hand from the Actions tab
   push:
     branches: [main]
     paths:
-      - "sources.json"      # re-collect immediately when you add an account
+      - "sources.json"
       - "collect.py"
       - "index.html"
 
-# Only one collection at a time, so two runs never race on the same commit.
 concurrency:
   group: collect-feed
   cancel-in-progress: false
@@ -25,12 +31,26 @@ permissions:
   contents: write
 
 jobs:
-  collect:
+  shard:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 15
+    strategy:
+      # One shard being blocked must not cancel the other four.
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3, 4]
 
     steps:
       - uses: actions/checkout@v4
+
+      # The whole design rests on these five jobs not sharing an address.
+      # Print it so the run itself proves or disproves that, rather than us
+      # assuming it.
+      - name: Show this runner's public IP
+        run: |
+          ip=$(curl -s --max-time 10 https://api.ipify.org || echo "unknown")
+          echo "shard ${{ matrix.shard }} is calling from $ip"
+          echo "- shard ${{ matrix.shard }}: \`$ip\`" >> "$GITHUB_STEP_SUMMARY"
 
       - uses: actions/setup-python@v5
         with:
@@ -40,8 +60,6 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      # Chromium is needed for the Facebook browser route and the optional X
-      # cookie fallback. If neither applies, skip it entirely.
       - name: Decide whether a browser is needed
         id: caps
         env:
@@ -61,8 +79,6 @@ jobs:
           print(f"facebook sources: {fb}, cookie secrets: {cookies}, browser: {need}")
           PY
 
-      # Restoring the browser from cache takes ~10s against ~60s to install it.
-      # At a 5-minute cadence that is most of the per-run wall time.
       - name: Cache Playwright browser
         if: steps.caps.outputs.browser == 'true'
         id: pwcache
@@ -76,17 +92,57 @@ jobs:
         run: |
           pip install playwright
           if [ "${{ steps.pwcache.outputs.cache-hit }}" = "true" ]; then
-            # Browser binary is cached; still need the OS-level libraries.
             python -m playwright install-deps chromium
           else
             python -m playwright install --with-deps chromium
           fi
 
-      - name: Collect
+      - name: Collect this shard
         env:
           X_COOKIES: ${{ secrets.X_COOKIES }}
           FB_COOKIES: ${{ secrets.FB_COOKIES }}
-        run: python collect.py --verbose
+        run: |
+          python collect.py --verbose \
+            --shard ${{ matrix.shard }} --shards 5 \
+            --out "part-${{ matrix.shard }}.json"
+
+      - name: Hand the catch to the merge job
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: part-${{ matrix.shard }}
+          path: part-${{ matrix.shard }}.json
+          if-no-files-found: warn
+          retention-days: 1
+
+  merge:
+    needs: shard
+    # Merge whatever came back. Waiting for all five to succeed would throw
+    # away four good shards because one was blocked.
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Collect the shard results
+        uses: actions/download-artifact@v4
+        with:
+          path: parts
+          pattern: part-*
+          merge-multiple: true
+
+      - name: Merge into the feed
+        run: python collect.py --verbose --merge parts
 
       - name: Commit updated feed
         run: |
@@ -97,7 +153,6 @@ jobs:
             echo "No new posts - nothing to commit."
           else
             git commit -m "Update feed ($(date -u '+%Y-%m-%d %H:%M UTC'))"
-            # Another run may have landed while this one was collecting.
             for i in 1 2 3; do
               git pull --rebase --autostash origin "${GITHUB_REF_NAME}" && break
               sleep 5
