@@ -24,10 +24,10 @@
   body{background:var(--bg);color:var(--text);
     font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
     -webkit-font-smoothing:antialiased}
-  .wrap{max-width:680px;margin:0 auto;padding:0 16px 64px}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 18px 72px}
 
   header.bar{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px solid var(--line);margin-bottom:18px}
-  .bar-inner{max-width:680px;margin:0 auto;padding:14px 16px 12px;display:flex;flex-direction:column;gap:11px}
+  .bar-inner{max-width:1180px;margin:0 auto;padding:14px 16px 12px;display:flex;flex-direction:column;gap:11px}
   .title-row{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
   h1{font-size:17px;font-weight:650;letter-spacing:-.01em;margin:0}
   .stamp{font-size:12px;color:var(--muted);white-space:nowrap;display:flex;align-items:center;gap:7px}
@@ -35,7 +35,7 @@
   .controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
   .chips{display:flex;gap:6px;flex-wrap:wrap}
   .chip{border:1px solid var(--line);background:var(--panel);color:var(--muted);padding:5px 11px;
-    border-radius:999px;font-size:12.5px;cursor:pointer;transition:background .12s,color .12s,border-color .12s}
+    border-radius:999px;font-size:12.5px;cursor:pointer;transition:background .12s,color .12s,border-color .12s }
   .chip:hover{border-color:var(--muted)}
   .chip[aria-pressed="true"]{background:var(--text);color:var(--bg);border-color:var(--text)}
   input[type=search]{flex:1;min-width:150px;padding:6px 11px;border:1px solid var(--line);
@@ -54,8 +54,18 @@
   .s-ok{color:var(--ok)} .s-warn{color:var(--warn)} .s-bad{color:var(--bad)}
   .err{color:var(--muted);word-break:break-word}
 
+  /* Masonry: fine rows plus a computed row-span per card, so cards pack upward
+     instead of every row stretching to its tallest member. Keeps left-to-right
+     chronological order, which a `columns:3` layout would not. */
+  #feed{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+    column-gap:16px;grid-auto-rows:8px;align-items:start}
+  #feed > *{margin-bottom:16px}
+  @media (max-width:1000px){ #feed{grid-template-columns:repeat(2,minmax(0,1fr))} }
+  @media (max-width:660px){ #feed{grid-template-columns:minmax(0,1fr)} }
+  /* Day headers and the embed block break out across the whole row. */
+  #feed > .day, #feed > .embed{grid-column:1/-1}
   .post{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
-    box-shadow:var(--shadow);margin-bottom:12px;overflow:hidden}
+    box-shadow:var(--shadow);overflow:hidden;min-width:0}
   .post-head{display:flex;align-items:center;gap:9px;padding:13px 15px 0}
   .badge{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;
     border-radius:5px;flex:none;font-size:12px;font-weight:700;line-height:1}
@@ -66,10 +76,11 @@
   .when{color:var(--muted);font-size:12.5px;margin-left:auto;white-space:nowrap}
   .when.approx::after{content:"~";margin-left:2px;opacity:.7}
   .body{padding:9px 15px 0;white-space:pre-wrap;overflow-wrap:anywhere}
-  .body.clamped{max-height:12.5em;overflow:hidden;-webkit-mask-image:linear-gradient(#000 72%,transparent)}
+  .body.clamped{max-height:8.5em;overflow:hidden;-webkit-mask-image:linear-gradient(#000 72%,transparent)}
   .more{background:none;border:0;color:var(--accent);font-size:13px;cursor:pointer;padding:5px 15px 0;font-family:inherit}
   .media{margin:12px 0 0;position:relative;display:block;line-height:0;border-top:1px solid var(--line-soft)}
-  .media img{width:100%;height:auto;display:block;background:var(--line-soft)}
+  .media img{width:100%;height:auto;max-height:420px;object-fit:cover;
+    display:block;background:var(--line-soft)}
   .play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
   .play span{width:58px;height:58px;border-radius:50%;background:rgba(0,0,0,.62);display:flex;align-items:center;justify-content:center}
   .play span::after{content:"";border-left:17px solid #fff;border-top:11px solid transparent;border-bottom:11px solid transparent;margin-left:5px}
@@ -85,9 +96,9 @@
   .embed .note{padding:0 15px 11px;color:var(--muted);font-size:12.5px}
   .embed iframe{width:100%;border:0;display:block;background:var(--line-soft)}
 
-  .day{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:22px 2px 9px}
+  .day{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:10px 2px 0}
   .day:first-child{margin-top:4px}
-  .empty{text-align:center;color:var(--muted);padding:60px 20px;border:1px dashed var(--line);border-radius:var(--radius);font-size:14px}
+  .empty{grid-column:1/-1;text-align:center;color:var(--muted);padding:60px 20px;border:1px dashed var(--line);border-radius:var(--radius);font-size:14px}
   .empty code{background:var(--line-soft);padding:2px 6px;border-radius:4px;font-size:12.5px}
 </style>
 </head>
@@ -243,7 +254,7 @@ function card(p){
   el.innerHTML = html;
 
   const body = el.querySelector('.body');
-  if (body && body.scrollHeight > 230){
+  if (body && body.scrollHeight > 150){
     body.classList.add('clamped');
     const btn = document.createElement('button');
     btn.className = 'more';
@@ -251,11 +262,38 @@ function card(p){
     btn.onclick = () => {
       const open = body.classList.toggle('clamped');
       btn.textContent = open ? 'Show more' : 'Show less';
+      layout();
     };
     body.after(btn);
   }
   return el;
 }
+
+const ROW = 8, GAP = 16;
+
+// Cards are natural height; this assigns each one a row span so the grid packs
+// them upward. Runs after every render, after images load, and on resize.
+function layout(){
+  for (const el of feedEl.children){
+    el.style.gridRowEnd = 'auto';
+    const h = el.getBoundingClientRect().height;
+    if (h) el.style.gridRowEnd = 'span ' + Math.ceil((h + GAP) / ROW);
+  }
+}
+
+function watchMedia(){
+  feedEl.querySelectorAll('img, iframe').forEach(el => {
+    if (el.complete) return;
+    el.addEventListener('load', layout, {once:true});
+    el.addEventListener('error', layout, {once:true});
+  });
+}
+
+let resizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(layout, 120);
+});
 
 function passes(p, q){
   if (filter==='x' && p.platform!=='x') return false;
@@ -304,6 +342,9 @@ function render(){
       embeds.forEach(s => feedEl.appendChild(embedCard(s)));
     }
   }
+
+  layout();
+  watchMedia();
 }
 
 function load(){
