@@ -527,10 +527,18 @@ function knownAccounts(){
 function renderAccounts(){
   const box=document.getElementById('acctlist'); if(!box) return;
   const rows=knownAccounts();
+  // autocomplete="off" and setting .checked in JS below, both deliberately:
+  // the checked ATTRIBUTE only sets a control's default state, and browsers
+  // restore the last live state of form controls across a reload. That is how
+  // a box could come back unticked on a fresh load even though nothing was
+  // muted. The stored set is the truth; the DOM is told what it says.
   box.innerHTML=rows.map(([h,label])=>
-    `<label class="acct"><input type="checkbox" data-h="${esc(h)}"${muted.has(h)?'':' checked'}>
+    `<label class="acct"><input type="checkbox" autocomplete="off" data-h="${esc(h)}">
        <span>${esc(label)}</span></label>`).join('')
     || '<div class="acct-empty">No accounts yet.</div>';
+  box.querySelectorAll('input[type=checkbox]').forEach(cb=>{
+    cb.checked = !muted.has(cb.dataset.h);
+  });
   const on=rows.length-rows.filter(([h])=>muted.has(h)).length;
   const c=document.getElementById('acctcount');
   if(c) c.textContent=on===rows.length?'All':`${on}/${rows.length}`;

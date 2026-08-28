@@ -767,11 +767,13 @@ FB_EXTRACT = r"""
   const chrome = new RegExp(
     '^(?:like|comment|share|send|reply|see more|see less|all reactions'
     + '|most relevant|top comments|follow|message|\u00b7|and \d+ others'
+    + '|view more comments|view \d+ more comments|view all \d+ repl(?:y|ies)'
+    + '|\d+ repl(?:y|ies)|write a comment|author|view previous comments'
     + '|just now|yesterday|today'
     + '|\d+\s*(?:s|m|h|d|w|min|mins|hr|hrs|hour|hours|day|days|week|weeks)'
     + '|(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\s+\d{1,2}.*'
     + '|\d+\s*(?:comments?|shares?|views?|likes?|reactions?)'
-    + ')$', 'i');
+    + '):?$', 'i');
 
   // Everything needed to turn one article node into a post, so the same
   // reading can be applied to a nested node that had to be salvaged.
@@ -800,7 +802,17 @@ FB_EXTRACT = r"""
       // characters - but that let the page's own furniture in as body text:
       // one card read "Chief Meteorologist Mike Collier / Just now", which is
       // the byline and the timestamp. Drop the furniture by name instead.
-      text = (a.innerText || '').split('\n')
+      // Comments are themselves role="article" nodes inside the post, so
+      // innerText swept them into the body: a short post came back as
+      // "The weather is quiet... | All reactions: | Nathaniel Parsley | ..."
+      // and a DIFFERENT commenter each run, which made one post look like a
+      // new post every time. Hide them, read the body, put them back.
+      const kids = a.querySelectorAll('div[role="article"]');
+      const wasHidden = [];
+      kids.forEach(k => { wasHidden.push(k.style.display); k.style.display = 'none'; });
+      const raw = a.innerText || '';
+      kids.forEach((k, i) => { k.style.display = wasHidden[i]; });
+      text = raw.split('\n')
         .map(l => l.trim())
         // The byline is not always the bare page name. A short line carrying
         // the page's name is a byline; a long one is someone writing about it.
@@ -1270,6 +1282,7 @@ def collapse_twins(items):
     # Exact signals first - post number, then the photo - and only then the
     # text fallback, for posts that offer neither.
     merged = collapse_by_post_number(list(best.values()) + passthrough)
+    merged = collapse_by_url(merged)
     return collapse_prefixes(collapse_by_media(merged))
 
 
@@ -1354,6 +1367,37 @@ def collapse_by_post_number(items):
         if not winner.get("images") and loser.get("images"):
             winner["images"] = loser["images"]
         best[key] = winner
+    return list(best.values()) + passthrough
+
+
+def collapse_by_url(items):
+    """Merge records that point at the exact same permalink.
+
+    Two different posts never share a permalink, so this is as safe as the
+    post-number test and catches what that one cannot: a pfbid link carries no
+    number, and when one post came back four times with a different commenter
+    scraped into its body each run, the identical URL was the only thing all
+    four had in common.
+    """
+    best, passthrough = {}, []
+    for p in items:
+        url = canonical_url(p.get("url")) if p.get("url") else ""
+        if not url:
+            passthrough.append(p)
+            continue
+        prev = best.get(url)
+        if prev is None:
+            best[url] = p
+            continue
+        winner, loser = (p, prev) if richness(p) > richness(prev) else (prev, p)
+        seen = [x.get("first_seen") for x in (winner, loser) if x.get("first_seen")]
+        if seen:
+            winner["first_seen"] = min(seen)
+        if not winner.get("preview") and loser.get("preview"):
+            winner["preview"] = loser["preview"]
+        if not winner.get("images") and loser.get("images"):
+            winner["images"] = loser["images"]
+        best[url] = winner
     return list(best.values()) + passthrough
 
 
