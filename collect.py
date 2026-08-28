@@ -1528,7 +1528,36 @@ def within_a_day(a, b):
     return abs((ta - tb).total_seconds()) <= 86400
 
 
+# Lines that only ever appear BELOW a post's body - the reaction bar and the
+# comment thread. Everything from the first one of these onwards is furniture.
+FURNITURE = re.compile(
+    r"^(?:all reactions|view more comments|view \d+ more comments"
+    r"|view all \d+ repl(?:y|ies)|\d+ repl(?:y|ies)|most relevant|top comments"
+    r"|write a comment|view previous comments|see translation)\b[:\s]*$", re.I)
+
+
+def clean_body(text):
+    """Cut a post's text off where its comment thread begins.
+
+    The extractor no longer sweeps comments into the body, but records already
+    in the feed still carry them - and because the polluted copy is LONGER, the
+    "keep the richer record" rule would pick it over a clean one. Cleaning on
+    the way through fixes the stored ones too, rather than waiting two days for
+    them to age out.
+    """
+    kept = []
+    for line in (text or "").split("\n"):
+        if FURNITURE.match(line.strip()):
+            break
+        kept.append(line)
+    return "\n".join(kept).strip()
+
+
 def merge(existing, fresh, cfg):
+    for p in list(existing) + list(fresh):
+        cleaned = clean_body(p.get("text"))
+        if cleaned != (p.get("text") or ""):
+            p["text"] = cleaned
     by_id = {p["id"]: p for p in existing}
     stamp = iso(now_utc())
     added = 0
