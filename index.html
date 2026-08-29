@@ -651,39 +651,71 @@ function renderKeepingPlace(){
   }
 }
 
+// What a card's appearance depends on. If this is unchanged, the existing
+// DOM node is reused as-is - which is the whole point: rebuilding it would
+// reload its image and flash the card.
+function cardSig(p){
+  return [p.id, (p.text||'').length, p.preview||'', p.url||'',
+          p.has_video?1:0, p.sort_time||p.published||''].join('|');
+}
+
 function render(){
   const q=qEl.value.trim().toLowerCase();
   const list=ITEMS.filter(p=>passes(p,q));
-  feedEl.innerHTML='';
+
+  // Build the sequence the feed should show, as keyed entries. Nothing is
+  // created yet - existing nodes get reused below.
+  const wanted=[];
   if(!list.length && filter==='x' && !q){
-    // X is configured but parked: its syndication endpoint refuses the
-    // collector. Say so plainly rather than showing an empty feed that looks
-    // like a fault.
-    const n=document.createElement('div'); n.className='soon-panel';
-    n.innerHTML=`<div class="glyph">𝕏</div>
-      <h3>Coming soon</h3>
-      <p>X posts aren't being collected yet.<br>Facebook sources are live and updating every 10 minutes.</p>`;
-    feedEl.appendChild(n);
+    wanted.push({key:'soon', make(){
+      const n=document.createElement('div'); n.className='soon-panel';
+      n.innerHTML=`<div class="glyph">𝕏</div>
+        <h3>Coming soon</h3>
+        <p>X posts aren't being collected yet.<br>Facebook sources are live and updating every 10 minutes.</p>`;
+      return n; }});
   } else if(!list.length){
-    const n=document.createElement('div'); n.className='empty';
-    n.innerHTML=ITEMS.length?'Nothing matches that.':'No posts yet. The collector runs every few minutes — check back shortly.';
-    feedEl.appendChild(n);
+    wanted.push({key:'empty:'+(ITEMS.length?'nomatch':'none'), make(){
+      const n=document.createElement('div'); n.className='empty';
+      n.innerHTML=ITEMS.length?'Nothing matches that.':'No posts yet. The collector runs every few minutes — check back shortly.';
+      return n; }});
   } else {
     let last=null;
     for(const p of list){
       const d=dayLabel(p.sort_time||p.published||p.first_seen);
-      if(d!==last){ const h=document.createElement('div'); h.className='day'; h.textContent=d; feedEl.appendChild(h); last=d; }
-      feedEl.appendChild(card(p));
+      if(d!==last){
+        wanted.push({key:'day:'+d, make(){
+          const h=document.createElement('div'); h.className='day'; h.textContent=d; return h; }});
+        last=d;
+      }
+      wanted.push({key:'post:'+p.id, sig:cardSig(p), make(){ return card(p); }});
     }
   }
   if(!q&&(filter==='all'||filter==='facebook')){
     const em=SOURCES.filter(s=>s.embed_only);
     if(em.length){
-      const h=document.createElement('div'); h.className='day'; h.textContent='Embedded sources';
-      feedEl.appendChild(h);
-      em.forEach(s=>feedEl.appendChild(embedCard(s)));
+      wanted.push({key:'day:embeds', make(){
+        const h=document.createElement('div'); h.className='day'; h.textContent='Embedded sources'; return h; }});
+      em.forEach(s=>wanted.push({key:'embed:'+s.handle, make(){ return embedCard(s); }}));
     }
   }
+
+  // Reconcile against what is already on the page. A wholesale
+  // feedEl.innerHTML='' rebuilt all 400-odd cards on every poll, which made
+  // every image reload and the whole feed visibly flash each time a single
+  // post arrived. Reuse the nodes; only build what is genuinely new.
+  const have=new Map();
+  for(const el of Array.from(feedEl.children)) if(el.dataset.key) have.set(el.dataset.key, el);
+  let prev=null;
+  for(const w of wanted){
+    let el=have.get(w.key);
+    if(el && w.sig && el.dataset.sig!==w.sig) el=null;      // its content changed
+    if(el) have.delete(w.key);
+    else { el=w.make(); el.dataset.key=w.key; if(w.sig) el.dataset.sig=w.sig; }
+    const at=prev?prev.nextSibling:feedEl.firstChild;
+    if(el!==at) feedEl.insertBefore(el, at);
+    prev=el;
+  }
+  for(const el of have.values()) el.remove();
   layout();
 }
 
