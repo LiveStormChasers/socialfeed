@@ -562,7 +562,7 @@ function bodyHtml(p,open){
 }
 
 function card(p){
-  const el=document.createElement('article'); el.className='post';
+  const el=document.createElement('article'); el.className='post'; el.dataset.id=p.id;
   const h=hue(p.handle);
   const when=relTime(p.sort_time||p.published||p.first_seen);
   let html=`<div class="post-head">
@@ -632,6 +632,25 @@ function passes(p,q){
   return true;
 }
 
+function renderKeepingPlace(){
+  // New posts arrive at the TOP, so a plain re-render pushes whatever you are
+  // reading down the page. Anchor on the first card currently in view, then
+  // scroll by exactly how far it moved - the feed updates immediately and the
+  // words under your eyes stay put.
+  let id=null, was=0;
+  if(scrollY>200){
+    for(const el of feedEl.querySelectorAll('.post[data-id]')){
+      const r=el.getBoundingClientRect();
+      if(r.bottom>0){ id=el.dataset.id; was=r.top; break; }
+    }
+  }
+  render();
+  if(id){
+    const el=feedEl.querySelector('.post[data-id="'+CSS.escape(id)+'"]');
+    if(el) scrollBy(0, el.getBoundingClientRect().top - was);
+  }
+}
+
 function render(){
   const q=qEl.value.trim().toLowerCase();
   const list=ITEMS.filter(p=>passes(p,q));
@@ -690,7 +709,7 @@ function applyStamp(data){
 }
 
 function load(first){
-  return fetch('feed.json?t='+Date.now(),{cache:'no-store'})
+  return fetch('feed.json',{cache:'no-cache'})   // revalidates: 304 when unchanged
     .then(r=>{ if(!r.ok) throw new Error(r.status); return r.json(); })
     .then(data=>{
       const items=(data.items||[]).sort((a,b)=>
@@ -707,13 +726,15 @@ function load(first){
         // would fire the alert for the entire backlog.
         const audible=fresh.filter(i=>!muted.has((i.handle||'').toLowerCase()));
         if(audible.length) chime(audible.length);
-        if(fresh.length && window.scrollY>400){
-          pending={items,data};
+        ITEMS=items; knownIds=new Set(items.map(i=>i.id));
+        applyStamp(data); renderHealth();
+        // Put them in straight away. New posts used to wait behind the pill
+        // whenever you were scrolled down, so coming back to the tab showed a
+        // stale feed until you clicked it.
+        renderKeepingPlace();
+        if(fresh.length && scrollY>400){
           pillEl.textContent=`${fresh.length} new post${fresh.length===1?'':'s'}`;
           pillEl.hidden=false; requestAnimationFrame(()=>pillEl.classList.add('show'));
-        } else {
-          ITEMS=items; knownIds=new Set(items.map(i=>i.id));
-          applyStamp(data); renderHealth(); render();
         }
       }
     })
@@ -725,11 +746,15 @@ function load(first){
 }
 
 pillEl.addEventListener('click',()=>{
-  if(pending){ ITEMS=pending.items; knownIds=new Set(ITEMS.map(i=>i.id));
-    applyStamp(pending.data); renderHealth(); render(); pending=null; }
+  // The posts are already on the page; this just takes you up to them.
   pillEl.classList.remove('show'); setTimeout(()=>pillEl.hidden=true,300);
   scrollTo({top:0,behavior:'smooth'});
 });
+addEventListener('scroll',()=>{
+  if(!pillEl.hidden && scrollY<300){
+    pillEl.classList.remove('show'); setTimeout(()=>pillEl.hidden=true,300);
+  }
+},{passive:true});
 document.getElementById('chips').addEventListener('click',e=>{
   const b=e.target.closest('button'); if(!b) return;
   filter=b.dataset.f;
@@ -821,7 +846,7 @@ addEventListener('keydown',e=>{
 
 skeleton();
 load(true);
-setInterval(()=>load(false), 3*60*1000);
+setInterval(()=>load(false), 60*1000);
 document.addEventListener('visibilitychange',()=>{ if(!document.hidden) load(false); });
 </script>
 </body>
