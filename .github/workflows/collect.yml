@@ -42,7 +42,7 @@ jobs:
         shard: [0, 1, 2, 3, 4, 5, 6, 7, 8]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # The whole design rests on these jobs not sharing an address.
       # Print it so the run itself proves or disproves that, rather than us
@@ -53,7 +53,7 @@ jobs:
           echo "shard ${{ matrix.shard }} is calling from $ip"
           echo "- shard ${{ matrix.shard }}: \`$ip\`" >> "$GITHUB_STEP_SUMMARY"
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
           cache: pip
@@ -92,7 +92,7 @@ jobs:
       - name: Cache Playwright browser
         if: steps.caps.outputs.browser == 'true'
         id: pwcache
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.cache/ms-playwright
           # Keyed on the Playwright version. The old fixed key meant that once a
@@ -154,7 +154,7 @@ jobs:
 
       - name: Hand the catch to the merge job
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: part-${{ matrix.shard }}
           path: part-${{ matrix.shard }}.json
@@ -170,9 +170,9 @@ jobs:
     timeout-minutes: 10
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
           cache: pip
@@ -180,8 +180,13 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      # Since v8 a checksum mismatch on a downloaded artifact fails the step
+      # instead of just warning. That is the right default - a corrupt shard
+      # result should not be merged into the feed - but if this step ever fails
+      # with a digest error, that is what it means, and the fix is to re-run
+      # rather than to loosen the check.
       - name: Collect the shard results
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           path: parts
           pattern: part-*
