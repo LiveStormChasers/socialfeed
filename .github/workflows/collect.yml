@@ -80,23 +80,68 @@ jobs:
           print(f"facebook sources: {fb}, cookie secrets: {cookies}, browser: {need}")
           PY
 
+      - name: Install the Playwright package
+        if: steps.caps.outputs.browser == 'true'
+        id: pw
+        run: |
+          pip install playwright
+          v=$(python -c "import importlib.metadata as m; print(m.version('playwright'))")
+          echo "version=$v" >> "$GITHUB_OUTPUT"
+          echo "playwright $v"
+
       - name: Cache Playwright browser
         if: steps.caps.outputs.browser == 'true'
         id: pwcache
         uses: actions/cache@v4
         with:
           path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-v1
+          # Keyed on the Playwright version. The old fixed key meant that once a
+          # cache existed it was never rewritten, so a Playwright upgrade
+          # re-downloaded Chromium on every run forever.
+          key: playwright-${{ runner.os }}-${{ steps.pw.outputs.version }}
+          restore-keys: playwright-${{ runner.os }}-
 
       - name: Install Chromium
         if: steps.caps.outputs.browser == 'true'
         run: |
-          pip install playwright
-          if [ "${{ steps.pwcache.outputs.cache-hit }}" = "true" ]; then
-            python -m playwright install-deps chromium
+          set -u
+
+          # Playwright's dependency installer shells out to `apt-get update`,
+          # which reads EVERY repo configured on the runner image - including
+          # Google's Chrome repo, which this workflow does not use. On
+          # 2026-09-09 that repo served a Packages.gz whose hash did not match
+          # its own Release file, apt exited 100, and all nine shards died
+          # before they ever reached Facebook. Nothing we install comes from a
+          # third-party repo, so take them out of the picture.
+          sudo rm -f /etc/apt/sources.list.d/google-chrome.list || true
+
+          # The browser binary comes from Playwright's own CDN, not from apt.
+          # This is the part that genuinely has to work.
+          python -m playwright install chromium
+
+          # System libraries are a best-effort top-up: ubuntu-latest already
+          # ships what Chromium needs, because it ships Chrome. If apt is having
+          # a bad day, warn and carry on - collect.py tries each route per
+          # source, so a missing deep read costs some posts, not the whole run.
+          if python -m playwright install-deps chromium; then
+            echo "browser dependencies installed"
           else
-            python -m playwright install --with-deps chromium
+            echo "::warning::apt could not install browser dependencies - continuing with the libraries already on the image"
           fi
+
+          # Say plainly whether the browser actually launches, so the log answers
+          # that question instead of leaving it to be guessed from missing posts.
+          python - <<'PY'
+          from playwright.sync_api import sync_playwright
+          try:
+              with sync_playwright() as pw:
+                  b = pw.chromium.launch()
+                  print("chromium launches OK:", b.version)
+                  b.close()
+          except Exception as exc:
+              print(f"::warning::chromium will not launch ({type(exc).__name__}: {exc}) "
+                    "- this run will be quick-read only")
+          PY
 
       - name: Collect this shard
         env:
