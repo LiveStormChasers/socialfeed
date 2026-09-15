@@ -1,17 +1,17 @@
 {
- "generated": "2026-09-15T01:35:26Z",
- "count": 447,
- "order_cursor": 15,
+ "generated": "2026-09-15T01:45:46Z",
+ "count": 445,
+ "order_cursor": 21,
  "sources": [
   {
    "platform": "facebook",
    "handle": "AccuWeather",
    "label": "AccuWeather",
    "ok": true,
-   "route": "public html: +1; logged-out browser: +0",
+   "route": "public html: +1; browser: skipped (rationed this run) (recovered on merge runner)",
    "error": "",
    "count": 1,
-   "checked": "2026-09-15T01:33:32Z"
+   "checked": "2026-09-15T01:45:19Z"
   },
   {
    "platform": "facebook",
@@ -21,7 +21,7 @@
    "route": "public html: +1; logged-out browser: +3",
    "error": "",
    "count": 4,
-   "checked": "2026-09-15T01:34:55Z"
+   "checked": "2026-09-15T01:44:23Z"
   },
   {
    "platform": "facebook",
@@ -31,7 +31,7 @@
    "route": "public html: +1; logged-out browser: +1",
    "error": "",
    "count": 2,
-   "checked": "2026-09-15T01:34:02Z"
+   "checked": "2026-09-15T01:44:10Z"
   },
   {
    "platform": "facebook",
@@ -41,7 +41,7 @@
    "route": "public html: +1; logged-out browser: +1",
    "error": "",
    "count": 2,
-   "checked": "2026-09-15T01:34:09Z"
+   "checked": "2026-09-15T01:44:07Z"
   },
   {
    "platform": "facebook",
@@ -51,7 +51,7 @@
    "route": "public html: +1; logged-out browser: +1",
    "error": "",
    "count": 2,
-   "checked": "2026-09-15T01:34:06Z"
+   "checked": "2026-09-15T01:43:33Z"
   },
   {
    "platform": "facebook",
@@ -61,27 +61,27 @@
    "route": "public html: +1; logged-out browser: +0",
    "error": "",
    "count": 1,
-   "checked": "2026-09-15T01:33:23Z"
+   "checked": "2026-09-15T01:43:31Z"
   },
   {
    "platform": "facebook",
    "handle": "GregDeeWeather",
    "label": "Greg Dee",
    "ok": true,
-   "route": "public html: +1; logged-out browser: +1",
+   "route": "public html: +1; logged-out browser: TimeoutError: Page.wait_for_selector: Timeout 20000ms exceeded.\nCall log:\n  - waiting for locator(\"div[role=\\\"article\\\"]\") to be visible\n",
    "error": "",
-   "count": 2,
-   "checked": "2026-09-15T01:34:36Z"
+   "count": 1,
+   "checked": "2026-09-15T01:44:00Z"
   },
   {
    "platform": "facebook",
    "handle": "GulfCoastUpdates",
    "label": "Gulf Coast Updates",
    "ok": true,
-   "route": "public html: +1; logged-out browser: +1",
+   "route": "public html: +1; logged-out browser: +3",
    "error": "",
-   "count": 2,
-   "checked": "2026-09-15T01:33:22Z"
+   "count": 4,
+   "checked": "2026-09-15T01:44:43Z"
   },
   {
    "platform": "facebook",
@@ -91,7 +91,7 @@
    "route": "public html: +1; logged-out browser: +1",
    "error": "",
    "count": 2,
-   "checked": "2026-09-15T01:34:42Z"
+   "checked": "2026-09-15T01:44:10Z"
   },
   {
    "platform": "facebook",
@@ -101,7 +101,7 @@
    "route": "public html: +1; logged-out browser: +1",
    "error": "",
    "count": 2,
-   "checked": "2026-09-15T01:33:59Z"
+   "checked": "2026-09-15T01:43:29Z"
   },
   {
    "platform": "facebook",
@@ -111,17 +111,17 @@
    "route": "public html: +1; logged-out browser: +1",
    "error": "",
    "count": 2,
-   "checked": "2026-09-15T01:34:54Z"
+   "checked": "2026-09-15T01:43:58Z"
   },
   {
    "platform": "facebook",
    "handle": "MeteorologistChristopherNunley",
    "label": "Christopher Nunley",
    "ok": true,
-   "route": "public html: +1; logged-out browser: +1",
+   "route": "public html: +1; browser: skipped (rationed this run) (recovered on merge runner)",
    "error": "",
-   "count": 2,
-   "checked": "2026-09-15T01:34:50Z"
+   "count": 1,
+   "checked": "2026-09-15T01:45:34Z"
   },
   {
    "platform": "facebook",
@@ -131,7 +131,7 @@
    "route": "public html: +1; logged-out browser: +1",
    "error": "",
    "count": 2,
-   "checked": "2026-09-15T01:34:39Z"
+   "checked": "2026-09-15T01:44:52Z"
   },
   {
    "platform": "facebook",
@@ -141,17 +141,17 @@
    "route": "public html: +1; logged-out browser: +1",
    "error": "",
    "count": 2,
-   "checked": "2026-09-15T01:33:29Z"
+   "checked": "2026-09-15T01:44:45Z"
   },
   {
    "platform": "facebook",
    "handle": "TheWeatherChannel",
    "label": "The Weather Channel",
    "ok": true,
-   "route": "public html: +1; logged-out browser: +1",
+   "route": "public html: +1; logged-out browser: +4",
    "error": "",
-   "count": 2,
-   "checked": "2026-09-15T01:33:28Z"
+   "count": 5,
+   "checked": "2026-09-15T01:44:57Z"
   },
   {
    "platform": "facebook",
@@ -161,7 +161,7 @@
    "route": "public html: +1; logged-out browser: +1",
    "error": "",
    "count": 2,
-   "checked": "2026-09-15T01:34:03Z"
+   "checked": "2026-09-15T01:43:28Z"
   },
   {
    "platform": "facebook",
@@ -171,17 +171,17 @@
    "route": "public html: +1; logged-out browser: +1",
    "error": "",
    "count": 2,
-   "checked": "2026-09-15T01:34:08Z"
+   "checked": "2026-09-15T01:43:28Z"
   },
   {
    "platform": "facebook",
    "handle": "WeatherNation",
    "label": "WeatherNation",
    "ok": true,
-   "route": "public html: +1; logged-out browser: +4",
+   "route": "public html: +1; logged-out browser: +1",
    "error": "",
-   "count": 5,
-   "checked": "2026-09-15T01:33:32Z"
+   "count": 2,
+   "checked": "2026-09-15T01:43:30Z"
   },
   {
    "platform": "facebook",
@@ -191,47 +191,47 @@
    "route": "public html: +1; logged-out browser: +1",
    "error": "",
    "count": 2,
-   "checked": "2026-09-15T01:34:41Z"
+   "checked": "2026-09-15T01:44:07Z"
   },
   {
    "platform": "facebook",
    "handle": "maxvelocitywx",
    "label": "Max Velocity",
    "ok": true,
-   "route": "public html: +1; logged-out browser: +3",
+   "route": "public html: +1; logged-out browser: +0",
    "error": "",
-   "count": 4,
-   "checked": "2026-09-15T01:33:36Z"
+   "count": 1,
+   "checked": "2026-09-15T01:45:03Z"
   },
   {
    "platform": "facebook",
    "handle": "mikesweatherpage",
    "label": "Mike's Weather Page",
    "ok": true,
-   "route": "public html: +1; logged-out browser: RuntimeError: redirected to a login page — this page is not viewable logged out",
+   "route": "public html: +1; logged-out browser: +1",
    "error": "",
-   "count": 1,
-   "checked": "2026-09-15T01:34:26Z"
+   "count": 2,
+   "checked": "2026-09-15T01:44:10Z"
   },
   {
    "platform": "facebook",
    "handle": "ncweatherauthority",
    "label": "NC Weather Authority",
    "ok": true,
-   "route": "public html: +1; logged-out browser: +5",
+   "route": "public html: +1; logged-out browser: +1",
    "error": "",
-   "count": 6,
-   "checked": "2026-09-15T01:34:15Z"
+   "count": 2,
+   "checked": "2026-09-15T01:43:32Z"
   },
   {
    "platform": "facebook",
    "handle": "powponder",
    "label": "Pow Ponder",
    "ok": true,
-   "route": "public html: +1; logged-out browser: +1",
+   "route": "public html: +1; browser: skipped (rationed this run) (recovered on merge runner)",
    "error": "",
-   "count": 2,
-   "checked": "2026-09-15T01:34:11Z"
+   "count": 1,
+   "checked": "2026-09-15T01:45:27Z"
   },
   {
    "platform": "facebook",
@@ -241,7 +241,7 @@
    "route": "public html: +2; logged-out browser: +1",
    "error": "",
    "count": 3,
-   "checked": "2026-09-15T01:33:22Z"
+   "checked": "2026-09-15T01:44:38Z"
   },
   {
    "platform": "facebook",
@@ -251,7 +251,7 @@
    "route": "public html: +1; logged-out browser: +1",
    "error": "",
    "count": 2,
-   "checked": "2026-09-15T01:33:25Z"
+   "checked": "2026-09-15T01:44:37Z"
   },
   {
    "platform": "facebook",
@@ -261,10 +261,50 @@
    "route": "public html: +1; logged-out browser: +1",
    "error": "",
    "count": 2,
-   "checked": "2026-09-15T01:34:16Z"
+   "checked": "2026-09-15T01:43:19Z"
   }
  ],
  "items": [
+  {
+   "id": "7a31572a993fa47e",
+   "platform": "facebook",
+   "source": "Eric Snitil",
+   "handle": "ericsnitilwx",
+   "author": "ericsnitilwx",
+   "url": "https://www.facebook.com/ericsnitilwx/posts/pfbid0216CpDH4Eg9bQY7QnFbEWxbCrWwpEGtaB27E4neg1bYBKoTWXdtiCtLEvyfLQj9hcl",
+   "text": "MASSIVE MIGRATION! East coast radars are exploding with radar returns tonight as hundreds of millions of birds take flight. When so many take off, local radars are able to detect them as their bodies and wings bounce energy back to the radar in the same way precipitation would. Radar can also help determine at what altitude and velocity these flocks are traveling. Safe travels, friends!",
+   "published": "2026-09-15T01:34:34Z",
+   "published_exact": true,
+   "images": [
+    "https://scontent-iad6-1.xx.fbcdn.net/v/t39.99422-6/809910017_1595152505491219_6398972397378972075_n.png?stp=dst-jpg_tt6&cstp=mx1092x762&ctp=s720x720&_nc_cat=106&ccb=1-7&_nc_sid=127cfc&_nc_ohc=ozhZldLn-BUQ7kNvwHZRI52&_nc_oc=AdoggY43iCKfp-Bcqu9rWGp5uvszHDQqdh12-RlzJC5GSQe38GxL-5-IZKmOFkDGut0&_nc_zt=14&_nc_ht=scontent-iad6-1.xx&_nc_gid=w6uGyYPV_e_pROYPTSxXDQ&_nc_ss=70289&oh=00_AQK17g77PyPtPbiTUoBRUwnUgAA34Ntfck_QccEFKRMp9A&oe=6AAE7172"
+   ],
+   "has_video": false,
+   "video_url": "",
+   "repost": false,
+   "preview": "media/98fc195710bbeda10d46.jpg",
+   "first_seen": "2026-09-15T01:45:46Z",
+   "sort_time": "2026-09-15T01:34:34Z"
+  },
+  {
+   "id": "a19bd003a8dc4121",
+   "platform": "facebook",
+   "source": "NC Weather Authority",
+   "handle": "ncweatherauthority",
+   "author": "ncweatherauthority",
+   "url": "https://www.facebook.com/ncweatherauthority/posts/pfbid02r5rLnhG2rN6pCz7spJ5cJ5YtQ1LjmTRWKaAhZVYAo73ZoGVuxqHV14PD46XopQ9Jl",
+   "text": "Wow, check this out, it looks like it is raining on the radar, but it is actually the radar picking up a significant number of birds migrating south ahead of winter.  🐦",
+   "published": "2026-09-15T01:34:01Z",
+   "published_exact": true,
+   "images": [
+    "https://scontent-cdg6-1.xx.fbcdn.net/v/t39.99422-6/810996259_1556096726262867_8216700416517969357_n.png?stp=dst-jpg_tt6&cstp=mx791x990&ctp=s640x640&_nc_cat=106&ccb=1-7&_nc_sid=833d8c&_nc_ohc=VWJ7g1lcglwQ7kNvwG18XZi&_nc_oc=AdqfB70wDDqB_QkyzLnKo7j-L1BinGULEXQPUOEdD_CM9jcOOlVi7y9BggcAoHO0Q8c&_nc_zt=14&_nc_ht=scontent-cdg6-1.xx&_nc_gid=oamxqPGHSxYysHILud0CWA&_nc_ss=70289&oh=00_AQL3PWz7cep8LqT5X-RCTFGVz8MY8MkUsZodc6Ge9W0BHA&oe=6AAE8C3F"
+   ],
+   "has_video": false,
+   "video_url": "",
+   "repost": false,
+   "preview": "media/8dcc2f7c182b8ef7e72f.jpg",
+   "first_seen": "2026-09-15T01:45:46Z",
+   "sort_time": "2026-09-15T01:34:01Z"
+  },
   {
    "id": "22bce138728aaebf",
    "platform": "facebook",
@@ -276,13 +316,13 @@
    "published": "2026-09-15T01:30:54Z",
    "published_exact": true,
    "images": [
-    "https://scontent-dfw6-1.xx.fbcdn.net/v/t15.5256-10/810556531_1153591070337582_4867383038086107024_n.jpg?stp=dst-jpg_tt6&cstp=mx1920x1080&ctp=s526x296&_nc_cat=103&ccb=1-7&_nc_sid=d2b52d&_nc_ohc=isSTSraMHKsQ7kNvwHFaHmj&_nc_oc=AdolEX8jseG2pbuK4tbWMh2bjZl8yMwTZ36AbUMkH7IdpTy5pPlFe1f5FEhXXCyzTPY&_nc_zt=23&_nc_ht=scontent-dfw6-1.xx&_nc_gid=vDCqhFikWjg6y-YBrb6Sbw&_nc_ss=70289&oh=00_AQLrz2R2NHhGbFQPD8_PhV1T2Kc0lFjLDtT097wdz06bMA&oe=6AAE70F5",
-    "https://scontent-dfw6-1.xx.fbcdn.net/v/t15.5256-10/810556531_1153591070337582_4867383038086107024_n.jpg?stp=dst-jpg_tt6&cstp=mx1920x1080&ctp=s960x960&_nc_cat=103&ccb=1-7&_nc_sid=be8305&_nc_ohc=isSTSraMHKsQ7kNvwHFaHmj&_nc_oc=AdolEX8jseG2pbuK4tbWMh2bjZl8yMwTZ36AbUMkH7IdpTy5pPlFe1f5FEhXXCyzTPY&_nc_zt=23&_nc_ht=scontent-dfw6-1.xx&_nc_gid=vDCqhFikWjg6y-YBrb6Sbw&_nc_ss=70289&oh=00_AQLrz2R2NHhGbFQPD8_PhV1T2Kc0lFjLDtT097wdz06bMA&oe=6AAE70F5"
+    "https://scontent-dfw6-1.xx.fbcdn.net/v/t15.5256-10/810556531_1153591070337582_4867383038086107024_n.jpg?stp=dst-jpg_tt6&cstp=mx1920x1080&ctp=s526x296&_nc_cat=103&ccb=1-7&_nc_sid=d2b52d&_nc_ohc=isSTSraMHKsQ7kNvwFQbRZP&_nc_oc=AdpBYbARA24s5d7QEyYi9Wt2rbwVK_uODEurrN4BkHYYYYHlof5uMsRm-o3SH9FzLe4&_nc_zt=23&_nc_ht=scontent-dfw6-1.xx&_nc_gid=9lsSyDkBIJlQHQKmm2mHmw&_nc_ss=70289&oh=00_AQIGwceRg-SJopJtV3_OUKAR3Qy41607tgFc5dS2eb7kqg&oe=6AAE70F5",
+    "https://scontent-dfw6-1.xx.fbcdn.net/v/t15.5256-10/810556531_1153591070337582_4867383038086107024_n.jpg?stp=dst-jpg_tt6&cstp=mx1920x1080&ctp=s960x960&_nc_cat=103&ccb=1-7&_nc_sid=be8305&_nc_ohc=isSTSraMHKsQ7kNvwFQbRZP&_nc_oc=AdpBYbARA24s5d7QEyYi9Wt2rbwVK_uODEurrN4BkHYYYYHlof5uMsRm-o3SH9FzLe4&_nc_zt=23&_nc_ht=scontent-dfw6-1.xx&_nc_gid=9lsSyDkBIJlQHQKmm2mHmw&_nc_ss=70289&oh=00_AQIGwceRg-SJopJtV3_OUKAR3Qy41607tgFc5dS2eb7kqg&oe=6AAE70F5"
    ],
    "has_video": true,
-   "video_url": "https://video-dfw5-2.xx.fbcdn.net/o1/v/t2/f2/m412/AQP2qtFnRD3_AdP-hS-T_s0C8lDWkHGcD3HU-deJh7OlYg4Elm8bbx-IHXSMwgYw7vkPGZQFyrks3jXBiM9Ic9pJRHbgVMwEZZEO5OjsJQ.mp4?_nc_cat=107&_nc_sid=8bf8fe&_nc_ht=video-dfw5-2.xx.fbcdn.net&_nc_ohc=WT9ZpRw-VKwQ7kNvwHzxFES&efg=eyJ2ZW5jb2RlX3RhZyI6Inhwdl9wcm9ncmVzc2l2ZS5GQUNFQk9PSy4uQzMuNjQwLnN2ZV9zZCIsInhwdl9hc3NldF9pZCI6OTM3Nzg3NzI5MzcyNDY3LCJhc3NldF9hZ2VfZGF5cyI6MCwidmlfdXNlY2FzZV9pZCI6MTAxMjIsImR1cmF0aW9uX3MiOjEyMSwidXJsZ2VuX3NvdXJjZSI6Ind3dyJ9&ccb=17-1&_nc_gid=vDCqhFikWjg6y-YBrb6Sbw&_nc_ss=70289&_nc_zt=28&oh=00_AQKJ9GrpRmCog6pZ52bbXBW4NEMg40OwV1e2MxCWdRcuow&oe=6AAE7BE7&bitrate=247879&tag=sve_sd",
+   "video_url": "https://video-dfw5-2.xx.fbcdn.net/o1/v/t2/f2/m412/AQP2qtFnRD3_AdP-hS-T_s0C8lDWkHGcD3HU-deJh7OlYg4Elm8bbx-IHXSMwgYw7vkPGZQFyrks3jXBiM9Ic9pJRHbgVMwEZZEO5OjsJQ.mp4?_nc_cat=107&_nc_sid=8bf8fe&_nc_ht=video-dfw5-2.xx.fbcdn.net&_nc_ohc=WT9ZpRw-VKwQ7kNvwEaRaGd&efg=eyJ2ZW5jb2RlX3RhZyI6Inhwdl9wcm9ncmVzc2l2ZS5GQUNFQk9PSy4uQzMuNjQwLnN2ZV9zZCIsInhwdl9hc3NldF9pZCI6OTM3Nzg3NzI5MzcyNDY3LCJhc3NldF9hZ2VfZGF5cyI6MCwidmlfdXNlY2FzZV9pZCI6MTAxMjIsImR1cmF0aW9uX3MiOjEyMSwidXJsZ2VuX3NvdXJjZSI6Ind3dyJ9&ccb=17-1&_nc_gid=9lsSyDkBIJlQHQKmm2mHmw&_nc_ss=70289&_nc_zt=28&oh=00_AQLdY__p4UBoZaBxj97J9X0RdfkbWBqHrPrSfAKAzFxRtg&oe=6AAE7BE7&bitrate=247879&tag=sve_sd",
    "repost": false,
-   "preview": "media/93eb0a4b59c64c802fe6.jpg",
+   "preview": "media/a18d4addde9de2b10cac.jpg",
    "first_seen": "2026-09-15T01:35:25Z",
    "sort_time": "2026-09-15T01:30:54Z"
   },
@@ -297,12 +337,12 @@
    "published": "2026-09-15T01:24:50Z",
    "published_exact": true,
    "images": [
-    "https://scontent-dfw6-1.xx.fbcdn.net/v/t39.99422-6/810900288_1813656319649881_4011882507850537578_n.png?stp=dst-jpg_tt6&cstp=mx1290x1360&ctp=p180x540&_nc_cat=101&ccb=1-7&_nc_sid=833d8c&_nc_ohc=CdO5YKHzg2MQ7kNvwEX0eS1&_nc_oc=AdqEkcs5Heh3sN0XooyWmZK4lIdFuOLhkBWkIcmdauXMFVbYsx_nq1RsFkW6fF7tm2g&_nc_zt=14&_nc_ht=scontent-dfw6-1.xx&_nc_gid=K5cGUAM_YbMqbFmSXWxTNg&_nc_ss=70289&oh=00_AQKkUQvaomZb5PhbpQTODUfkQciyZE3PrQI1EC91ksvTDA&oe=6AAE6166"
+    "https://scontent-fra3-1.xx.fbcdn.net/v/t39.99422-6/810900288_1813656319649881_4011882507850537578_n.png?stp=dst-jpg_tt6&cstp=mx1290x1360&ctp=p180x540&_nc_cat=101&ccb=1-7&_nc_sid=833d8c&_nc_ohc=CdO5YKHzg2MQ7kNvwHktj_R&_nc_oc=AdrEF4JxvqQVlsTSlnNE2azzyUMSKa4ST_f82RFj-7m3kGQz2aKTOkbEQ3gIxejWYK4&_nc_zt=14&_nc_ht=scontent-fra3-1.xx&_nc_gid=7QuAQTyzOTNhE-fmMnV0gw&_nc_ss=70289&oh=00_AQL_tvoBNW5AouY-YQcpSqcw7UC9ykaGvFyweSnrpLkWkw&oe=6AAE6166"
    ],
    "has_video": false,
    "video_url": "",
    "repost": false,
-   "preview": "media/2a9ad396f47c50fa3268.jpg",
+   "preview": "media/b14d2c66e98fc3b8d8da.jpg",
    "first_seen": "2026-09-15T01:35:25Z",
    "sort_time": "2026-09-15T01:24:50Z"
   },
@@ -317,12 +357,12 @@
    "published": "2026-09-15T01:20:01Z",
    "published_exact": true,
    "images": [
-    "https://scontent-dfw6-2.xx.fbcdn.net/v/t39.99422-6/810659793_1807347270259003_4414506297949148276_n.png?stp=dst-jpg_tt6&cstp=mx1440x1088&ctp=p180x540&_nc_cat=108&ccb=1-7&_nc_sid=833d8c&_nc_ohc=8DabzX5RiqwQ7kNvwHQCjPX&_nc_oc=Adp6F0uTUec2mB2LZAswNYrZHXcD6iKNham4G_5sDvXYH01_iNUJkJwULl3l0SKDKAE&_nc_zt=14&_nc_ht=scontent-dfw6-2.xx&_nc_gid=xBr7Gl-K69zPHLqRY7faww&_nc_ss=70289&oh=00_AQLhxDBpMgaSXmMYzsWC50jxoCvOL6ju9lhV6EekJfCvMg&oe=6AAE7E15"
+    "https://scontent-sjc6-1.xx.fbcdn.net/v/t39.99422-6/810659793_1807347270259003_4414506297949148276_n.png?stp=dst-jpg_tt6&cstp=mx1440x1088&ctp=p180x540&_nc_cat=108&ccb=1-7&_nc_sid=833d8c&_nc_ohc=8DabzX5RiqwQ7kNvwGbkwTh&_nc_oc=AdoI0WEynwGuONu0qHeWiR526V4GBIGnE3eUOwVVn1Wme_wOfy85wvE0zikKwqseokg&_nc_zt=14&_nc_ht=scontent-sjc6-1.xx&_nc_gid=zwp2poVCBP4eTLnlVjJP8g&_nc_ss=70289&oh=00_AQLudljMPZZWODKi2ynQa3q3IsqyYU1N3d9n1an9sSeq4Q&oe=6AAE7E15"
    ],
    "has_video": false,
    "video_url": "",
    "repost": false,
-   "preview": "media/acbca5ee19a76e2c8220.jpg",
+   "preview": "media/3753e87489413fe16ad5.jpg",
    "first_seen": "2026-09-15T01:26:10Z",
    "sort_time": "2026-09-15T01:20:01Z"
   },
@@ -357,12 +397,12 @@
    "published": "2026-09-15T01:08:59Z",
    "published_exact": true,
    "images": [
-    "https://scontent-dfw5-2.xx.fbcdn.net/v/t39.99422-6/810699857_27914698578232510_5050343909895368339_n.png?stp=dst-jpg_tt6&cstp=mx1254x1254&ctp=p526x296&_nc_cat=104&ccb=1-7&_nc_sid=833d8c&_nc_ohc=zKs5zsEXx-8Q7kNvwFLA4AQ&_nc_oc=AdpmxA34_eQCIn1tCpCMIicchgnZDpOZEF1JKrye14WzbuXFxd6NxvPrVGmtHI99ovk&_nc_zt=14&_nc_ht=scontent-dfw5-2.xx&_nc_gid=iC0BLLd6YiD49emU3liDTw&_nc_ss=70289&oh=00_AQJBDtI-0-g5bwrDDrJF9hIcH7VOWA5wy5dJnpVRYnr6vw&oe=6AAE5D23"
+    "https://scontent-dfw5-2.xx.fbcdn.net/v/t39.99422-6/810699857_27914698578232510_5050343909895368339_n.png?stp=dst-jpg_tt6&cstp=mx1254x1254&ctp=p526x296&_nc_cat=104&ccb=1-7&_nc_sid=833d8c&_nc_ohc=zKs5zsEXx-8Q7kNvwE2Rvhq&_nc_oc=AdqxABGZ7IwTtSpf54SWn6ddA2B9lp4jsZ6XI-JAjEQko1XNm8IeY1_oR318xkH-vVw&_nc_zt=14&_nc_ht=scontent-dfw5-2.xx&_nc_gid=-9Ot-4ssySFba7NiujW4Rw&_nc_ss=70289&oh=00_AQIAhFBsEsLhwji0v61qdJ2z532lPtTRMM8VpPRuWtT9zA&oe=6AAE5D23"
    ],
    "has_video": false,
    "video_url": "",
    "repost": false,
-   "preview": "media/1d2e64848140ebbf593f.jpg",
+   "preview": "media/819bd951f7ffc6ebcb0b.jpg",
    "first_seen": "2026-09-15T01:15:34Z",
    "sort_time": "2026-09-15T01:08:59Z"
   },
@@ -397,12 +437,12 @@
    "published": "2026-09-15T01:02:41Z",
    "published_exact": true,
    "images": [
-    "https://scontent-sjc3-1.xx.fbcdn.net/v/t39.99422-6/809201485_1863146224450994_6112558067492928173_n.png?stp=dst-jpg_tt6&cstp=mx1206x1412&ctp=s590x590&_nc_cat=111&ccb=1-7&_nc_sid=833d8c&_nc_ohc=pZsFcTlydO8Q7kNvwG1HCxB&_nc_oc=AdrAJ_Wi6uBc4GJobaJ2YsD4c5OcDibKip0V0HZk1RzNLAkPYgaK1iGsonqjBxI6tL4&_nc_zt=14&_nc_ht=scontent-sjc3-1.xx&_nc_gid=baApjyGjjwNKB-TptXqqTQ&_nc_ss=70289&oh=00_AQJa_NpYj5bIdQm3Ky-BQRTMyT7_gOz_nHGsOm0W_nSg9Q&oe=6AAE6612"
+    "https://scontent-dfw5-1.xx.fbcdn.net/v/t39.99422-6/809201485_1863146224450994_6112558067492928173_n.png?stp=dst-jpg_tt6&cstp=mx1206x1412&ctp=s590x590&_nc_cat=111&ccb=1-7&_nc_sid=833d8c&_nc_ohc=pZsFcTlydO8Q7kNvwHAzghE&_nc_oc=AdppFhy6jLDy3vd8itrH-pAXSrdD_6K9ISCly44JSPSpqlzm0wxRjk6nfB6n_Vth66c&_nc_zt=14&_nc_ht=scontent-dfw5-1.xx&_nc_gid=bnIa8sqalyoVxav0djUgYw&_nc_ss=70289&oh=00_AQIiU0YjlNI5dW0_YmtCe5balgaXMOFnZzautwR237wt-g&oe=6AAE6612"
    ],
    "has_video": false,
    "video_url": "",
    "repost": false,
-   "preview": "media/1df43cb26310ca1e2549.jpg",
+   "preview": "media/4076f5952577af90435c.jpg",
    "first_seen": "2026-09-15T01:05:58Z",
    "sort_time": "2026-09-15T01:02:41Z"
   },
@@ -438,12 +478,12 @@
    "published": "2026-09-15T01:00:19Z",
    "published_exact": true,
    "images": [
-    "https://scontent-dfw5-2.xx.fbcdn.net/v/t39.10873-6/387090682_334764102377501_1517517578776517369_n.jpg?stp=dst-jpg_tt6&cstp=mx562x390&ctp=p235x350&_nc_cat=1&ccb=1-7&_nc_sid=4bb800&_nc_ohc=v6phfr8BPLkQ7kNvwFaJjCt&_nc_oc=AdpSh2pyIdKUHa28ht0JZLwI_Kk_dFJv7JGkN72w0DuaAzWUNKUBCvDLnc3um3WLCog&_nc_zt=14&_nc_ht=scontent-dfw5-2.xx&_nc_gid=iKt8aueaciZ6YK1sj6SpgA&_nc_ss=70289&oh=00_AQL8D0-3kQD1Kg0tVlIngA0R_XD2NqXMTKY7wKcMp-Krow&oe=6AAE6CF6"
+    "https://scontent-iad3-1.xx.fbcdn.net/v/t39.10873-6/387090682_334764102377501_1517517578776517369_n.jpg?stp=dst-jpg_tt6&cstp=mx562x390&ctp=p235x350&_nc_cat=1&ccb=1-7&_nc_sid=4bb800&_nc_ohc=v6phfr8BPLkQ7kNvwG3q9E_&_nc_oc=Adr-BaVJXvqNbRSmFzWIp--MpI5YjfYWIosH2PCzZGVSXMhePGwjlzzWJUcz12ccnxE&_nc_zt=14&_nc_ht=scontent-iad3-1.xx&_nc_gid=OauO5XJ0TK5zWspvFQFhQA&_nc_ss=70289&oh=00_AQLvSc_bRJHFhuJ0jpSzKebQJUETcOGV_6DPNrHarLh3LQ&oe=6AAE6CF6"
    ],
    "has_video": false,
    "video_url": "",
    "repost": false,
-   "preview": "media/2ed898d052df9f3d70ca.jpg",
+   "preview": "media/428fd9cfe9cab28fd33a.jpg",
    "first_seen": "2026-09-15T01:05:58Z",
    "sort_time": "2026-09-15T01:00:19Z"
   },
@@ -516,13 +556,13 @@
    "published": "2026-09-15T00:27:30Z",
    "published_exact": true,
    "images": [
-    "https://scontent.ficn2-2.fna.fbcdn.net/v/t15.5256-10/810246440_2252175845628552_1356954963528478831_n.jpg?stp=dst-jpg_tt6&cstp=mx1920x1080&ctp=s526x296&_nc_cat=108&ccb=1-7&_nc_sid=5fad0e&_nc_ohc=FGdDn6YN3kwQ7kNvwGsHgCI&_nc_oc=Adp_kMDqX-AtRe95yz_kz5W8sDkYlD_8LVE8QDAY3b2i4RgZQVoRvcMB3HeQytDJNR0&_nc_zt=23&_nc_ht=scontent.ficn2-2.fna&_nc_gid=dV4bAHoqXQjDNvxp-JwfHQ&_nc_ss=70289&oh=00_AQIVa4UNIN73LNgePV4ypnbmYmSb4XouDMgxE-X6ZvAyZw&oe=6AAE76E8",
-    "https://scontent.ficn2-2.fna.fbcdn.net/v/t15.5256-10/810246440_2252175845628552_1356954963528478831_n.jpg?stp=dst-jpg_tt6&cstp=mx1920x1080&ctp=s960x960&_nc_cat=108&ccb=1-7&_nc_sid=50ce42&_nc_ohc=FGdDn6YN3kwQ7kNvwGsHgCI&_nc_oc=Adp_kMDqX-AtRe95yz_kz5W8sDkYlD_8LVE8QDAY3b2i4RgZQVoRvcMB3HeQytDJNR0&_nc_zt=23&_nc_ht=scontent.ficn2-2.fna&_nc_gid=dV4bAHoqXQjDNvxp-JwfHQ&_nc_ss=70289&oh=00_AQIVa4UNIN73LNgePV4ypnbmYmSb4XouDMgxE-X6ZvAyZw&oe=6AAE76E8"
+    "https://scontent-dfw6-2.xx.fbcdn.net/v/t15.5256-10/810246440_2252175845628552_1356954963528478831_n.jpg?stp=dst-jpg_tt6&cstp=mx1920x1080&ctp=s526x296&_nc_cat=108&ccb=1-7&_nc_sid=5fad0e&_nc_ohc=FGdDn6YN3kwQ7kNvwFDPY5h&_nc_oc=AdolBI0ZrfyxnIHttWUwjczGw0Ty6bcoGNOe70AvUsjOGatocGC198nQ9RzLC11J1ys&_nc_zt=23&_nc_ht=scontent-dfw6-2.xx&_nc_gid=1qEivkC3ZbnSqyyHt5hkAg&_nc_ss=70289&oh=00_AQKMtXCloLu-_GSApaaKyIZfeEWRexbQd445PZFkD7eX7Q&oe=6AAE76E8",
+    "https://scontent-dfw6-2.xx.fbcdn.net/v/t15.5256-10/810246440_2252175845628552_1356954963528478831_n.jpg?stp=dst-jpg_tt6&cstp=mx1920x1080&ctp=s960x960&_nc_cat=108&ccb=1-7&_nc_sid=50ce42&_nc_ohc=FGdDn6YN3kwQ7kNvwFDPY5h&_nc_oc=AdolBI0ZrfyxnIHttWUwjczGw0Ty6bcoGNOe70AvUsjOGatocGC198nQ9RzLC11J1ys&_nc_zt=23&_nc_ht=scontent-dfw6-2.xx&_nc_gid=1qEivkC3ZbnSqyyHt5hkAg&_nc_ss=70289&oh=00_AQKMtXCloLu-_GSApaaKyIZfeEWRexbQd445PZFkD7eX7Q&oe=6AAE76E8"
    ],
    "has_video": true,
-   "video_url": "https://video.ficn2-2.fna.fbcdn.net/o1/v/t2/f2/m412/AQPETaG4v7SXIJQo1o2J7LBl6F37-1INHPZrnGNo_PC7Syp68-qHDtFQ5aINl3kBBvfzG4qXFOMngx3TmKINT3UzEMqAEk9TxXYNst088Q.mp4?_nc_cat=109&_nc_oc=AdoI3iGRXgGDKxL7H7Mm5xackgv2n3tRLbUSnvtPsGtRWYOUmyNZItdRjnc67BLMBOc&_nc_sid=8bf8fe&_nc_ht=video.ficn2-2.fna.fbcdn.net&_nc_ohc=C2njZkGRIlgQ7kNvwFuYfv4&efg=eyJ2ZW5jb2RlX3RhZyI6Inhwdl9wcm9ncmVzc2l2ZS5GQUNFQk9PSy4uQzMuNjQwLnN2ZV9zZCIsInhwdl9hc3NldF9pZCI6MjQ3OTc4MTEwNjA5NDMyMywiYXNzZXRfYWdlX2RheXMiOjAsInZpX3VzZWNhc2VfaWQiOjEwMTIyLCJkdXJhdGlvbl9zIjoxMywidXJsZ2VuX3NvdXJjZSI6Ind3dyJ9&ccb=17-1&_nc_gid=dV4bAHoqXQjDNvxp-JwfHQ&_nc_ss=70289&_nc_zt=28&oh=00_AQKS7Fgtv6kJ4TUSjtwL6QstbC8eDiBpivoRzA2jaQLydw&oe=6AAE650D&bitrate=188625&tag=sve_sd",
+   "video_url": "https://video-dfw6-2.xx.fbcdn.net/o1/v/t2/f2/m412/AQPETaG4v7SXIJQo1o2J7LBl6F37-1INHPZrnGNo_PC7Syp68-qHDtFQ5aINl3kBBvfzG4qXFOMngx3TmKINT3UzEMqAEk9TxXYNst088Q.mp4?_nc_cat=109&_nc_sid=8bf8fe&_nc_ht=video-dfw6-2.xx.fbcdn.net&_nc_ohc=C2njZkGRIlgQ7kNvwFYJn4U&efg=eyJ2ZW5jb2RlX3RhZyI6Inhwdl9wcm9ncmVzc2l2ZS5GQUNFQk9PSy4uQzMuNjQwLnN2ZV9zZCIsInhwdl9hc3NldF9pZCI6MjQ3OTc4MTEwNjA5NDMyMywiYXNzZXRfYWdlX2RheXMiOjAsInZpX3VzZWNhc2VfaWQiOjEwMTIyLCJkdXJhdGlvbl9zIjoxMywidXJsZ2VuX3NvdXJjZSI6Ind3dyJ9&ccb=17-1&_nc_gid=1qEivkC3ZbnSqyyHt5hkAg&_nc_ss=70289&_nc_zt=28&oh=00_AQLy4I7SxMBCgOadL7Jq8h0kX2O5p5TAsRLhkuoPNJXMVg&oe=6AAE650D&bitrate=188625&tag=sve_sd",
    "repost": false,
-   "preview": "media/a2850a398967348a8aa1.jpg",
+   "preview": "media/88bd3ae8848c286e9713.jpg",
    "first_seen": "2026-09-15T00:35:38Z",
    "sort_time": "2026-09-15T00:27:30Z"
   },
@@ -537,15 +577,15 @@
    "published": "2026-09-15T00:24:47Z",
    "published_exact": true,
    "images": [
-    "https://scontent-hkg1-2.xx.fbcdn.net/v/t39.30808-6/810449143_1705329861598865_1408044299974884805_n.jpg?stp=cp6_dst-jpegr_tt6&cstp=mx480x640&ctp=s590x590&_nc_cat=103&ccb=1-7&_nc_sid=833d8c&_nc_ohc=m8_2x_OjyCMQ7kNvwHyOQ4k&_nc_oc=AdriYyavuKQCt8GVAzF4aQ9jtFa03BFQ4YK4jj1hz5iTvkc4javz0hvYi7HWpc7oAu0&_nc_zt=23&se=-1&_nc_ht=scontent-hkg1-2.xx&_nc_gid=mhzBf6EnBfJY4CE-6n2v4A&_nc_ss=70289&oh=00_AQJkGIVUEglHPYpXqDx4ABTSWhPe6BSvYgu4Xeykpwtxrw&oe=6AAE6698",
-    "https://scontent-hkg1-2.xx.fbcdn.net/v/t39.30808-6/810449143_1705329861598865_1408044299974884805_n.jpg?stp=cp6_dst-jpegr_tt6&cstp=mx480x640&ctp=s480x640&_nc_cat=103&ccb=1-7&_nc_sid=833d8c&_nc_ohc=m8_2x_OjyCMQ7kNvwHyOQ4k&_nc_oc=AdriYyavuKQCt8GVAzF4aQ9jtFa03BFQ4YK4jj1hz5iTvkc4javz0hvYi7HWpc7oAu0&_nc_zt=23&se=-1&_nc_ht=scontent-hkg1-2.xx&_nc_gid=mhzBf6EnBfJY4CE-6n2v4A&_nc_ss=70289&oh=00_AQJkGIVUEglHPYpXqDx4ABTSWhPe6BSvYgu4Xeykpwtxrw&oe=6AAE6698",
-    "https://scontent-hkg4-1.xx.fbcdn.net/v/t39.30808-6/810699857_1705329891598862_7172169486282494241_n.jpg?stp=cp6_dst-jpegr_tt6&cstp=mx480x640&ctp=s590x590&_nc_cat=106&ccb=1-7&_nc_sid=833d8c&_nc_ohc=6nHhkXBR1sMQ7kNvwHTScR4&_nc_oc=Ado_MnMdt09uGhHXPnJQ-GCrHojXQ8hnFyM7ifCmbXDT8lqUZcO9qdWNK93hPrF85TU&_nc_zt=23&se=-1&_nc_ht=scontent-hkg4-1.xx&_nc_gid=mhzBf6EnBfJY4CE-6n2v4A&_nc_ss=70289&oh=00_AQLtN305jLQRezwJaxtdgMEjI__FftNc5Vk3uoyhbtfHXA&oe=6AAE7748",
-    "https://scontent-hkg4-1.xx.fbcdn.net/v/t39.30808-6/810699857_1705329891598862_7172169486282494241_n.jpg?stp=cp6_dst-jpegr_tt6&cstp=mx480x640&ctp=s480x640&_nc_cat=106&ccb=1-7&_nc_sid=833d8c&_nc_ohc=6nHhkXBR1sMQ7kNvwHTScR4&_nc_oc=Ado_MnMdt09uGhHXPnJQ-GCrHojXQ8hnFyM7ifCmbXDT8lqUZcO9qdWNK93hPrF85TU&_nc_zt=23&se=-1&_nc_ht=scontent-hkg4-1.xx&_nc_gid=mhzBf6EnBfJY4CE-6n2v4A&_nc_ss=70289&oh=00_AQLtN305jLQRezwJaxtdgMEjI__FftNc5Vk3uoyhbtfHXA&oe=6AAE7748"
+    "https://scontent-sjc3-1.xx.fbcdn.net/v/t39.30808-6/810449143_1705329861598865_1408044299974884805_n.jpg?stp=cp6_dst-jpegr_tt6&cstp=mx480x640&ctp=s590x590&_nc_cat=103&ccb=1-7&_nc_sid=833d8c&_nc_ohc=m8_2x_OjyCMQ7kNvwFio0TY&_nc_oc=AdrjNvvkG-Sr_Mf6VCMOqVT_z0bp4qRNNWgjsEjzErI9Ccseq_pV9xECJ1CDw-H5Jd4&_nc_zt=23&se=-1&_nc_ht=scontent-sjc3-1.xx&_nc_gid=FGNC-ZRNV_bRH0Mx7syDHg&_nc_ss=70289&oh=00_AQLbcTHUjGNkv0GW-VUYD18LP6tx4S5mq94kVIYbTH4JtA&oe=6AAE6698",
+    "https://scontent-sjc3-1.xx.fbcdn.net/v/t39.30808-6/810449143_1705329861598865_1408044299974884805_n.jpg?stp=cp6_dst-jpegr_tt6&cstp=mx480x640&ctp=s480x640&_nc_cat=103&ccb=1-7&_nc_sid=833d8c&_nc_ohc=m8_2x_OjyCMQ7kNvwFio0TY&_nc_oc=AdrjNvvkG-Sr_Mf6VCMOqVT_z0bp4qRNNWgjsEjzErI9Ccseq_pV9xECJ1CDw-H5Jd4&_nc_zt=23&se=-1&_nc_ht=scontent-sjc3-1.xx&_nc_gid=FGNC-ZRNV_bRH0Mx7syDHg&_nc_ss=70289&oh=00_AQLbcTHUjGNkv0GW-VUYD18LP6tx4S5mq94kVIYbTH4JtA&oe=6AAE6698",
+    "https://scontent-sjc3-1.xx.fbcdn.net/v/t39.30808-6/810699857_1705329891598862_7172169486282494241_n.jpg?stp=cp6_dst-jpegr_tt6&cstp=mx480x640&ctp=s590x590&_nc_cat=106&ccb=1-7&_nc_sid=833d8c&_nc_ohc=6nHhkXBR1sMQ7kNvwFxg5MV&_nc_oc=Ado2jpIW_olLZhUDQl51O9woiR0CPjB-r4AEvFxZiPrb6m_4dljkB_bVFcDVpsp2UIY&_nc_zt=23&se=-1&_nc_ht=scontent-sjc3-1.xx&_nc_gid=FGNC-ZRNV_bRH0Mx7syDHg&_nc_ss=70289&oh=00_AQIspYx8e5NkTV6HXU0ql_SBJKviZzgRHKT0HGtsmlk8dQ&oe=6AAE7748",
+    "https://scontent-sjc3-1.xx.fbcdn.net/v/t39.30808-6/810699857_1705329891598862_7172169486282494241_n.jpg?stp=cp6_dst-jpegr_tt6&cstp=mx480x640&ctp=s480x640&_nc_cat=106&ccb=1-7&_nc_sid=833d8c&_nc_ohc=6nHhkXBR1sMQ7kNvwFxg5MV&_nc_oc=Ado2jpIW_olLZhUDQl51O9woiR0CPjB-r4AEvFxZiPrb6m_4dljkB_bVFcDVpsp2UIY&_nc_zt=23&se=-1&_nc_ht=scontent-sjc3-1.xx&_nc_gid=FGNC-ZRNV_bRH0Mx7syDHg&_nc_ss=70289&oh=00_AQIspYx8e5NkTV6HXU0ql_SBJKviZzgRHKT0HGtsmlk8dQ&oe=6AAE7748"
    ],
    "has_video": false,
    "video_url": "",
    "repost": false,
-   "preview": "media/edb8252afef55b33bc0f.jpg",
+   "preview": "media/fde1d89101b78f1bc0a0.jpg",
    "first_seen": "2026-09-15T00:35:38Z",
    "sort_time": "2026-09-15T00:24:47Z"
   },
@@ -620,12 +660,12 @@
    "published": "2026-09-15T00:12:13Z",
    "published_exact": true,
    "images": [
-    "https://scontent-dfw5-2.xx.fbcdn.net/v/t39.99422-6/810814806_1391221343122133_2654474334776882407_n.png?stp=dst-jpg_tt6&cstp=mx1440x810&ctp=s960x960&_nc_cat=107&ccb=1-7&_nc_sid=833d8c&_nc_ohc=eB4xAyPZ6-4Q7kNvwFoomZ-&_nc_oc=AdoD2YtztHlOGmeT4WHZ4a2AIJGVpJ_FQpQl2CicTx5A9wpFr_NIFLViT28qHXeElUQ&_nc_zt=14&_nc_ht=scontent-dfw5-2.xx&_nc_gid=skFbFyzjxHaVX6v5ykh4Pw&_nc_ss=70289&oh=00_AQJesjgjJzegd-Pe27wD7aSbdTaSE-0FeunNk5Cr1H0sJg&oe=6AAE68AF"
+    "https://scontent-dfw5-2.xx.fbcdn.net/v/t39.99422-6/810814806_1391221343122133_2654474334776882407_n.png?stp=dst-jpg_tt6&cstp=mx1440x810&ctp=s960x960&_nc_cat=107&ccb=1-7&_nc_sid=833d8c&_nc_ohc=eB4xAyPZ6-4Q7kNvwGrdVlD&_nc_oc=AdpaJ73BCt_fReW6kXVhV19BWFJgbEu845iGXB2nunIURp_k5AxKz3kiHr5XeUZ-ZFc&_nc_zt=14&_nc_ht=scontent-dfw5-2.xx&_nc_gid=SqDtPHfrRxBcdBDAe7LgDQ&_nc_ss=70289&oh=00_AQLhmpdhQQD49QL9GR0J_tHRkqigw96ACTPuOw9ttCTo8A&oe=6AAE68AF"
    ],
    "has_video": false,
    "video_url": "",
    "repost": false,
-   "preview": "media/8dbfc6159a9b5700df41.jpg",
+   "preview": "media/d237e3d9cd215a80b6d0.jpg",
    "first_seen": "2026-09-15T00:15:09Z",
    "sort_time": "2026-09-15T00:12:13Z"
   },
@@ -660,15 +700,15 @@
    "published": "2026-09-15T00:10:25Z",
    "published_exact": true,
    "images": [
-    "https://scontent.ficn2-2.fna.fbcdn.net/v/t39.30808-6/810282129_1651754396313216_6543134271385526799_n.jpg?stp=dst-jpg_tt6&cstp=mx1402x1838&ctp=s590x590&_nc_cat=1&ccb=1-7&_nc_sid=833d8c&_nc_ohc=G0vBpHSJW9UQ7kNvwEwiMaf&_nc_oc=AdpFw4bqkV2KFG-kwVL3nJQNyCqBvFvAivRKa_Efcoj4ubcdPBjRDE-V_NS0bKoCpCM&_nc_zt=23&_nc_ht=scontent.ficn2-2.fna&_nc_gid=ugrvNygRDF_Dxqa4aIR5NA&_nc_ss=70289&oh=00_AQJVrf5AKkwxLYBOIyI0Q_fvqMj7fQdQRGZqm8fp3t9D7g&oe=6AAE6D27",
-    "https://scontent.ficn2-2.fna.fbcdn.net/v/t39.30808-6/810282129_1651754396313216_6543134271385526799_n.jpg?stp=dst-jpg_tt6&cstp=mx1402x1838&ctp=s1402x1838&_nc_cat=1&ccb=1-7&_nc_sid=833d8c&_nc_ohc=G0vBpHSJW9UQ7kNvwEwiMaf&_nc_oc=AdpFw4bqkV2KFG-kwVL3nJQNyCqBvFvAivRKa_Efcoj4ubcdPBjRDE-V_NS0bKoCpCM&_nc_zt=23&_nc_ht=scontent.ficn2-2.fna&_nc_gid=ugrvNygRDF_Dxqa4aIR5NA&_nc_ss=70289&oh=00_AQJVrf5AKkwxLYBOIyI0Q_fvqMj7fQdQRGZqm8fp3t9D7g&oe=6AAE6D27",
-    "https://scontent.ficn2-2.fna.fbcdn.net/v/t39.30808-6/809586399_1651754402979882_6834453366910619422_n.jpg?stp=dst-jpg_tt6&cstp=mx1320x739&ctp=s590x590&_nc_cat=1&ccb=1-7&_nc_sid=833d8c&_nc_ohc=MtvKHKiFJNwQ7kNvwHuLQsF&_nc_oc=AdrwUxEvQd2WgbQXvShMUYKPmGhKrcKLgsDZS3NZdw0RM9w4fWks-ntiR_S8DgaPdxU&_nc_zt=23&_nc_ht=scontent.ficn2-2.fna&_nc_gid=ugrvNygRDF_Dxqa4aIR5NA&_nc_ss=70289&oh=00_AQLHiA6JrA8_Ts1hCyUIRJFd1B7wCQyg6lMHSCZxrDiI9Q&oe=6AAE7DB9",
-    "https://scontent.ficn2-2.fna.fbcdn.net/v/t39.30808-6/809586399_1651754402979882_6834453366910619422_n.jpg?stp=dst-jpg_tt6&cstp=mx1320x739&ctp=s1320x739&_nc_cat=1&ccb=1-7&_nc_sid=833d8c&_nc_ohc=MtvKHKiFJNwQ7kNvwHuLQsF&_nc_oc=AdrwUxEvQd2WgbQXvShMUYKPmGhKrcKLgsDZS3NZdw0RM9w4fWks-ntiR_S8DgaPdxU&_nc_zt=23&_nc_ht=scontent.ficn2-2.fna&_nc_gid=ugrvNygRDF_Dxqa4aIR5NA&_nc_ss=70289&oh=00_AQLHiA6JrA8_Ts1hCyUIRJFd1B7wCQyg6lMHSCZxrDiI9Q&oe=6AAE7DB9"
+    "https://scontent-atl3-2.xx.fbcdn.net/v/t39.30808-6/810282129_1651754396313216_6543134271385526799_n.jpg?stp=dst-jpg_tt6&cstp=mx1402x1838&ctp=s590x590&_nc_cat=1&ccb=1-7&_nc_sid=833d8c&_nc_ohc=G0vBpHSJW9UQ7kNvwG0G22X&_nc_oc=Adq-lmj4nvPZn4mYTm48o9NTejoi0gJxJVPuR8Q11oQHXXzdPF5yL27Efe7mfFFVsTE&_nc_zt=23&_nc_ht=scontent-atl3-2.xx&_nc_gid=DdJ8U1A4BIy_FmhkF89G0A&_nc_ss=70289&oh=00_AQKi1G_LFu9r6T9Z6uelYxn5Xt3TD4hnsCKo4EOGTj8XuA&oe=6AAE6D27",
+    "https://scontent-atl3-2.xx.fbcdn.net/v/t39.30808-6/810282129_1651754396313216_6543134271385526799_n.jpg?stp=dst-jpg_tt6&cstp=mx1402x1838&ctp=s1402x1838&_nc_cat=1&ccb=1-7&_nc_sid=833d8c&_nc_ohc=G0vBpHSJW9UQ7kNvwG0G22X&_nc_oc=Adq-lmj4nvPZn4mYTm48o9NTejoi0gJxJVPuR8Q11oQHXXzdPF5yL27Efe7mfFFVsTE&_nc_zt=23&_nc_ht=scontent-atl3-2.xx&_nc_gid=DdJ8U1A4BIy_FmhkF89G0A&_nc_ss=70289&oh=00_AQKi1G_LFu9r6T9Z6uelYxn5Xt3TD4hnsCKo4EOGTj8XuA&oe=6AAE6D27",
+    "https://scontent-atl3-2.xx.fbcdn.net/v/t39.30808-6/809586399_1651754402979882_6834453366910619422_n.jpg?stp=dst-jpg_tt6&cstp=mx1320x739&ctp=s590x590&_nc_cat=1&ccb=1-7&_nc_sid=833d8c&_nc_ohc=MtvKHKiFJNwQ7kNvwFYwy2Z&_nc_oc=AdolpcgmgAGi8gFY0PEDqEMXvxFSvbX61H3E-qkWMSyoJEa4UFozpuiv6UbDvLJoM2w&_nc_zt=23&_nc_ht=scontent-atl3-2.xx&_nc_gid=DdJ8U1A4BIy_FmhkF89G0A&_nc_ss=70289&oh=00_AQIGlWdjhNJS3SvnbxpvnyZv7oyhXU8KQGHzmw7-F08cSg&oe=6AAE7DB9",
+    "https://scontent-atl3-2.xx.fbcdn.net/v/t39.30808-6/809586399_1651754402979882_6834453366910619422_n.jpg?stp=dst-jpg_tt6&cstp=mx1320x739&ctp=s1320x739&_nc_cat=1&ccb=1-7&_nc_sid=833d8c&_nc_ohc=MtvKHKiFJNwQ7kNvwFYwy2Z&_nc_oc=AdolpcgmgAGi8gFY0PEDqEMXvxFSvbX61H3E-qkWMSyoJEa4UFozpuiv6UbDvLJoM2w&_nc_zt=23&_nc_ht=scontent-atl3-2.xx&_nc_gid=DdJ8U1A4BIy_FmhkF89G0A&_nc_ss=70289&oh=00_AQIGlWdjhNJS3SvnbxpvnyZv7oyhXU8KQGHzmw7-F08cSg&oe=6AAE7DB9"
    ],
    "has_video": false,
    "video_url": "",
    "repost": false,
-   "preview": "media/3fcc61826728871db4bb.jpg",
+   "preview": "media/eb3e3aa88fb2d1d81269.jpg",
    "first_seen": "2026-09-15T00:15:09Z",
    "sort_time": "2026-09-15T00:10:25Z"
   },
@@ -724,12 +764,12 @@
    "published": "2026-09-15T00:02:17Z",
    "published_exact": true,
    "images": [
-    "https://scontent-ams2-1.xx.fbcdn.net/v/t39.99422-6/811203365_2082893889009406_4548255995956219499_n.png?stp=dst-jpg_tt6&cstp=mx1280x720&ctp=s960x960&_nc_cat=105&ccb=1-7&_nc_sid=127cfc&_nc_ohc=p-2PDpcmHBUQ7kNvwFMrCZQ&_nc_oc=AdolCJ6B2GnM6J9B4i19yKwkAAcvSBEJ6IVq-9XhOmVRqHkcseUIxbhK-QEFj2OuSlU&_nc_zt=14&_nc_ht=scontent-ams2-1.xx&_nc_gid=iZj4pV9HZOatndTJPqtvfA&_nc_ss=70289&oh=00_AQK6Lmr40fmMlXkXU1Glde-D6gZMk1Qpa6lpx8ns2bdBsA&oe=6AAE7D58"
+    "https://scontent-hkg1-1.xx.fbcdn.net/v/t39.99422-6/811203365_2082893889009406_4548255995956219499_n.png?stp=dst-jpg_tt6&cstp=mx1280x720&ctp=s960x960&_nc_cat=105&ccb=1-7&_nc_sid=127cfc&_nc_ohc=p-2PDpcmHBUQ7kNvwFcR8mc&_nc_oc=AdpUwtBL80-xeQT4xDfeQ60GQfA0Tyriw1o6X-eM7KSTGXRv8YnnV6wqzKa5k5q0umM&_nc_zt=14&_nc_ht=scontent-hkg1-1.xx&_nc_gid=ljZ8yRZn3TVeFFpVrZcQRg&_nc_ss=70289&oh=00_AQIj48HFwuIkEoQjaf5FhRqYpq_Aos8-vydiWxRUwJjVUA&oe=6AAE7D58"
    ],
    "has_video": false,
    "video_url": "",
    "repost": false,
-   "preview": "media/63d277eb47e2526b838b.jpg",
+   "preview": "media/9518e49e6e0b8d79d12f.jpg",
    "first_seen": "2026-09-15T00:05:13Z",
    "sort_time": "2026-09-15T00:02:17Z"
   },
@@ -825,12 +865,12 @@
    "published": "2026-09-14T23:47:43Z",
    "published_exact": true,
    "images": [
-    "https://scontent-iad3-1.xx.fbcdn.net/v/t39.30808-6/810623523_1630964185053579_9123511746620402795_n.jpg?stp=dst-jpegr_tt6&cstp=mx2048x1542&ctp=p180x540&_nc_cat=110&ccb=1-7&_nc_sid=833d8c&_nc_ohc=JQu1zEOsdXAQ7kNvwHpxipg&_nc_oc=AdrD6XiuyYqKHMRo0-PXQSFGLsbaB4SHM8tbPmx2lnK16Gvrgnk4nTMV47uJY2CQ1FU&_nc_zt=23&se=-1&_nc_ht=scontent-iad3-1.xx&_nc_gid=F3eIq7HRgQhUoTWqVAzgpg&_nc_ss=70289&oh=00_AQIVlxHacuesuI0raPwEWgW2Jbcs1cHGTgRNWngHDN5eTQ&oe=6AAE85B9"
+    "https://scontent-cdg4-3.xx.fbcdn.net/v/t39.30808-6/810623523_1630964185053579_9123511746620402795_n.jpg?stp=dst-jpegr_tt6&cstp=mx2048x1542&ctp=p180x540&_nc_cat=110&ccb=1-7&_nc_sid=833d8c&_nc_ohc=JQu1zEOsdXAQ7kNvwG4jJ9_&_nc_oc=Adrkb_md2ThmS309H5x95RY41ak1lunn4YT2ocWW6NzSJL08ZdoyN50_rN2XSGxR7TY&_nc_zt=23&se=-1&_nc_ht=scontent-cdg4-3.xx&_nc_gid=S_PdhrjRmIXyTvAe2wW2gQ&_nc_ss=70289&oh=00_AQJJlYOKkrc85-Vtr7LDQPfiWI52wmXsapYhiAicwilJqg&oe=6AAE85B9"
    ],
    "has_video": false,
    "video_url": "",
    "repost": false,
-   "preview": "media/f37e508e24b2a4777164.jpg",
+   "preview": "media/2f05257c1080cd90831f.jpg",
    "first_seen": "2026-09-14T23:50:58Z",
    "sort_time": "2026-09-14T23:47:43Z"
   },
@@ -845,12 +885,12 @@
    "published": "2026-09-14T23:46:48Z",
    "published_exact": true,
    "images": [
-    "https://scontent-ams2-1.xx.fbcdn.net/v/t39.99422-6/810813841_1663476041828036_4560766352442685348_n.png?stp=dst-jpg_tt6&cstp=mx1280x960&ctp=s720x720&_nc_cat=1&ccb=1-7&_nc_sid=127cfc&_nc_ohc=ML88j1N3K5IQ7kNvwFUGvbE&_nc_oc=AdqOjiqbl8m_067Gh557Ah3GUMdM9A4GQn3KvJeN9Z9WFAJw0w7-3qvzJh6shDZN7Fk&_nc_zt=14&_nc_ht=scontent-ams2-1.xx&_nc_gid=F8eDfFo8K0JYjaW4aE2Kuw&_nc_ss=70289&oh=00_AQKDR20Hj2wBso6Z_vscz59QX-75fVmUUJnfIxNe9xeEig&oe=6AAE6162"
+    "https://scontent-atl3-2.xx.fbcdn.net/v/t39.99422-6/810813841_1663476041828036_4560766352442685348_n.png?stp=dst-jpg_tt6&cstp=mx1280x960&ctp=s720x720&_nc_cat=1&ccb=1-7&_nc_sid=127cfc&_nc_ohc=ML88j1N3K5IQ7kNvwHEwU8M&_nc_oc=AdqqEj3SZlZIH0e9W3Q2KzEpaiLAWlRKFPlUugWGPeNTmGr9yoeU0iHtNi48OCGub40&_nc_zt=14&_nc_ht=scontent-atl3-2.xx&_nc_gid=yC348uy3pGlMnfVEFEE5Kg&_nc_ss=70289&oh=00_AQLGQSbGjYnp65fmetdP00iDGi626DfqagUO_qQQBL9XOg&oe=6AAE6162"
    ],
    "has_video": false,
    "video_url": "",
    "repost": false,
-   "preview": "media/852f42f9e4dead55bc3f.jpg",
+   "preview": "media/a140c969fcce45a54562.jpg",
    "first_seen": "2026-09-14T23:50:58Z",
    "sort_time": "2026-09-14T23:46:48Z"
   },
@@ -885,12 +925,12 @@
    "published": "2026-09-14T23:44:26Z",
    "published_exact": true,
    "images": [
-    "https://scontent.ficn2-2.fna.fbcdn.net/v/t39.99422-6/810518938_1046344028012946_2939963401472633786_n.png?stp=dst-jpg_tt6&cstp=mx931x1502&ctp=p526x296&_nc_cat=104&ccb=1-7&_nc_sid=833d8c&_nc_ohc=z45ncuz7F5IQ7kNvwGdcRe4&_nc_oc=AdqMHaU2xxnQoUSBtA5Er57HPTgEF26ePGHofSuvBUz1fB6HqFFzolevEUYHs2an_x4&_nc_zt=14&_nc_ht=scontent.ficn2-2.fna&_nc_gid=JV3rES-yKw05CjLWEf5DdA&_nc_ss=70289&oh=00_AQL07Y-4Zo3I_ZFQzPhDLWnAZDplbIVDaKhHbhcDNYyObQ&oe=6AAE606B"
+    "https://scontent-atl3-2.xx.fbcdn.net/v/t39.99422-6/810518938_1046344028012946_2939963401472633786_n.png?stp=dst-jpg_tt6&cstp=mx931x1502&ctp=p526x296&_nc_cat=104&ccb=1-7&_nc_sid=833d8c&_nc_ohc=z45ncuz7F5IQ7kNvwG3uk7d&_nc_oc=Adp10IVdlyxbyHWcIfiX7wEdzQFL9DQ4b3G8iJzmWhPDM9b-lmfAkLgrKjEgH3bX06U&_nc_zt=14&_nc_ht=scontent-atl3-2.xx&_nc_gid=sE-bGOHECl4qYBBhDKbwdw&_nc_ss=70289&oh=00_AQJDKj_Dv_Ge2D9xA5DSY-6Javgg6HAq5f3jhl4uWmw9zA&oe=6AAE606B"
    ],
    "has_video": false,
    "video_url": "",
    "repost": false,
-   "preview": "media/eec9186806f60593f3d8.jpg",
+   "preview": "media/ced4b7c44b2ac3687a67.jpg",
    "first_seen": "2026-09-14T23:50:58Z",
    "sort_time": "2026-09-14T23:44:26Z"
   },
@@ -965,12 +1005,12 @@
    "published": "2026-09-14T23:40:13Z",
    "published_exact": true,
    "images": [
-    "https://scontent-dfw6-2.xx.fbcdn.net/v/t39.99422-6/808802637_3683738581803635_2785683538361073865_n.png?stp=dst-jpg_tt6&cstp=mx1320x693&ctp=s960x960&_nc_cat=108&ccb=1-7&_nc_sid=833d8c&_nc_ohc=SB1v_DkJ5NEQ7kNvwFZ5j5S&_nc_oc=Adrqiy_pwvOThUbMOS7iCjuh0A_4l_swAZGRIZuZCwrKMRllmAY4xwH_gYqfR_1zjCM&_nc_zt=14&_nc_ht=scontent-dfw6-2.xx&_nc_gid=KgIyrQGKjdfbf6s55lCknQ&_nc_ss=70289&oh=00_AQIZLmAmTcHzWO_ZTm0pGHP2nJFzCEm9JBk7hHw59E24Ig&oe=6AAE5FEC"
+    "https://scontent-fra3-1.xx.fbcdn.net/v/t39.99422-6/808802637_3683738581803635_2785683538361073865_n.png?stp=dst-jpg_tt6&cstp=mx1320x693&ctp=s960x960&_nc_cat=108&ccb=1-7&_nc_sid=833d8c&_nc_ohc=SB1v_DkJ5NEQ7kNvwFLE_gY&_nc_oc=AdqKAL82j7ejU9uvZsPAG3uyg1bhyZ2bSbZaUSedRa_fQegvM84i1Gxg5KVRrjgSiiQ&_nc_zt=14&_nc_ht=scontent-fra3-1.xx&_nc_gid=sA9jX7EoWmfWBlREt1TRfA&_nc_ss=70289&oh=00_AQLTPavoQSCUi7XglIvdDKvxlszQwZemTRleeN50d1CXMQ&oe=6AAE5FEC"
    ],
    "has_video": false,
    "video_url": "",
    "repost": false,
-   "preview": "media/976568a5c01827218864.jpg",
+   "preview": "media/8c9521fdff6af2e3e965.jpg",
    "first_seen": "2026-09-14T23:50:58Z",
    "sort_time": "2026-09-14T23:40:13Z"
   },
@@ -1146,12 +1186,12 @@
    "published": "2026-09-14T23:00:10Z",
    "published_exact": true,
    "images": [
-    "https://scontent-hkg1-1.xx.fbcdn.net/v/t39.99422-6/809586397_1387081493598175_4633143182157840179_n.png?stp=dst-jpg_tt6&cstp=mx1600x900&ctp=s960x960&_nc_cat=101&ccb=1-7&_nc_sid=127cfc&_nc_ohc=8ndGlUCk4QYQ7kNvwEcqr1b&_nc_oc=AdrLnecZGbSTvSO4IepoJ6CxfobdLdG_deGGaXNUBQSfpgrA4iMjfkaQjdK09gKVpxo&_nc_zt=14&_nc_ht=scontent-hkg1-1.xx&_nc_gid=wvRKnYpMnWIgibnMVj5FGQ&_nc_ss=70289&oh=00_AQKlwT_TmcHAaI9yQxVESLIaK7mbkObcdeEVsH5mFxiBpg&oe=6AAE8DDD"
+    "https://scontent-sjc6-1.xx.fbcdn.net/v/t39.99422-6/809586397_1387081493598175_4633143182157840179_n.png?stp=dst-jpg_tt6&cstp=mx1600x900&ctp=s960x960&_nc_cat=101&ccb=1-7&_nc_sid=127cfc&_nc_ohc=8ndGlUCk4QYQ7kNvwFFmFTh&_nc_oc=AdoRXVOtNZbJki7V3-cPYHOTnWGBqc5FKjX3Yj5OesYl0CqMd1SIG8xpHXa2_sRtg1Y&_nc_zt=14&_nc_ht=scontent-sjc6-1.xx&_nc_gid=uYdYByFXyrBvl-wnaZTv3g&_nc_ss=70289&oh=00_AQJ7R7FhTrPFqxs4phKVtNhz3XqsLQFWgJwtkjcSVSbTVw&oe=6AAE8DDD"
    ],
    "has_video": false,
    "video_url": "",
    "repost": false,
-   "preview": "media/4d03519da7355cd7bbc2.jpg",
+   "preview": "media/41e6208ab13aaf05f7e6.jpg",
    "first_seen": "2026-09-14T23:11:03Z",
    "sort_time": "2026-09-14T23:00:10Z"
   },
@@ -1229,12 +1269,12 @@
    "published": "2026-09-14T22:52:51Z",
    "published_exact": true,
    "images": [
-    "https://scontent-sjc3-1.xx.fbcdn.net/v/t39.99422-6/810449126_2290541085130258_3291979847343428274_n.png?stp=dst-jpg_tt6&cstp=mx1080x1080&ctp=p526x296&_nc_cat=110&ccb=1-7&_nc_sid=833d8c&_nc_ohc=YTeeUoN0g7IQ7kNvwEo7VKz&_nc_oc=AdpjgOCzvTxSH0gmgNfK_ieEuFM9BqzZMAZjVrRr6AyhiZjd31pWLJEgRAchFXZjVn0&_nc_zt=14&_nc_ht=scontent-sjc3-1.xx&_nc_gid=pyyhXSRBCm5o_SHFCj-XMA&_nc_ss=70289&oh=00_AQKM0-LvZ0_yqrYLdQIQnELDgJxPL8-Oh6uKzujbHZwsuA&oe=6AAE8589"
+    "https://scontent-dfw6-2.xx.fbcdn.net/v/t39.99422-6/810449126_2290541085130258_3291979847343428274_n.png?stp=dst-jpg_tt6&cstp=mx1080x1080&ctp=p526x296&_nc_cat=110&ccb=1-7&_nc_sid=833d8c&_nc_ohc=YTeeUoN0g7IQ7kNvwH5HHAN&_nc_oc=AdoHbrxgQp2DZe387ONL3Ao4pzE_rumcum9bRy7NHW_nMvOUuPuwCcnf27b93HRzbYY&_nc_zt=14&_nc_ht=scontent-dfw6-2.xx&_nc_gid=-TVNTJ3bFBVem0P0HeYy7w&_nc_ss=70289&oh=00_AQKdH5QvH6nlrptL2GfHkVBiMiUNbTdbqqcMGukwcMfzBg&oe=6AAE8589"
    ],
    "has_video": false,
    "video_url": "",
    "repost": false,
-   "preview": "media/3b2f3d86b7c6a63abbc5.jpg",
+   "preview": "media/57f455fe977b6edbbeb6.jpg",
    "first_seen": "2026-09-14T23:00:38Z",
    "sort_time": "2026-09-14T22:52:51Z"
   },
@@ -1332,12 +1372,12 @@
    "published": "2026-09-14T22:30:04Z",
    "published_exact": true,
    "images": [
-    "https://scontent-iad3-1.xx.fbcdn.net/v/t39.99422-6/808285889_1589152406092766_1237261913985277104_n.png?stp=dst-jpg_tt6&cstp=mx1080x1350&ctp=s640x640&_nc_cat=101&ccb=1-7&_nc_sid=127cfc&_nc_ohc=2uLtHKcJfqAQ7kNvwH-nB8y&_nc_oc=AdpEmYMKBuyYCaWTvulkZcrKizRIOokhJrQarUaJx0pvuI-XiDYpp35ITDxZ2pFNX0A&_nc_zt=14&_nc_ht=scontent-iad3-1.xx&_nc_gid=JF7j46Ed7oIwPdH0Sm8FWA&_nc_ss=70289&oh=00_AQJD3qTgX62LTxSsipw3NUTg0pXcziza53icZ_niiSGvQg&oe=6AAE88B2"
+    "https://scontent-hkg1-1.xx.fbcdn.net/v/t39.99422-6/808285889_1589152406092766_1237261913985277104_n.png?stp=dst-jpg_tt6&cstp=mx1080x1350&ctp=s640x640&_nc_cat=101&ccb=1-7&_nc_sid=127cfc&_nc_ohc=2uLtHKcJfqAQ7kNvwHEF-gQ&_nc_oc=AdoD2kzm6gNM6ZEJPdIY12x3g1IgvtSQbFmZL9sjE_yj70w269xoA4pzL4_z8utcDp8&_nc_zt=14&_nc_ht=scontent-hkg1-1.xx&_nc_gid=dM7TzabSzjxbOUfwxlOnnA&_nc_ss=70289&oh=00_AQIOW3nqvnGjhdLYDW8hXl5hFttm1PN3F9pQXYeKV045pg&oe=6AAE88B2"
    ],
    "has_video": false,
    "video_url": "",
    "repost": false,
-   "preview": "media/0d381f3d829c038ebc29.jpg",
+   "preview": "media/96a86d69e14aeec9aa26.jpg",
    "first_seen": "2026-09-14T22:34:02Z",
    "sort_time": "2026-09-14T22:30:04Z"
   },
@@ -1927,15 +1967,15 @@
    "published": "2026-09-14T20:34:13Z",
    "published_exact": true,
    "images": [
-    "https://scontent-dfw5-1.xx.fbcdn.net/v/t39.99422-6/810814420_1556647375692002_1303040069141606592_n.png?stp=dst-jpg_tt6&cstp=mx1050x685&ctp=s590x590&_nc_cat=105&ccb=1-7&_nc_sid=127cfc&_nc_ohc=D47bW2jB794Q7kNvwGqgENm&_nc_oc=Adp17yZUt1nW4P3vqYy8MP0SQNbpaddTV56XNTSaCD5qPKiEQDKgmvbSbmDnfkPMVXw&_nc_zt=14&_nc_ht=scontent-dfw5-1.xx&_nc_gid=EGScfyq1mV84KzJdS_FIxA&_nc_ss=70289&oh=00_AQLNZ2HlR_3cETdHE-DI8OtvsGs21PW6ces5_yUF0wbNdw&oe=6AAE5B6C",
-    "https://scontent-dfw5-1.xx.fbcdn.net/v/t39.99422-6/810814420_1556647375692002_1303040069141606592_n.png?stp=dst-jpg_tt6&cstp=mx1050x685&ctp=s1050x685&_nc_cat=105&ccb=1-7&_nc_sid=127cfc&_nc_ohc=D47bW2jB794Q7kNvwGqgENm&_nc_oc=Adp17yZUt1nW4P3vqYy8MP0SQNbpaddTV56XNTSaCD5qPKiEQDKgmvbSbmDnfkPMVXw&_nc_zt=14&_nc_ht=scontent-dfw5-1.xx&_nc_gid=EGScfyq1mV84KzJdS_FIxA&_nc_ss=70289&oh=00_AQLNZ2HlR_3cETdHE-DI8OtvsGs21PW6ces5_yUF0wbNdw&oe=6AAE5B6C",
-    "https://scontent-dfw5-1.xx.fbcdn.net/v/t39.99422-6/809812448_1062442113157786_7501223369325956039_n.png?stp=dst-jpg_tt6&cstp=mx1050x685&ctp=s590x590&_nc_cat=106&ccb=1-7&_nc_sid=127cfc&_nc_ohc=dVH-Dcw_ySwQ7kNvwGymXCq&_nc_oc=Ado526ul8-4th87EGITllcX0wKzmvYp-8zVmWHGhkSKgL6BJxq1Q2YRFmpky4Ux15Es&_nc_zt=14&_nc_ht=scontent-dfw5-1.xx&_nc_gid=EGScfyq1mV84KzJdS_FIxA&_nc_ss=70289&oh=00_AQIdYTRu3rVSjN52aHxNrmV5LaUAPKzBx-4ZECD_qH_K2g&oe=6AAE5F2B",
-    "https://scontent-dfw5-1.xx.fbcdn.net/v/t39.99422-6/809812448_1062442113157786_7501223369325956039_n.png?stp=dst-jpg_tt6&cstp=mx1050x685&ctp=s1050x685&_nc_cat=106&ccb=1-7&_nc_sid=127cfc&_nc_ohc=dVH-Dcw_ySwQ7kNvwGymXCq&_nc_oc=Ado526ul8-4th87EGITllcX0wKzmvYp-8zVmWHGhkSKgL6BJxq1Q2YRFmpky4Ux15Es&_nc_zt=14&_nc_ht=scontent-dfw5-1.xx&_nc_gid=EGScfyq1mV84KzJdS_FIxA&_nc_ss=70289&oh=00_AQIdYTRu3rVSjN52aHxNrmV5LaUAPKzBx-4ZECD_qH_K2g&oe=6AAE5F2B"
+    "https://scontent-hkg1-1.xx.fbcdn.net/v/t39.99422-6/810814420_1556647375692002_1303040069141606592_n.png?stp=dst-jpg_tt6&cstp=mx1050x685&ctp=s590x590&_nc_cat=105&ccb=1-7&_nc_sid=127cfc&_nc_ohc=D47bW2jB794Q7kNvwG6uqGA&_nc_oc=AdpQGYPSxYaTPpSf7ZrOliPEwilQl1UVDU3ZUf4TWDYGJqwBfNuzAgUjX7dLX43jYXc&_nc_zt=14&_nc_ht=scontent-hkg1-1.xx&_nc_gid=wljU2dtPaWDDLkO7GANZ1Q&_nc_ss=70289&oh=00_AQIj2kpNK8rFTh88Ard94mtueDPYGgqVVV3dp5scQWqM9w&oe=6AAE5B6C",
+    "https://scontent-hkg1-1.xx.fbcdn.net/v/t39.99422-6/810814420_1556647375692002_1303040069141606592_n.png?stp=dst-jpg_tt6&cstp=mx1050x685&ctp=s1050x685&_nc_cat=105&ccb=1-7&_nc_sid=127cfc&_nc_ohc=D47bW2jB794Q7kNvwG6uqGA&_nc_oc=AdpQGYPSxYaTPpSf7ZrOliPEwilQl1UVDU3ZUf4TWDYGJqwBfNuzAgUjX7dLX43jYXc&_nc_zt=14&_nc_ht=scontent-hkg1-1.xx&_nc_gid=wljU2dtPaWDDLkO7GANZ1Q&_nc_ss=70289&oh=00_AQIj2kpNK8rFTh88Ard94mtueDPYGgqVVV3dp5scQWqM9w&oe=6AAE5B6C",
+    "https://scontent-hkg4-1.xx.fbcdn.net/v/t39.99422-6/809812448_1062442113157786_7501223369325956039_n.png?stp=dst-jpg_tt6&cstp=mx1050x685&ctp=s590x590&_nc_cat=106&ccb=1-7&_nc_sid=127cfc&_nc_ohc=dVH-Dcw_ySwQ7kNvwGJZGhE&_nc_oc=AdoPUXWx6B4Jl4K8UXQ1mCTcVWRucRQkPz_v2KxWIGAudIgE222HSPGFUuMEJs9mqg8&_nc_zt=14&_nc_ht=scontent-hkg4-1.xx&_nc_gid=wljU2dtPaWDDLkO7GANZ1Q&_nc_ss=70289&oh=00_AQJH_APdzsK_aIjhpMUIqO_l4LqQUlnb7O1Rup_STVu3GA&oe=6AAE5F2B",
+    "https://scontent-hkg4-1.xx.fbcdn.net/v/t39.99422-6/809812448_1062442113157786_7501223369325956039_n.png?stp=dst-jpg_tt6&cstp=mx1050x685&ctp=s1050x685&_nc_cat=106&ccb=1-7&_nc_sid=127cfc&_nc_ohc=dVH-Dcw_ySwQ7kNvwGJZGhE&_nc_oc=AdoPUXWx6B4Jl4K8UXQ1mCTcVWRucRQkPz_v2KxWIGAudIgE222HSPGFUuMEJs9mqg8&_nc_zt=14&_nc_ht=scontent-hkg4-1.xx&_nc_gid=wljU2dtPaWDDLkO7GANZ1Q&_nc_ss=70289&oh=00_AQJH_APdzsK_aIjhpMUIqO_l4LqQUlnb7O1Rup_STVu3GA&oe=6AAE5F2B"
    ],
    "has_video": false,
    "video_url": "",
    "repost": false,
-   "preview": "media/3d226a8339b1d2d93cc5.jpg",
+   "preview": "media/e78361df3495e7683f3c.jpg",
    "first_seen": "2026-09-14T20:42:48Z",
    "sort_time": "2026-09-14T20:34:13Z"
   },
@@ -2330,12 +2370,12 @@
    "published": "2026-09-14T19:18:26Z",
    "published_exact": true,
    "images": [
-    "https://scontent-dfw5-1.xx.fbcdn.net/v/t39.99422-6/797598518_1332219552105704_9102984405800912591_n.png?stp=dst-jpg_tt6&cstp=mx1638x2048&ctp=s640x640&_nc_cat=106&ccb=1-7&_nc_sid=833d8c&_nc_ohc=rVz6CRrvwM8Q7kNvwFOhKtU&_nc_oc=Adr3VR4_vWTGxT57FwpYmAFn1C3yi1H9lW3NRn7xBrW87tIoI6rySpKqKdsBGVRzmts&_nc_zt=14&_nc_ht=scontent-dfw5-1.xx&_nc_gid=M-T_wgt_p9cjP-wumvjfeg&_nc_ss=70289&oh=00_AQLBW15Sw7R1eVnsFHY7soC4kt0p3hS-bn-5oo4g8pyxQg&oe=6AAE829A"
+    "https://scontent-cdg4-1.xx.fbcdn.net/v/t39.99422-6/797598518_1332219552105704_9102984405800912591_n.png?stp=dst-jpg_tt6&cstp=mx1638x2048&ctp=s640x640&_nc_cat=1&ccb=1-7&_nc_sid=833d8c&_nc_ohc=rVz6CRrvwM8Q7kNvwFoBBJ1&_nc_oc=Adq_bXLY2aIR1x1OG1bCZKERwfkTm6Ion6OD4z3ZA5hlGKBjqxVcMnCPcDJtTtMbzgs&_nc_zt=14&_nc_ht=scontent-cdg4-1.xx&_nc_gid=wK_vJto3QMkfhSqN7MTiHQ&_nc_ss=70289&oh=00_AQKdoKUF5EUbIl0IguX1UmIWYPEBbrL12voeIZM1VX52jg&oe=6AAE829A"
    ],
    "has_video": false,
    "video_url": "",
    "repost": false,
-   "preview": "media/abca632e43672e78f8e6.jpg",
+   "preview": "media/ff83495321798c31803e.jpg",
    "first_seen": "2026-09-14T19:22:22Z",
    "sort_time": "2026-09-14T19:18:26Z"
   },
@@ -2450,13 +2490,13 @@
    "published": "2026-09-14T19:01:33Z",
    "published_exact": true,
    "images": [
-    "https://scontent-dfw6-2.xx.fbcdn.net/v/t15.5256-10/802333419_1679980933694394_8068415772782049028_n.jpg?stp=dst-jpg_tt6&cstp=mx1080x1920&ctp=p296x100&_nc_cat=110&ccb=1-7&_nc_sid=5fad0e&_nc_ohc=qGs5KztMfHQQ7kNvwF1SQvT&_nc_oc=AdqbJfXxFwKQMUz2yCBWCDBIoqBIJ9ikB9PByElCVDFq0zc61TfdyaTtkCsH_S4Z0nw&_nc_zt=23&_nc_ht=scontent-dfw6-2.xx&_nc_gid=MM5INdJPF9mHLu_0_lGzSw&_nc_ss=70289&oh=00_AQLVoaaiCoZ1-8oCvEpsvlT2RToFTXD-_wpYmAI0NTWIDA&oe=6AAE7F38",
-    "https://scontent-dfw6-2.xx.fbcdn.net/v/t15.5256-10/802333419_1679980933694394_8068415772782049028_n.jpg?stp=dst-jpg_tt6&cstp=mx1080x1920&ctp=s960x960&_nc_cat=110&ccb=1-7&_nc_sid=50ce42&_nc_ohc=qGs5KztMfHQQ7kNvwF1SQvT&_nc_oc=AdqbJfXxFwKQMUz2yCBWCDBIoqBIJ9ikB9PByElCVDFq0zc61TfdyaTtkCsH_S4Z0nw&_nc_zt=23&_nc_ht=scontent-dfw6-2.xx&_nc_gid=MM5INdJPF9mHLu_0_lGzSw&_nc_ss=70289&oh=00_AQLVoaaiCoZ1-8oCvEpsvlT2RToFTXD-_wpYmAI0NTWIDA&oe=6AAE7F38"
+    "https://scontent-fra5-1.xx.fbcdn.net/v/t15.5256-10/802333419_1679980933694394_8068415772782049028_n.jpg?stp=dst-jpg_tt6&cstp=mx1080x1920&ctp=p296x100&_nc_cat=110&ccb=1-7&_nc_sid=5fad0e&_nc_ohc=qGs5KztMfHQQ7kNvwFvLsqm&_nc_oc=Adro3RLwLLwzDAEaBv2jjfi695indGCR4PtCPxDCpBLXcVB12bIksBVRIqiiQMomFts&_nc_zt=23&_nc_ht=scontent-fra5-1.xx&_nc_gid=Q1xEZtsdQE71bUtl3JtHpw&_nc_ss=70289&oh=00_AQLV_pwOasKg-c1Y5VoA-sWTIti8u13SiWPzTe11SJd72g&oe=6AAE7F38",
+    "https://scontent-fra5-1.xx.fbcdn.net/v/t15.5256-10/802333419_1679980933694394_8068415772782049028_n.jpg?stp=dst-jpg_tt6&cstp=mx1080x1920&ctp=s960x960&_nc_cat=110&ccb=1-7&_nc_sid=50ce42&_nc_ohc=qGs5KztMfHQQ7kNvwFvLsqm&_nc_oc=Adro3RLwLLwzDAEaBv2jjfi695indGCR4PtCPxDCpBLXcVB12bIksBVRIqiiQMomFts&_nc_zt=23&_nc_ht=scontent-fra5-1.xx&_nc_gid=Q1xEZtsdQE71bUtl3JtHpw&_nc_ss=70289&oh=00_AQLV_pwOasKg-c1Y5VoA-sWTIti8u13SiWPzTe11SJd72g&oe=6AAE7F38"
    ],
    "has_video": true,
-   "video_url": "https://video-dfw5-2.xx.fbcdn.net/o1/v/t2/f2/m412/AQMq08WT99r55H84g7kkGWJCm_pnlpCfo-nydeZLBJYh8mo3lCPOYQJhRJxZnRLw3QcqCAxvRyV9PU8D5q6w2I60Cjrl1Bw2vw4sx7qZWw.mp4?_nc_cat=104&_nc_sid=8bf8fe&_nc_ht=video-dfw5-2.xx.fbcdn.net&_nc_ohc=xcQky7MlLc0Q7kNvwHqMj_H&efg=eyJ2ZW5jb2RlX3RhZyI6Inhwdl9wcm9ncmVzc2l2ZS5GQUNFQk9PSy4uQzMuMzYwLnN2ZV9zZCIsInhwdl9hc3NldF9pZCI6MTU1Mzg5MTUwOTM5OTMyNiwiYXNzZXRfYWdlX2RheXMiOjAsInZpX3VzZWNhc2VfaWQiOjEwMTIyLCJkdXJhdGlvbl9zIjoyMCwidXJsZ2VuX3NvdXJjZSI6Ind3dyJ9&ccb=17-1&_nc_gid=MM5INdJPF9mHLu_0_lGzSw&_nc_ss=70289&_nc_zt=28&_nc_enc=QZSiARScDJvwAcnSTdYqYZ8xiQErjWuI6-4ccNqSiPamePOGuaEumZomwU3nJ-VD9_CcY-wr2FSzJd8KgJw99J3UcMvF8m51k9Ppw7nXfSG79aHFHkJlh1JDvBM&oh=00_AQIXz7ozPodmD8agiHgeyyJR-gSL1d_exyQkuindr0ULWQ&oe=6AAE5866&bitrate=498326&tag=sve_sd",
+   "video_url": "https://video-fra3-2.xx.fbcdn.net/o1/v/t2/f2/m412/AQMq08WT99r55H84g7kkGWJCm_pnlpCfo-nydeZLBJYh8mo3lCPOYQJhRJxZnRLw3QcqCAxvRyV9PU8D5q6w2I60Cjrl1Bw2vw4sx7qZWw.mp4?_nc_cat=104&_nc_sid=8bf8fe&_nc_ht=video-fra3-2.xx.fbcdn.net&_nc_ohc=xcQky7MlLc0Q7kNvwE7dFbJ&efg=eyJ2ZW5jb2RlX3RhZyI6Inhwdl9wcm9ncmVzc2l2ZS5GQUNFQk9PSy4uQzMuMzYwLnN2ZV9zZCIsInhwdl9hc3NldF9pZCI6MTU1Mzg5MTUwOTM5OTMyNiwiYXNzZXRfYWdlX2RheXMiOjAsInZpX3VzZWNhc2VfaWQiOjEwMTIyLCJkdXJhdGlvbl9zIjoyMCwidXJsZ2VuX3NvdXJjZSI6Ind3dyJ9&ccb=17-1&_nc_gid=Q1xEZtsdQE71bUtl3JtHpw&_nc_ss=70289&_nc_zt=28&_nc_enc=QRF-gVFVI3rU9XJb0jG3e0TCWChvsX1nj6wlCfCSqNYKsx9pesm7SRfvWeU4AQ4N6tdVw7LhU1WivFQi0oe_S5D9jTcqosSe9XfZLdz59ROZmUSjGRH_swLtYtc&oh=00_AQL6TSxlQPTJeNRl2Et6lG0kG4D4a5nqHe-9-yGRUJnE9g&oe=6AAE90A6&bitrate=498326&tag=sve_sd",
    "repost": false,
-   "preview": "media/aaf7549830afb98a30c4.jpg",
+   "preview": "media/94889d82bb2b5647d8a2.jpg",
    "first_seen": "2026-09-14T19:09:37Z",
    "sort_time": "2026-09-14T19:01:33Z"
   },
@@ -2571,12 +2611,12 @@
    "published": "2026-09-14T18:31:02Z",
    "published_exact": true,
    "images": [
-    "https://scontent-sjc6-1.xx.fbcdn.net/v/t39.99422-6/809736315_921315867725720_3056849570887363552_n.png?stp=dst-jpg_tt6&cstp=mx1277x1095&ctp=s590x590&_nc_cat=100&ccb=1-7&_nc_sid=127cfc&_nc_ohc=fOcUnShToPMQ7kNvwE-ZmW1&_nc_oc=Adq518XjZKmvGRKzmWnsexYspp9BviQPk1NUfNGJPPkH5S5Jgr7aGN9MfxCbFkeiLEI&_nc_zt=14&_nc_ht=scontent-sjc6-1.xx&_nc_gid=K7feCCFT3gBAeHXw9JYKXw&_nc_ss=70289&oh=00_AQJ1ttHl0ExUhvvCwe2191wceVR1LhCAUKNZW3qc1wp5iA&oe=6AAE5A60"
+    "https://scontent-iad6-1.xx.fbcdn.net/v/t39.99422-6/809736315_921315867725720_3056849570887363552_n.png?stp=dst-jpg_tt6&cstp=mx1277x1095&ctp=s590x590&_nc_cat=100&ccb=1-7&_nc_sid=127cfc&_nc_ohc=fOcUnShToPMQ7kNvwHrD1Fv&_nc_oc=Adph008h59U3B23qBtblmzJUECm0_4DS2ri_RKCvNw_AKf0F0V6CTwc3l8BsmgivZnQ&_nc_zt=14&_nc_ht=scontent-iad6-1.xx&_nc_gid=AOVFdWFkKbhFIaTp3UbhsQ&_nc_ss=70289&oh=00_AQJtPs3WsLD1B-TOpGsBAKPJqw2M2TVarrnjpEnXUCGQkg&oe=6AAE5A60"
    ],
    "has_video": false,
    "video_url": "",
    "repost": false,
-   "preview": "media/fe1d19644888ecc1432b.jpg",
+   "preview": "media/56357779d0e61f21bf50.jpg",
    "first_seen": "2026-09-14T18:42:08Z",
    "sort_time": "2026-09-14T18:31:02Z"
   },
@@ -2848,6 +2888,24 @@
    "sort_time": "2026-09-14T17:55:02Z"
   },
   {
+   "id": "58c2f8b248479e87",
+   "platform": "facebook",
+   "source": "The Weather Channel",
+   "handle": "TheWeatherChannel",
+   "author": "TheWeatherChannel",
+   "url": "https://www.facebook.com/reel/2156326525766456/",
+   "text": "Strong storms are expected to ramp up across parts of the central Plains and Midwest, bringing the threat of damaging winds, large hail and tornadoes. Meteorologist Ale…",
+   "published": "2026-09-14T17:44:57Z",
+   "published_exact": false,
+   "images": [],
+   "has_video": true,
+   "video_url": "",
+   "repost": false,
+   "preview": "media/b3daa51534b9d4f1249b.jpg",
+   "first_seen": "2026-09-14T17:11:32Z",
+   "sort_time": "2026-09-14T17:44:57Z"
+  },
+  {
    "id": "467e64b39e0b20f3",
    "platform": "facebook",
    "source": "Greg Dee",
@@ -2926,24 +2984,6 @@
    "preview": "media/0acb3b111eca597e10d6.jpg",
    "first_seen": "2026-09-14T17:33:12Z",
    "sort_time": "2026-09-14T17:27:59Z"
-  },
-  {
-   "id": "58c2f8b248479e87",
-   "platform": "facebook",
-   "source": "The Weather Channel",
-   "handle": "TheWeatherChannel",
-   "author": "TheWeatherChannel",
-   "url": "https://www.facebook.com/reel/2156326525766456/",
-   "text": "Strong storms are expected to ramp up across parts of the central Plains and Midwest, bringing the threat of damaging winds, large hail and tornadoes. Meteorologist Ale…",
-   "published": "2026-09-14T17:24:00Z",
-   "published_exact": false,
-   "images": [],
-   "has_video": true,
-   "video_url": "",
-   "repost": false,
-   "preview": "media/b3daa51534b9d4f1249b.jpg",
-   "first_seen": "2026-09-14T17:11:32Z",
-   "sort_time": "2026-09-14T17:24:00Z"
   },
   {
    "id": "02266d29c2c1a48c",
@@ -3562,26 +3602,6 @@
    "sort_time": "2026-09-14T14:30:03Z"
   },
   {
-   "id": "5d5106327253b1cb",
-   "platform": "facebook",
-   "source": "The Weather Channel",
-   "handle": "TheWeatherChannel",
-   "author": "TheWeatherChannel",
-   "url": "https://www.facebook.com/reel/1115106361032461/",
-   "text": "Torrential rains turned Sunday's Racefaster Half Marathon in Paramus, NJ, into a dangerous obstacle course. Flash floods overwhelmed the route through Saddle River Coun…",
-   "published": "2026-09-14T14:24:00Z",
-   "published_exact": false,
-   "images": [
-    "https://scontent-iad3-2.xx.fbcdn.net/v/t15.5256-10/810319620_2838012456571485_1034426833048270880_n.jpg?stp=dst-jpg_tt6&cstp=mx1080x1920&ctp=s960x960&_nc_cat=1&ccb=1-7&_nc_sid=d2b52d&_nc_ohc=014FYatdB8AQ7kNvwHcEpr1&_nc_oc=AdrC0xAGNA2ZljBdWyPwDX8Ql9_fZalaKCnaso5nERzSMb_1GUbqp5KBrA5_6Pq5tvM&_nc_zt=23&_nc_ht=scontent-iad3-2.xx&_nc_gid=K4gDuVbBpuqlAEGhU2wFMQ&_nc_ss=7b289&oh=00_AQJzx0YXpdsqaRI_vTiB97whKc_9gJKmWvwc4TE2VdgY7A&oe=6AAE7949"
-   ],
-   "has_video": true,
-   "video_url": "",
-   "repost": false,
-   "preview": "media/c425f6e4337f8bb33591.jpg",
-   "first_seen": "2026-09-14T13:42:44Z",
-   "sort_time": "2026-09-14T14:24:00Z"
-  },
-  {
    "id": "1ec3c2cbd1ab1616",
    "platform": "facebook",
    "source": "Mike's Weather Page",
@@ -3741,6 +3761,46 @@
    "sort_time": "2026-09-14T14:00:25Z"
   },
   {
+   "id": "5d5106327253b1cb",
+   "platform": "facebook",
+   "source": "The Weather Channel",
+   "handle": "TheWeatherChannel",
+   "author": "TheWeatherChannel",
+   "url": "https://www.facebook.com/reel/1115106361032461/",
+   "text": "Torrential rains turned Sunday's Racefaster Half Marathon in Paramus, NJ, into a dangerous obstacle course. Flash floods overwhelmed the route through Saddle River Coun…",
+   "published": "2026-09-14T13:44:57Z",
+   "published_exact": false,
+   "images": [
+    "https://scontent-cdg4-1.xx.fbcdn.net/v/t15.5256-10/810319620_2838012456571485_1034426833048270880_n.jpg?stp=dst-jpg_tt6&cstp=mx1080x1920&ctp=s960x960&_nc_cat=1&ccb=1-7&_nc_sid=d2b52d&_nc_ohc=014FYatdB8AQ7kNvwH_BTNQ&_nc_oc=Adow5C_xNkudw3kikfyReKYsxyn1TT-1ZdICyN5O9gK-Ccdgg88YkN3XfQDbohV4_dQ&_nc_zt=23&_nc_ht=scontent-cdg4-1.xx&_nc_gid=yWaqv0qlBeBvO60uV4Sdqg&_nc_ss=7b289&oh=00_AQJ1XatbdjY0DrBR_sIfRvojM3tt1peeJ0NZVsUE5ubmTA&oe=6AAE7949"
+   ],
+   "has_video": true,
+   "video_url": "",
+   "repost": false,
+   "preview": "media/0ea46fb464cc3cfffe68.jpg",
+   "first_seen": "2026-09-14T13:42:44Z",
+   "sort_time": "2026-09-14T13:44:57Z"
+  },
+  {
+   "id": "9d236dfa8f279923",
+   "platform": "facebook",
+   "source": "The Weather Channel",
+   "handle": "TheWeatherChannel",
+   "author": "TheWeatherChannel",
+   "url": "https://www.facebook.com/reel/1100184532531465/",
+   "text": "Heat and storms could impact fan comfort across the country Monday \n From uncomfortable heat in Kansas City to potential rain delays in Minneapolis, see how weather wi…",
+   "published": "2026-09-14T13:44:57Z",
+   "published_exact": false,
+   "images": [
+    "https://scontent-cdg4-2.xx.fbcdn.net/v/t15.5256-10/810281276_1764695691341288_1448219689493836898_n.jpg?stp=dst-jpg_tt6&cstp=mx1920x972&ctp=s960x960&_nc_cat=100&ccb=1-7&_nc_sid=d2b52d&_nc_ohc=s_ydSxEQzSUQ7kNvwH34G4M&_nc_oc=AdpS77moKvNAaHxZhOw8i_ffOV4oae3MaFdSuC1QzOElwcimLraA5JNI1KhMDrTZytI&_nc_zt=23&_nc_ht=scontent-cdg4-2.xx&_nc_gid=yWaqv0qlBeBvO60uV4Sdqg&_nc_ss=7b289&oh=00_AQI3y_zAFmVo2azbJV3aVoY29KvWmzOIKdcvX2ms4196sQ&oe=6AAE7137"
+   ],
+   "has_video": true,
+   "video_url": "",
+   "repost": false,
+   "preview": "media/1c7f318d1688c0cbe4e8.jpg",
+   "first_seen": "2026-09-14T13:12:09Z",
+   "sort_time": "2026-09-14T13:44:57Z"
+  },
+  {
    "id": "bf2cd60d19b26759",
    "platform": "facebook",
    "source": "Eric Snitil",
@@ -3779,26 +3839,6 @@
    "preview": "media/3c44ed89e5fae99ff6dc.jpg",
    "first_seen": "2026-09-14T13:32:31Z",
    "sort_time": "2026-09-14T13:26:04Z"
-  },
-  {
-   "id": "9d236dfa8f279923",
-   "platform": "facebook",
-   "source": "The Weather Channel",
-   "handle": "TheWeatherChannel",
-   "author": "TheWeatherChannel",
-   "url": "https://www.facebook.com/reel/1100184532531465/",
-   "text": "Heat and storms could impact fan comfort across the country Monday \n From uncomfortable heat in Kansas City to potential rain delays in Minneapolis, see how weather wi…",
-   "published": "2026-09-14T13:24:00Z",
-   "published_exact": false,
-   "images": [
-    "https://scontent-iad6-1.xx.fbcdn.net/v/t15.5256-10/810281276_1764695691341288_1448219689493836898_n.jpg?stp=dst-jpg_tt6&cstp=mx1920x972&ctp=s960x960&_nc_cat=100&ccb=1-7&_nc_sid=d2b52d&_nc_ohc=s_ydSxEQzSUQ7kNvwGsAuN2&_nc_oc=AdqEzQ2Qw3rTUpVDNQmQoTYcL9L0-pgDroEO26XbjCyRY31_kw8l0UQwqawbRowK_Ks&_nc_zt=23&_nc_ht=scontent-iad6-1.xx&_nc_gid=K4gDuVbBpuqlAEGhU2wFMQ&_nc_ss=7b289&oh=00_AQLhkDLmjVafJi-ltV-Xuo81VwyBFodd8faSpmvQ_-HdVA&oe=6AAE7137"
-   ],
-   "has_video": true,
-   "video_url": "",
-   "repost": false,
-   "preview": "media/e82b31aff87922fc6485.jpg",
-   "first_seen": "2026-09-14T13:12:09Z",
-   "sort_time": "2026-09-14T13:24:00Z"
   },
   {
    "id": "38cd3f155ac8ff0c",
@@ -4075,12 +4115,12 @@
    "published": "2026-09-14T11:30:18Z",
    "published_exact": true,
    "images": [
-    "https://scontent-dfw5-1.xx.fbcdn.net/v/t39.99422-6/808136764_1061705559830130_1287961511332245367_n.png?stp=dst-jpg_tt6&cstp=mx1280x1280&ctp=p526x296&_nc_cat=1&ccb=1-7&_nc_sid=833d8c&_nc_ohc=8BzXvCSNDoQQ7kNvwExia_E&_nc_oc=AdqoG9zAjXE6WFfGUoD9uzq_OswkKCJDwH-DbMfuTKXO4ks7hAAHa-Mmd0AmkgOjD1Q&_nc_zt=14&_nc_ht=scontent-dfw5-1.xx&_nc_gid=RhIIvk6EoqwplSgKVvShjg&_nc_ss=70289&oh=00_AQK6ppg6xI5dUpjd_51q0lPSI3k2SJzU-O7TWAsgTqE8qw&oe=6AAE6EE5"
+    "https://scontent-hkg1-2.xx.fbcdn.net/v/t39.99422-6/808136764_1061705559830130_1287961511332245367_n.png?stp=dst-jpg_tt6&cstp=mx1280x1280&ctp=p526x296&_nc_cat=1&ccb=1-7&_nc_sid=833d8c&_nc_ohc=8BzXvCSNDoQQ7kNvwFXWXAA&_nc_oc=AdqNF04QClANALQq_6668RRaS_UDrchZu9b-YpQc8lqgjppb3Kryj2QGzjOMRDAldaw&_nc_zt=14&_nc_ht=scontent-hkg1-2.xx&_nc_gid=X5xyAOL13l3m-eJNtYIcXw&_nc_ss=70289&oh=00_AQJsH0dTaVnsS7weK1zk6m3l-b65EEZlhliXNOsIWkMniQ&oe=6AAE6EE5"
    ],
    "has_video": false,
    "video_url": "",
    "repost": false,
-   "preview": "media/e59ea103c6ea0c68b338.jpg",
+   "preview": "media/5f5160eba7d3fc41f84e.jpg",
    "first_seen": "2026-09-14T11:41:42Z",
    "sort_time": "2026-09-14T11:30:18Z"
   },
@@ -9242,86 +9282,6 @@
    "preview": "media/f4877956f66923759da1.jpg",
    "first_seen": "2026-09-13T02:03:32Z",
    "sort_time": "2026-09-13T01:53:00Z"
-  },
-  {
-   "id": "5b9e658033c77719",
-   "platform": "facebook",
-   "source": "Greg Dee",
-   "handle": "GregDeeWeather",
-   "author": "GregDeeWeather",
-   "url": "https://www.facebook.com/GregDeeWeather/posts/pfbid0RrkgngpYMxckjuiWphMDyizhzZuF7XV1GgVMQ9NG7nebpX1tQVKgCmvWN8FPLDZBl",
-   "text": "Amazing end to the day in Gulfport.\n\n📷: George Cavanaugh\n📍: Gulfport, Florida",
-   "published": "2026-09-13T01:41:22Z",
-   "published_exact": true,
-   "images": [
-    "https://scontent-ord5-1.xx.fbcdn.net/v/t39.99422-6/807830209_4019296441699874_2607867334456430258_n.png?stp=dst-jpg_tt6&cstp=mx2016x1512&ctp=s720x720&_nc_cat=108&ccb=1-7&_nc_sid=127cfc&_nc_ohc=xLdXXFROMUAQ7kNvwECEABD&_nc_oc=AdoBAUwp3OPLmXGHCcYEqhv-EHMeCBCRI1a4ESu7AFidbLHr9MFwoLhCg4dMF2cQkk4&_nc_zt=14&_nc_ht=scontent-ord5-1.xx&_nc_gid=0wtzY3HFOe2UO4LW0uBQiw&_nc_ss=70289&oh=00_AQKAUmm1G-moqcMTTZRMcFe7JBP-eeSTi9LrvJ-m3wDeJg&oe=6AABED63"
-   ],
-   "has_video": false,
-   "video_url": "",
-   "repost": false,
-   "preview": "media/2b7d19f61ae22382d7bb.jpg",
-   "first_seen": "2026-09-13T01:53:33Z",
-   "sort_time": "2026-09-13T01:41:22Z"
-  },
-  {
-   "id": "e52cd2c92bc9339e",
-   "platform": "facebook",
-   "source": "Tornado Intercept",
-   "handle": "TornadoIntercept",
-   "author": "TornadoIntercept",
-   "url": "https://www.facebook.com/TornadoIntercept/posts/pfbid0Qgc9vDsB4RtFyzA4pRJ8jRwo7WzZeygGibdqV5km8u84SYJafBpGDiuRCynw1Qzel",
-   "text": "HOW WAS THIS EVEN POSSIBLE⁉️ The infamous #Pilger Twin EF-4+ Tornadoes!! One of the highest echelon tornado environments to ever exist! A day that #Nebraska will never forget in 2014!!",
-   "published": "2026-09-13T01:39:35Z",
-   "published_exact": true,
-   "images": [
-    "https://scontent-sjc3-1.xx.fbcdn.net/v/t39.99422-6/808192864_1535653465246146_619178871819751646_n.png?stp=dst-jpg_tt6&cstp=mx2048x1364&ctp=p180x540&_nc_cat=111&ccb=1-7&_nc_sid=833d8c&_nc_ohc=7-e-sv_8imIQ7kNvwHfMk58&_nc_oc=Adoq2Lkpq6jeL52nGgBYAj2u20NG9aQ9ceTM-Vj8vET8R3f_waq3GaJ6bd7NP8fuEv4&_nc_zt=14&_nc_ht=scontent-sjc3-1.xx&_nc_gid=wdUHd6Rai_e9rxuzqQNEFw&_nc_ss=70289&oh=00_AQK2LuLDw5K957_q1MY_FsGL3E25JWj7hhFetQ2lFAzD0w&oe=6AABFA27"
-   ],
-   "has_video": false,
-   "video_url": "",
-   "repost": false,
-   "preview": "media/5392c5951fd285410eda.jpg",
-   "first_seen": "2026-09-13T01:43:55Z",
-   "sort_time": "2026-09-13T01:39:35Z"
-  },
-  {
-   "id": "f329fab51bc34a8a",
-   "platform": "facebook",
-   "source": "Mike's Weather Page",
-   "handle": "mikesweatherpage",
-   "author": "mikesweatherpage",
-   "url": "https://www.facebook.com/mikesweatherpage/posts/pfbid031KR7ksZW4LMVAManq63AhwBkwMgZ6tYzBHiLZiyBXGNYQrqtQejCirxNsJJEdYg9l",
-   "text": "I don't ever do this. But give me a like or comment if you follow. Thanks! Curious how this FB works and who is watching.",
-   "published": "2026-09-13T01:37:48Z",
-   "published_exact": true,
-   "images": [
-    "https://scontent-ord5-2.xx.fbcdn.net/v/t39.30808-6/807901016_1629273455222652_4746399497780634032_n.jpg?stp=dst-jpegr_tt6&cstp=mx1536x2048&ctp=p526x296&_nc_cat=104&ccb=1-7&_nc_sid=833d8c&_nc_ohc=PSBlKYCXDu4Q7kNvwGBN-5c&_nc_oc=AdqUbRez7qw-e-XjdwlqTK5DNGyN-sL6fg-0NvoGEMyHT33WA3ZwRuts4mue0u3NQHI&_nc_zt=23&se=-1&_nc_ht=scontent-ord5-2.xx&_nc_gid=52fN5AV_hFesqUvzJdlj3Q&_nc_ss=70289&oh=00_AQIrDqZfiYK0od5EOfY5n7FQ0Tp0SwJXXFUqWk5cNc1tyA&oe=6AAC3478"
-   ],
-   "has_video": false,
-   "video_url": "",
-   "repost": false,
-   "preview": "media/013dd33e4e207fdc5a94.jpg",
-   "first_seen": "2026-09-13T01:43:55Z",
-   "sort_time": "2026-09-13T01:37:48Z"
-  },
-  {
-   "id": "ee632a7b645df25f",
-   "platform": "facebook",
-   "source": "Christopher Nunley",
-   "handle": "MeteorologistChristopherNunley",
-   "author": "MeteorologistChristopherNunley",
-   "url": "https://www.facebook.com/MeteorologistChristopherNunley/posts/pfbid02jDzpvfqmHCySpoX7d8eX8zeFh4CfGvVBer7NbWBGfd59ZgF4YesAvKB1vaQEjFL2l",
-   "text": "Be weather aware if you have evening plans! Storms with lightning are moving into parts of western Washington. Move indoors if storms approach. 6:35PM PDT",
-   "published": "2026-09-13T01:36:44Z",
-   "published_exact": true,
-   "images": [
-    "https://scontent-sea5-1.xx.fbcdn.net/v/t39.99422-6/807759546_1275278691319553_877903500185180919_n.png?stp=dst-jpg_tt6&cstp=mx1290x1260&ctp=p526x296&_nc_cat=109&ccb=1-7&_nc_sid=833d8c&_nc_ohc=CGsn5R1WAGIQ7kNvwGa6Yrr&_nc_oc=AdqcqX3evnJ-6QuKD7jqWaeYDc5QNoU672ge7FZMvD6bvZIbnyNyTlPygN4IJOqnFxc&_nc_zt=14&_nc_ht=scontent-sea5-1.xx&_nc_gid=gPV1U_oBiZaAX2gxBzcmIg&_nc_ss=70289&oh=00_AQL6KXdoGsyIxxjNx4TtMtiuqFjJIXHHbGPc-0xMEuCV8w&oe=6AABBC6B"
-   ],
-   "has_video": false,
-   "video_url": "",
-   "repost": false,
-   "preview": "media/18ad588a62e7fe0974df.jpg",
-   "first_seen": "2026-09-13T01:43:55Z",
-   "sort_time": "2026-09-13T01:36:44Z"
   }
  ]
 }
