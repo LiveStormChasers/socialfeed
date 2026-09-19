@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+.DS_Store
+
+# The unlocked feed. It names every account and carries their posts, so it must
+# never be committed - only feed.enc is. It exists in a runner's working
+# directory for the few seconds between the merge and the lock, and on your own
+# machine if you run the collector locally.
+feed.json
+feed.json.tmp
+
+# The watch list lives in the SOURCES_JSON secret. Keep a local copy here for
+# running the collector by hand, but do not commit it.
+sources.json

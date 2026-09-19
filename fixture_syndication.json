@@ -1,0 +1,94 @@
+{
+ "props": {
+  "pageProps": {
+   "contextProvider": { "note": "not-a-tweet", "id_str": "not-a-tweet" },
+   "timeline": {
+    "entries": [
+     {
+      "type": "tweet",
+      "entry_id": "tweet-1811111111111111111",
+      "content": {
+       "tweet": {
+        "id_str": "1811111111111111111",
+        "created_at": "Wed Aug 26 18:04:00 +0000 2026",
+        "full_text": "Tornado warning issued for Barton County MO until 7:15 PM. Take shelter now. https://t.co/abc123",
+        "user": { "screen_name": "LiveStormChasers", "name": "Live Storm Chasers" },
+        "photos": [
+         { "url": "https://pbs.twimg.com/media/AAA1.jpg?format=jpg&name=small", "width": 1200 },
+         { "url": "https://pbs.twimg.com/media/AAA2.jpg?format=jpg&name=small", "width": 1200 }
+        ]
+       }
+      }
+     },
+     {
+      "type": "tweet",
+      "entry_id": "tweet-1822222222222222222",
+      "content": {
+       "tweet": {
+        "id_str": "1822222222222222222",
+        "created_at": "Wed Aug 26 14:30:00 +0000 2026",
+        "text": "Live stream is up from the target area near Joplin.",
+        "user": { "screen_name": "LiveStormChasers", "name": "Live Storm Chasers" },
+        "mediaDetails": [
+         {
+          "type": "video",
+          "media_url_https": "https://pbs.twimg.com/ext_tw_video_thumb/BBB1.jpg",
+          "video_info": {
+           "variants": [
+            { "content_type": "application/x-mpegURL", "url": "https://video.twimg.com/stream.m3u8" },
+            { "content_type": "video/mp4", "bitrate": 632000, "url": "https://video.twimg.com/vid/480x270.mp4" },
+            { "content_type": "video/mp4", "bitrate": 2176000, "url": "https://video.twimg.com/vid/1280x720.mp4" }
+           ]
+          }
+         }
+        ]
+       }
+      }
+     }
+    ],
+    "nested": {
+     "deeper": {
+      "modules": [
+       {
+        "items": [
+         {
+          "item": {
+           "itemContent": {
+            "tweet_results": {
+             "result": {
+              "legacy": {
+               "id_str": "1833333333333333333",
+               "created_at": "Tue Aug 25 09:00:00 +0000 2026",
+               "full_text": "Day 2 Outlook: Enhanced Risk for parts of the central Plains.",
+               "user": { "screen_name": "WxAgencyOne", "name": "Weather Agency One" },
+               "retweeted_status": { "id_str": "1899999999999999999" }
+              }
+             }
+            }
+           }
+          }
+         }
+        ]
+       }
+      ]
+     }
+    }
+   },
+   "alternateShape": {
+    "tweet": {
+     "id_str": "1844444444444444444",
+     "created_at": "2026-08-24T11:15:00.000Z",
+     "text": "Structure shot from last night's storm.",
+     "user": { "screen_name": "LiveStormChasers", "name": "Live Storm Chasers" },
+     "video": {
+      "poster": "https://pbs.twimg.com/alt_poster.jpg",
+      "variants": [
+       { "type": "application/x-mpegURL", "src": "https://video.twimg.com/alt.m3u8" },
+       { "type": "video/mp4", "src": "https://video.twimg.com/alt.mp4" }
+      ]
+     }
+    }
+   }
+  }
+ }
+}

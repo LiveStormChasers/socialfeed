@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LSC Feed</title>
+<meta name="description" content="Live severe-weather feed aggregated from Facebook and X.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700&family=JetBrains+Mono:wght@500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
+<style>
+  /* Dark-first: this is a monitoring surface, usually open at night. */
+  :root{
+    --bg:#f5f7fa; --surface:#fff; --surface-2:#eef2f7; --raise:#fff;
+    --line:#dce3ec; --line-soft:#e9eef4;
+    --text:#0c131b; --muted:#586675; --faint:#8695a5;
+    --accent:#0b63ce; --accent-soft:#e6effc;
+    --ok:#0f7b3e; --warn:#8a5a00; --bad:#b42318;
+    --x:#0f1419; --fb:#1877f2;
+    --shadow:0 1px 2px rgba(12,19,27,.05), 0 4px 16px -6px rgba(12,19,27,.10);
+    --shadow-hi:0 2px 4px rgba(12,19,27,.07), 0 12px 32px -10px rgba(12,19,27,.20);
+    --r:14px; --r-sm:9px;
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --bg:#080b11; --surface:#111721; --surface-2:#171f2a; --raise:#1a2430;
+      --line:#222c39; --line-soft:#19212c;
+      --text:#e9eef5; --muted:#93a2b3; --faint:#66748a;
+      --accent:#4da3ff; --accent-soft:#0e2439;
+      --ok:#3fb950; --warn:#d9a441; --bad:#f4685c;
+      --x:#e9eef5; --fb:#4c9aff;
+      --shadow:0 1px 2px rgba(0,0,0,.4); --shadow-hi:0 8px 30px -8px rgba(0,0,0,.7);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#080b11; --surface:#111721; --surface-2:#171f2a; --raise:#1a2430;
+    --line:#222c39; --line-soft:#19212c;
+    --text:#e9eef5; --muted:#93a2b3; --faint:#66748a;
+    --accent:#4da3ff; --accent-soft:#0e2439;
+    --ok:#3fb950; --warn:#d9a441; --bad:#f4685c;
+    --x:#e9eef5; --fb:#4c9aff;
+    --shadow:0 1px 2px rgba(0,0,0,.4); --shadow-hi:0 8px 30px -8px rgba(0,0,0,.7);
+  }
+
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg); color:var(--text);
+    font:15px/1.55 "Plus Jakarta Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+  }
+  a{color:var(--accent)}
+  .wrap{max-width:1240px;margin:0 auto;padding:0 22px 96px}
+
+  /* ---------------- masthead ---------------- */
+  header.bar{
+    position:sticky;top:0;z-index:30;
+    background:color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter:saturate(1.6) blur(14px);
+    border-bottom:1px solid var(--line);
+  }
+  .bar-in{max-width:1240px;margin:0 auto;padding:13px 22px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+  .brand{display:flex;align-items:center;gap:11px;margin-right:2px}
+  .mark{width:26px;height:26px;flex:none;color:var(--accent)}
+  .word{
+    font:700 16px/1 "Archivo",sans-serif;letter-spacing:.02em;text-transform:uppercase;
+    display:flex;flex-direction:column;gap:3px;
+  }
+  .word small b{color:var(--faint);font-weight:500;letter-spacing:.1em}
+  .word small{
+    font:500 9.5px/1 "JetBrains Mono",ui-monospace,monospace;
+    letter-spacing:.22em;color:var(--faint);text-transform:uppercase;
+  }
+  .live{display:flex;align-items:center;gap:7px;font:500 11.5px/1 "JetBrains Mono",ui-monospace,monospace;color:var(--muted)}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--ok);flex:none;
+    box-shadow:0 0 0 0 color-mix(in srgb,var(--ok) 60%,transparent);animation:pulse 2.6s infinite}
+  .dot.stale{background:var(--warn);animation:none}
+  .dot.dead{background:var(--bad);animation:none}
+  @keyframes pulse{
+    0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--ok) 55%,transparent)}
+    70%{box-shadow:0 0 0 7px transparent} 100%{box-shadow:0 0 0 0 transparent}
+  }
+  .spacer{flex:1 1 40px}
+
+  .seg{display:flex;background:var(--surface-2);border:1px solid var(--line);border-radius:999px;padding:3px;gap:2px}
+  .seg button{
+    border:0;background:none;color:var(--muted);cursor:pointer;
+    font:600 12.5px/1 "Plus Jakarta Sans",sans-serif;padding:7px 14px;border-radius:999px;
+    transition:color .15s,background .15s;
+  }
+  .seg button:hover{color:var(--text)}
+  .seg button[aria-pressed="true"]{background:var(--raise);color:var(--text);box-shadow:var(--shadow)}
+  .seg button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+
+  .search{position:relative;display:flex;align-items:center;min-width:190px;flex:0 1 300px}
+  .search svg{position:absolute;left:11px;width:15px;height:15px;color:var(--faint);pointer-events:none}
+  .search input{
+    width:100%;padding:9px 12px 9px 33px;border:1px solid var(--line);border-radius:999px;
+    background:var(--surface-2);color:var(--text);font:500 13px/1 "Plus Jakarta Sans",sans-serif;
+  }
+  .search input::placeholder{color:var(--faint)}
+  .search input:focus{outline:none;border-color:var(--accent);background:var(--surface)}
+  .search kbd{
+    position:absolute;right:11px;font:500 10px/1 "JetBrains Mono",monospace;color:var(--faint);
+    border:1px solid var(--line);border-radius:4px;padding:3px 5px;pointer-events:none;
+  }
+  .search input:focus ~ kbd, .search input:not(:placeholder-shown) ~ kbd{display:none}
+
+  /* ---------------- status strip ---------------- */
+  details.health{
+    background:var(--surface);border:1px solid var(--line);border-radius:var(--r);
+    margin:20px 0 6px;box-shadow:var(--shadow);overflow:hidden;
+  }
+  details.health summary{
+    padding:12px 16px;cursor:pointer;list-style:none;display:flex;gap:10px;align-items:center;
+    font-size:13px;color:var(--muted);
+  }
+  details.health summary::-webkit-details-marker{display:none}
+  .chev{width:13px;height:13px;color:var(--faint);transition:transform .18s;flex:none}
+  details.health[open] .chev{transform:rotate(90deg)}
+  .health table{width:100%;border-collapse:collapse;font-size:12.5px}
+  .health td{padding:9px 16px;border-top:1px solid var(--line-soft);vertical-align:top}
+  .health td:first-child{white-space:nowrap;font-weight:600}
+  .pill{
+    display:inline-block;padding:2px 8px;border-radius:999px;
+    font:600 10.5px/1.6 "JetBrains Mono",monospace;text-transform:uppercase;letter-spacing:.06em;
+  }
+  .pill.ok{background:color-mix(in srgb,var(--ok) 16%,transparent);color:var(--ok)}
+  .pill.warn{background:color-mix(in srgb,var(--warn) 18%,transparent);color:var(--warn)}
+  .pill.bad{background:color-mix(in srgb,var(--bad) 16%,transparent);color:var(--bad)}
+  .err{color:var(--muted);word-break:break-word;font-family:"JetBrains Mono",monospace;font-size:11.5px}
+  .note{color:var(--muted);font-size:12.5px}
+  .hnd{color:var(--faint);font-family:"JetBrains Mono",monospace;font-size:11px;font-weight:500}
+
+  /* ---------------- feed grid ---------------- */
+  /* Column count is the reader's choice on a wide screen; below 1080px the
+     breakpoints take over, because five columns on a laptop is unreadable. */
+  #feed{display:grid;grid-template-columns:repeat(var(--user-cols,3),minmax(0,1fr));
+    column-gap:18px;grid-auto-rows:8px;align-items:start}
+  #feed > *{margin-bottom:18px}
+  @media (max-width:1080px){ #feed{grid-template-columns:repeat(2,minmax(0,1fr))} }
+  @media (max-width:700px){ #feed{grid-template-columns:minmax(0,1fr)} .wrap{padding:0 14px 72px} }
+
+  /* toolbar buttons: sound toggle + account picker */
+  .tool{
+    display:inline-flex;align-items:center;gap:6px;cursor:pointer;
+    background:var(--surface-2);border:1px solid var(--line);color:var(--muted);
+    border-radius:999px;padding:7px 12px;white-space:nowrap;
+    font:600 12.5px/1 "Plus Jakarta Sans",sans-serif;
+  }
+  .tool:hover{color:var(--text);border-color:var(--line-hi,var(--line))}
+  .tool svg{width:15px;height:15px;flex:none}
+  .tool .badge{
+    font:700 10px/1 "JetBrains Mono",monospace;letter-spacing:.04em;
+    background:var(--surface);border-radius:999px;padding:3px 5px;color:var(--faint);
+  }
+  #soundbtn .wave{opacity:0}
+  .tool:active{transform:scale(.97)}
+  /* ---- unlock screen ---- */
+  #unlock{position:fixed;inset:0;z-index:99;display:grid;place-items:center;
+          background:var(--bg);padding:24px}
+  #unlockform{width:100%;max-width:320px;text-align:center}
+  #unlockform h1{font-size:19px;letter-spacing:.02em;margin:0 0 4px}
+  #unlockform .sub{color:var(--muted);font-size:13px;margin:0 0 20px}
+  #unlockinput{width:100%;box-sizing:border-box;padding:11px 13px;font-size:15px;
+               border:1px solid var(--line);border-radius:9px;
+               background:var(--surface);color:var(--text)}
+  #unlockinput:focus{outline:none;border-color:var(--accent)}
+  #unlockbtn{width:100%;margin-top:9px;padding:11px;font-size:15px;font-weight:600;
+             border:0;border-radius:9px;background:var(--accent);color:#fff;cursor:pointer}
+  #unlockbtn[disabled]{opacity:.6;cursor:default}
+  #unlockmsg{min-height:18px;margin:11px 0 0;font-size:13px;color:var(--bad)}
+
+  #soundbtn.busy{opacity:.65}
+  #soundbtn.blocked{border-color:var(--bad);color:var(--bad)}
+  #soundbtn.on{color:var(--accent);border-color:color-mix(in srgb,var(--accent) 45%,transparent)}
+  #soundbtn.on .wave{opacity:1}
+  #soundbtn.on .slash{opacity:0}
+
+  .acct-wrap{position:relative}
+  .acct-menu{
+    position:absolute;top:calc(100% + 8px);right:0;z-index:60;width:250px;
+    background:var(--surface);border:1px solid var(--line);border-radius:12px;
+    box-shadow:var(--shadow-hi);padding:8px;
+  }
+  .acct-actions{display:flex;gap:6px;padding:2px 4px 8px;border-bottom:1px solid var(--line)}
+  .acct-actions button{
+    flex:1;cursor:pointer;background:var(--surface-2);border:1px solid var(--line);
+    color:var(--muted);border-radius:8px;padding:6px;
+    font:600 11.5px/1 "Plus Jakarta Sans",sans-serif;
+  }
+  .acct-actions button:hover{color:var(--text)}
+  .acct-list{max-height:min(52vh,380px);overflow:auto;margin-top:6px}
+  .acct{display:flex;align-items:center;gap:9px;padding:7px 6px;border-radius:8px;
+    cursor:pointer;font-size:13px}
+  .acct:hover{background:var(--surface-2)}
+  .acct input{accent-color:var(--accent);width:15px;height:15px;flex:none}
+  .acct-empty{padding:14px 8px;color:var(--muted);font-size:12.5px}
+  @media (max-width:700px){ .acct-menu{position:fixed;left:14px;right:14px;width:auto} }
+
+  /* column picker */
+  .cols{display:flex;align-items:center;gap:6px}
+  .cols .lbl{font:500 10px/1 "JetBrains Mono",monospace;color:var(--faint);
+    text-transform:uppercase;letter-spacing:.12em}
+  @media (max-width:1080px){ .cols{display:none} }   /* nothing to choose down here */
+
+  /* a source that is configured but not collecting yet */
+  .seg button.soon{position:relative;opacity:.72}
+  .seg button.soon::after{
+    content:"soon";margin-left:6px;font:700 8.5px/1 "JetBrains Mono",monospace;
+    letter-spacing:.1em;text-transform:uppercase;color:var(--warn);
+    border:1px solid color-mix(in srgb,var(--warn) 45%,transparent);
+    border-radius:999px;padding:2.5px 4.5px;vertical-align:middle;
+  }
+  .soon-panel{
+    grid-column:1/-1;text-align:center;padding:64px 24px;
+    border:1px dashed var(--line);border-radius:var(--r);
+  }
+  .soon-panel h3{font:700 17px/1.3 "Plus Jakarta Sans",sans-serif;margin:0 0 8px}
+  .soon-panel p{color:var(--muted);font-size:13.5px;margin:0;line-height:1.6}
+  .soon-panel .glyph{
+    width:44px;height:44px;margin:0 auto 16px;border-radius:12px;
+    display:grid;place-items:center;background:var(--surface-2);
+    border:1px solid var(--line);font:700 20px/1 "Plus Jakarta Sans",sans-serif;
+  }
+  #feed > .day, #feed > .embed, #feed > .empty{grid-column:1/-1}
+
+  .day{
+    display:flex;align-items:center;gap:14px;margin:16px 2px 2px;
+    font:500 10.5px/1 "JetBrains Mono",monospace;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--faint);
+  }
+  .day::after{content:"";flex:1;height:1px;background:var(--line)}
+
+  .post{
+    background:var(--surface);border:1px solid var(--line);border-radius:var(--r);
+    box-shadow:var(--shadow);overflow:hidden;min-width:0;
+    transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+  }
+  .post:hover{transform:translateY(-2px);box-shadow:var(--shadow-hi);border-color:color-mix(in srgb,var(--accent) 32%,var(--line))}
+
+  .post-head{display:flex;align-items:center;gap:11px;padding:15px 16px 0}
+  .avatar{
+    position:relative;width:34px;height:34px;border-radius:50%;flex:none;
+    display:grid;place-items:center;color:#fff;
+    font:700 12px/1 "Plus Jakarta Sans",sans-serif;letter-spacing:.02em;
+  }
+  .avatar::after{
+    content:"";position:absolute;right:-2px;bottom:-2px;width:13px;height:13px;border-radius:50%;
+    border:2px solid var(--surface);background:var(--fb);
+  }
+  .avatar.x::after{background:var(--x)}
+  .who-wrap{display:flex;flex-direction:column;gap:2px;min-width:0}
+  .who{font-weight:700;font-size:14px;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .handle{font:500 11px/1 "JetBrains Mono",monospace;color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .when{
+    margin-left:auto;flex:none;align-self:flex-start;
+    font:500 11px/1 "JetBrains Mono",monospace;color:var(--faint);padding-top:3px;
+  }
+  .when.approx::after{content:"~";opacity:.6;margin-left:1px}
+
+  .body{padding:12px 16px 0;white-space:pre-wrap;overflow-wrap:anywhere;font-size:14.5px;line-height:1.6}
+  /* The preview is cut by word count now, not by height, so every card shows
+     a comparable amount of text instead of a variable slice. */
+  .ell{color:var(--muted)}
+  .more{
+    background:none;border:0;color:var(--accent);cursor:pointer;font:600 12.5px/1 "Plus Jakarta Sans",sans-serif;
+    padding:8px 16px 0;
+  }
+  .more:hover{text-decoration:underline}
+
+  .media{display:block;margin:14px 0 0;position:relative;line-height:0;background:var(--surface-2)}
+  .media img{
+    width:100%;height:auto;max-height:440px;object-fit:cover;display:block;
+    opacity:0;transition:opacity .35s ease;
+  }
+  .media img.in{opacity:1}
+  .play{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none}
+  .play i{
+    width:54px;height:54px;border-radius:50%;background:rgba(8,11,17,.62);
+    backdrop-filter:blur(3px);border:1px solid rgba(255,255,255,.22);
+    display:grid;place-items:center;transition:transform .18s ease;
+  }
+  .post:hover .play i{transform:scale(1.07)}
+  .play i::after{
+    content:"";border-left:15px solid #fff;border-top:9px solid transparent;
+    border-bottom:9px solid transparent;margin-left:4px;
+  }
+  .vid-only{
+    margin:14px 16px 0;padding:13px;border:1px dashed var(--line);border-radius:var(--r-sm);
+    color:var(--muted);font-size:12.5px;text-align:center;
+  }
+
+  .foot{display:flex;gap:12px;align-items:center;padding:13px 16px 15px}
+  .foot a{
+    font:600 12.5px/1 "Plus Jakarta Sans",sans-serif;text-decoration:none;
+    display:inline-flex;align-items:center;gap:5px;
+  }
+  .foot a:hover{text-decoration:underline}
+  .foot a svg{width:12px;height:12px}
+  .tag{margin-left:auto;font:500 10px/1 "JetBrains Mono",monospace;color:var(--faint);
+    text-transform:uppercase;letter-spacing:.12em}
+
+  /* ---------------- embeds + states ---------------- */
+  .embed{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);
+    box-shadow:var(--shadow);overflow:hidden}
+  .embed .note{padding:0 16px 12px;color:var(--muted);font-size:12.5px}
+  .embed iframe{width:100%;border:0;display:block;background:var(--surface-2)}
+
+  .empty{
+    text-align:center;color:var(--muted);padding:72px 24px;border:1px dashed var(--line);
+    border-radius:var(--r);font-size:14px;
+  }
+  .empty b{color:var(--text)}
+  .skel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px}
+  .skel div{background:var(--surface-2);border-radius:6px;animation:sheen 1.5s infinite}
+  @keyframes sheen{0%,100%{opacity:.55}50%{opacity:1}}
+
+  .newpill{
+    position:fixed;left:50%;transform:translateX(-50%) translateY(-70px);
+    top:76px;z-index:40;background:var(--accent);color:#fff;border:0;cursor:pointer;
+    font:700 12.5px/1 "Plus Jakarta Sans",sans-serif;padding:10px 18px;border-radius:999px;
+    box-shadow:var(--shadow-hi);transition:transform .28s cubic-bezier(.2,.8,.2,1);
+  }
+  .newpill.show{transform:translateX(-50%) translateY(0)}
+
+  @media (prefers-reduced-motion:reduce){ *{animation:none!important;transition:none!important} }
+</style>
+</head>
+<body>
+
+<!-- The feed is committed encrypted, so nothing below this can render until a
+     password unlocks it. This is not a curtain over loaded content: until the
+     key is right there is no readable feed on the page at all. -->
+<div id="unlock" hidden>
+  <form id="unlockform">
+    <h1>Live Storm Chasers</h1>
+    <p class="sub">This feed is locked.</p>
+    <input id="unlockinput" type="password" autocomplete="current-password"
+           placeholder="Password" aria-label="Feed password" spellcheck="false">
+    <button id="unlockbtn" type="submit">Unlock</button>
+    <p id="unlockmsg" role="alert"></p>
+  </form>
+</div>
+
+
+<header class="bar">
+  <div class="bar-in">
+    <div class="brand">
+      <svg class="mark" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <circle cx="12" cy="12" r="9.2" stroke="currentColor" stroke-width="1.3" opacity=".3"/>
+        <circle cx="12" cy="12" r="5" stroke="currentColor" stroke-width="1.3" opacity=".55"/>
+        <path d="M12 12 L20 8.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        <circle cx="12" cy="12" r="1.7" fill="currentColor"/>
+      </svg>
+      <span class="word">Live Storm Chasers<small>Feed <b id="ver">v31</b></small></span>
+    </div>
+
+    <div class="live"><span class="dot" id="dot"></span><span id="stamp">connecting…</span></div>
+    <span class="spacer"></span>
+
+    <div class="seg" id="chips">
+      <button data-f="all" aria-pressed="true">All</button>
+      <button data-f="facebook" aria-pressed="false">Facebook</button>
+      <button data-f="x" aria-pressed="false" class="soon">X</button>
+      <button data-f="media" aria-pressed="false">Media</button>
+    </div>
+
+    <div class="acct-wrap">
+      <button class="tool" id="acctbtn" aria-expanded="false" title="Choose which accounts appear">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M4 6h16M7 12h10M10 18h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        Accounts <span class="badge" id="acctcount">All</span>
+      </button>
+      <div class="acct-menu" id="acctmenu" hidden>
+        <div class="acct-actions">
+          <button type="button" data-all="1">Select all</button>
+          <button type="button" data-all="0">Clear all</button>
+        </div>
+        <div class="acct-list" id="acctlist"></div>
+      </div>
+    </div>
+
+    <button class="tool" id="soundbtn" aria-pressed="false" title="Alert sound off">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M4 9v6h4l5 4V5L8 9H4z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+        <path class="wave" d="M16.5 8.5a5 5 0 010 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <path class="slash" d="M3 3l18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      Alert
+    </button>
+
+    <div class="cols" id="cols">
+      <span class="lbl">cols</span>
+      <div class="seg" id="colseg">
+        <button data-c="3" aria-pressed="true">3</button>
+        <button data-c="4" aria-pressed="false">4</button>
+        <button data-c="5" aria-pressed="false">5</button>
+      </div>
+    </div>
+
+    <label class="search">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <circle cx="11" cy="11" r="6.5" stroke="currentColor" stroke-width="2"/>
+        <path d="M16 16l4.5 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <input type="search" id="q" placeholder="Search the feed" autocomplete="off" aria-label="Search posts">
+      <kbd>/</kbd>
+    </label>
+  </div>
+</header>
+
+<button class="newpill" id="newpill" hidden>New posts</button>
+
+<main class="wrap">
+  <div id="health"></div>
+  <div id="feed"></div>
+</main>
+
+<script>
+const feedEl=document.getElementById('feed'), healthEl=document.getElementById('health'),
+      stampEl=document.getElementById('stamp'), dotEl=document.getElementById('dot'),
+      qEl=document.getElementById('q'), pillEl=document.getElementById('newpill');
+let ITEMS=[], SOURCES=[], filter='all', knownIds=new Set(), pending=null;
+
+const esc=s=>(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function linkify(t){
+  let h=esc(t);
+  h=h.replace(/\bhttps?:\/\/[^\s<]+/g,u=>`<a href="${u}" target="_blank" rel="noopener noreferrer">${u.replace(/^https?:\/\/(www\.)?/,'')}</a>`);
+  h=h.replace(/(^|\s)@([A-Za-z0-9_.]{2,30})/g,'$1<span style="color:var(--accent)">@$2</span>');
+  h=h.replace(/(^|\s)#([A-Za-z0-9_]{2,40})/g,'$1<span style="color:var(--accent)">#$2</span>');
+  return h;
+}
+function relTime(iso){
+  if(!iso) return '';
+  const t=new Date(iso); if(isNaN(t)) return '';
+  const s=(Date.now()-t)/1000;
+  if(s<60) return Math.max(1,Math.floor(s))+'s';
+  if(s<3600) return Math.floor(s/60)+'m';
+  if(s<86400) return Math.floor(s/3600)+'h';
+  if(s<604800) return Math.floor(s/86400)+'d';
+  return t.toLocaleDateString(undefined,{month:'short',day:'numeric'});
+}
+function dayLabel(iso){
+  const t=new Date(iso); if(isNaN(t)) return 'Undated';
+  const a=new Date(); a.setHours(0,0,0,0);
+  const b=new Date(t); b.setHours(0,0,0,0);
+  const d=Math.round((a-b)/864e5);
+  if(d===0) return 'Today'; if(d===1) return 'Yesterday';
+  return t.toLocaleDateString(undefined,{weekday:'long', month:'long', day:'numeric'});
+}
+// Stable per-account colour so the same source always looks the same.
+function hue(s){ let n=0; for(const c of (s||'')) n=(n*31+c.charCodeAt(0))%360; return n; }
+function initials(name){
+  return (name||'?').replace(/[^A-Za-z0-9 ]/g,'').split(/\s+/).filter(Boolean)
+    .slice(0,2).map(w=>w[0].toUpperCase()).join('') || '?';
+}
+function shownHandle(p){
+  const a=(p.author||'').trim();
+  return (a && a.toLowerCase()!==(p.handle||'').toLowerCase()) ? a : (p.handle||'');
+}
+
+// The collector reads each page two ways: a quick fetch that always runs, and
+// a slower browser read that goes deeper. Its raw notes are Python tracebacks
+// - "RuntimeError: redirected to a login page" reads like a crash even on a
+// row marked LIVE, when all it means is that the deeper read got bounced this
+// run and the quick one still delivered. Say that instead; the raw note stays
+// on hover for when it actually matters.
+function explainRoute(route, count){
+  const r=String(route||'');
+  const posts=count==null?'':`${count} post${count===1?'':'s'}`;
+  const quick=/public html: \+\d/.test(r);
+  let deep;
+  if(/logged-out browser: \+([1-9]\d*)/.test(r) || /logged-in browser: \+([1-9]\d*)/.test(r))
+    deep='deep read added ' + (r.match(/browser: \+(\d+)/)||[,'0'])[1];
+  else if(/login page/.test(r))        deep='deep read blocked this run';
+  else if(/TimeoutError|Timeout \d/.test(r)) deep='deep read timed out';
+  else if(/rationed/.test(r))          deep='deep read skipped this run';
+  else if(/recovered on merge/.test(r))deep='recovered on retry';
+  else if(/held no post objects/.test(r)) deep='page came back stripped';
+  else if(/throttled/.test(r))         deep='skipped, rate limited';
+  else if(/browser: \+0/.test(r))      deep='deep read found nothing new';
+  else deep='';
+  const bits=[posts, quick?'quick read ok':'', deep].filter(Boolean);
+  return bits.join(' \u00b7 ');
+}
+
+function explainError(err){
+  const e=String(err||'');
+  if(/login page/.test(e))            return 'Facebook would not show this page without logging in';
+  if(/TimeoutError|Timeout \d/.test(e)) return 'the page did not finish loading in time';
+  if(/held no post objects/.test(e))  return 'Facebook served a stripped page with no posts';
+  if(/throttled/.test(e))             return 'skipped: Facebook was rate limiting this run';
+  if(/429/.test(e))                   return 'rate limited (HTTP 429)';
+  if(/HTTP (\d+)/.test(e))            return 'the page returned HTTP ' + e.match(/HTTP (\d+)/)[1];
+  return e.slice(0, 120);
+}
+
+function renderHealth(){
+  if(!SOURCES.length){ healthEl.innerHTML=''; return; }
+  const bad=SOURCES.filter(s=>!s.ok&&!s.embed_only).length;
+  const soft=SOURCES.filter(s=>s.embed_only).length;
+  const ok=SOURCES.filter(s=>s.ok).length;
+  const head = bad ? `<b style="color:var(--bad)">${bad} not collecting</b> · ${ok} live`
+             : soft ? `<b style="color:var(--warn)">${ok} live</b> · ${soft} on embed`
+                    : `<b style="color:var(--ok)">All ${ok} sources live</b>`;
+  const rows=SOURCES.map(s=>{
+    const cls=s.ok?'ok':(s.embed_only?'warn':'bad');
+    const word=s.ok?'live':(s.embed_only?'embed':'down');
+    const raw=s.ok?(s.route||''):(s.error||'');
+    const text=s.ok?explainRoute(s.route,s.count):explainError(s.error);
+    const label=(s.label&&s.label!==s.handle)?`${s.label} <span class="hnd">@${esc(s.handle)}</span>`:esc(s.handle);
+    // The workflow's public logs refer to sources by tag, never by name. Show
+    // the tag here so a log line can be matched back to an account - this page
+    // is the only place the two appear together.
+    const tag=s.tag?`<div class="hnd">${esc(s.tag)}</div>`:'';
+    return `<tr><td>${label}${tag}</td><td><span class="pill ${cls}">${word}</span></td>`
+         + `<td><span class="note" title="${esc(raw)}">${esc(text)}</span></td></tr>`;
+  }).join('');
+  healthEl.innerHTML=`<details class="health"${bad?' open':''}>
+      <summary><svg class="chev" viewBox="0 0 24 24" fill="none"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>${head}</span></summary><table>${rows}</table></details>`;
+}
+
+
+function embedCard(s){
+  const el=document.createElement('div'); el.className='embed';
+  const href=encodeURIComponent(s.handle.startsWith('http')?s.handle:`https://www.facebook.com/${s.handle}`);
+  el.innerHTML=`<div class="post-head">
+      <span class="avatar" style="background:linear-gradient(140deg,hsl(${hue(s.handle)} 62% 46%),hsl(${(hue(s.handle)+38)%360} 62% 38%))">${esc(initials(s.label||s.handle))}</span>
+      <div class="who-wrap"><span class="who">${esc(s.label||s.handle)}</span>
+      <span class="handle">facebook · @${esc(s.handle)}</span></div>
+      <span class="when">live</span></div>
+    <div class="note">Not collectable right now — this is Facebook's own embed, so it is not searchable or archived.</div>
+    <iframe loading="lazy" height="620" scrolling="no" frameborder="0" allowfullscreen="true"
+      title="${esc(s.label||s.handle)} on Facebook"
+      src="https://www.facebook.com/plugins/page.php?href=${href}&tab=timeline&width=640&height=620&small_header=true&adapt_container_width=true&hide_cover=false&show_facepile=false"></iframe>`;
+  return el;
+}
+
+/* ---- audio alert ------------------------------------------------------- */
+/* Browsers refuse to play audio a person did not ask for, and the refusal is
+   silent. So the toggle click - a real user gesture - is used to "unlock" the
+   element by playing and immediately pausing it. After that, a later play()
+   is allowed, including while this tab is in the background. */
+const SOUND_KEY='lsc.sound';
+let soundOn=false, audioReady=false;
+const alertSound=new Audio('alert.mp3');
+alertSound.preload='auto';
+try{ alertSound.load(); }catch(_){}
+
+function unlockAudio(){
+  if(audioReady) return Promise.resolve(true);
+  alertSound.muted=true;
+  return alertSound.play().then(()=>{
+    alertSound.pause(); alertSound.currentTime=0; alertSound.muted=false;
+    audioReady=true; return true;
+  }).catch(()=>{ alertSound.muted=false; return false; });
+}
+
+function chime(n){
+  if(!soundOn) return;
+  try{
+    alertSound.currentTime=0;
+    const p=alertSound.play();
+    if(p&&p.catch) p.catch(()=>{});   // a blocked play must never break the refresh
+  }catch(_){}
+  // The tab title is the alert you can see when the sound is muted by the OS.
+  flashTitle(n);
+}
+
+let titleTimer=null;
+const BASE_TITLE=document.title;
+function flashTitle(n){
+  clearTimeout(titleTimer);
+  document.title=`(${n}) new · ${BASE_TITLE}`;
+  titleTimer=setTimeout(()=>{document.title=BASE_TITLE;},60000);
+}
+addEventListener('focus',()=>{clearTimeout(titleTimer);document.title=BASE_TITLE;});
+
+function setSound(on,save){
+  soundOn=!!on;
+  const b=document.getElementById('soundbtn');
+  if(b){ b.setAttribute('aria-pressed',String(soundOn)); b.classList.toggle('on',soundOn);
+         b.title=soundOn?'Alert sound on':'Alert sound off'; }
+  if(save){ try{ localStorage.setItem(SOUND_KEY,soundOn?'1':'0'); }catch(_){} }
+}
+
+/* ---- per-account filter ------------------------------------------------ */
+const MUTED_KEY='lsc.muted';
+let muted=new Set();
+
+function saveMuted(){
+  try{ localStorage.setItem(MUTED_KEY,JSON.stringify([...muted])); }catch(_){}
+}
+
+function knownAccounts(){
+  const m=new Map();
+  for(const p of ITEMS) if(p.handle) m.set(p.handle.toLowerCase(),p.source||p.handle);
+  for(const s of SOURCES) if(s.handle) m.set(s.handle.toLowerCase(),s.label||s.handle);
+  return [...m.entries()].sort((a,b)=>a[1].localeCompare(b[1]));
+}
+
+function renderAccounts(){
+  const box=document.getElementById('acctlist'); if(!box) return;
+  const rows=knownAccounts();
+  // autocomplete="off" and setting .checked in JS below, both deliberately:
+  // the checked ATTRIBUTE only sets a control's default state, and browsers
+  // restore the last live state of form controls across a reload. That is how
+  // a box could come back unticked on a fresh load even though nothing was
+  // muted. The stored set is the truth; the DOM is told what it says.
+  box.innerHTML=rows.map(([h,label])=>
+    `<label class="acct"><input type="checkbox" autocomplete="off" data-h="${esc(h)}">
+       <span>${esc(label)}</span></label>`).join('')
+    || '<div class="acct-empty">No accounts yet.</div>';
+  box.querySelectorAll('input[type=checkbox]').forEach(cb=>{
+    cb.checked = !muted.has(cb.dataset.h);
+  });
+  const on=rows.length-rows.filter(([h])=>muted.has(h)).length;
+  const c=document.getElementById('acctcount');
+  if(c) c.textContent=on===rows.length?'All':`${on}/${rows.length}`;
+}
+
+/* ---- post body: a preview, with the rest behind "Read more" ------------ */
+const WORD_LIMIT=25;
+const expanded=new Set();     // post ids the reader has opened
+
+function wordsOf(t){ const s=String(t||'').trim(); return s?s.split(/\s+/):[]; }
+
+function bodyHtml(p,open){
+  const w=wordsOf(p.text);
+  if(open || w.length<=WORD_LIMIT) return linkify(p.text);
+  // Cut on a word boundary and keep the line breaks that fall inside the
+  // preview, so a post that opens with a headline still reads like one.
+  let count=0, cut=p.text.length;
+  const re=/\S+/g; let m;
+  while((m=re.exec(p.text))){ if(++count===WORD_LIMIT){ cut=m.index+m[0].length; break; } }
+  return linkify(p.text.slice(0,cut))+'<span class="ell">…</span>';
+}
+
+function card(p){
+  const el=document.createElement('article'); el.className='post'; el.dataset.id=p.id;
+  const h=hue(p.handle);
+  const when=relTime(p.sort_time||p.published||p.first_seen);
+  let html=`<div class="post-head">
+      <span class="avatar ${p.platform==='x'?'x':''}" style="background:linear-gradient(140deg,hsl(${h} 62% 46%),hsl(${(h+38)%360} 62% 38%))">${esc(initials(p.source||p.handle))}</span>
+      <div class="who-wrap">
+        <span class="who">${esc(p.source||p.handle)}</span>
+        <span class="handle">${esc(p.platform)} · @${esc(shownHandle(p))}</span>
+      </div>
+      <span class="when${p.published_exact?'':' approx'}" title="${esc(p.sort_time||'')}">${esc(when)}</span>
+    </div>`;
+  if(p.text){
+    const w=wordsOf(p.text), long=w.length>WORD_LIMIT, open=expanded.has(p.id);
+    html+=`<div class="body">${bodyHtml(p,open)}</div>`;
+    if(long) html+=`<button class="more" type="button">${open?'Show less':'Read more'}</button>`;
+  }
+  if(p.preview){
+    html+=`<a class="media" href="${esc(p.url||p.preview)}" target="_blank" rel="noopener noreferrer">
+      <img src="${esc(p.preview)}" alt="" loading="lazy">
+      ${p.has_video?'<span class="play"><i></i></span>':''}</a>`;
+  } else if(p.has_video){
+    html+=`<div class="vid-only">Video attached — no preview frame captured</div>`;
+  }
+  html+=`<div class="foot">
+      ${p.url?`<a href="${esc(p.url)}" target="_blank" rel="noopener noreferrer">Open original
+        <svg viewBox="0 0 24 24" fill="none"><path d="M7 17L17 7M17 7H9M17 7v8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>`:''}
+      <span class="tag">${p.repost?'repost':esc(p.platform)}</span></div>`;
+  el.innerHTML=html;
+
+  const img=el.querySelector('.media img');
+  if(img){
+    const show=()=>{img.classList.add('in'); layout();};
+    if(img.complete) show(); else { img.addEventListener('load',show,{once:true}); img.addEventListener('error',show,{once:true}); }
+  }
+  const btn=el.querySelector('.more');
+  if(btn){
+    btn.onclick=()=>{
+      const open=!expanded.has(p.id);
+      // Remembered by post id, so the three-minute refresh does not collapse
+      // something the reader just opened.
+      if(open) expanded.add(p.id); else expanded.delete(p.id);
+      el.querySelector('.body').innerHTML=bodyHtml(p,open);
+      btn.textContent=open?'Show less':'Read more';
+      layout();               // the card changed height; re-measure the masonry
+    };
+  }
+  return el;
+}
+
+/* Masonry: assign each card a row span so cards pack upward while keeping
+   left-to-right chronological order. */
+const ROW=8, GAP=18;
+function layout(){
+  for(const el of feedEl.children){
+    el.style.gridRowEnd='auto';
+    const h=el.getBoundingClientRect().height;
+    if(h) el.style.gridRowEnd='span '+Math.ceil((h+GAP)/ROW);
+  }
+}
+let rt; addEventListener('resize',()=>{clearTimeout(rt); rt=setTimeout(layout,120)});
+
+function passes(p,q){
+  if(muted.has((p.handle||'').toLowerCase())) return false;
+  if(filter==='x'&&p.platform!=='x') return false;
+  if(filter==='facebook'&&p.platform!=='facebook') return false;
+  if(filter==='media'&&!p.preview&&!p.has_video) return false;
+  if(q&&!((p.text||'')+' '+(p.source||'')+' '+(p.handle||'')).toLowerCase().includes(q)) return false;
+  return true;
+}
+
+function renderKeepingPlace(){
+  // New posts arrive at the TOP, so a plain re-render pushes whatever you are
+  // reading down the page. Anchor on the first card currently in view, then
+  // scroll by exactly how far it moved - the feed updates immediately and the
+  // words under your eyes stay put.
+  let id=null, was=0;
+  if(scrollY>200){
+    for(const el of feedEl.querySelectorAll('.post[data-id]')){
+      const r=el.getBoundingClientRect();
+      if(r.bottom>0){ id=el.dataset.id; was=r.top; break; }
+    }
+  }
+  render();
+  if(id){
+    const el=feedEl.querySelector('.post[data-id="'+CSS.escape(id)+'"]');
+    if(el) scrollBy(0, el.getBoundingClientRect().top - was);
+  }
+}
+
+// What a card's appearance depends on. If this is unchanged, the existing
+// DOM node is reused as-is - which is the whole point: rebuilding it would
+// reload its image and flash the card.
+function cardSig(p){
+  return [p.id, (p.text||'').length, p.preview||'', p.url||'',
+          p.has_video?1:0, p.sort_time||p.published||''].join('|');
+}
+
+function render(){
+  const q=qEl.value.trim().toLowerCase();
+  const list=ITEMS.filter(p=>passes(p,q));
+
+  // Build the sequence the feed should show, as keyed entries. Nothing is
+  // created yet - existing nodes get reused below.
+  const wanted=[];
+  if(!list.length && filter==='x' && !q){
+    wanted.push({key:'soon', make(){
+      const n=document.createElement('div'); n.className='soon-panel';
+      n.innerHTML=`<div class="glyph">𝕏</div>
+        <h3>Coming soon</h3>
+        <p>X posts aren't being collected yet.<br>Facebook sources are live and updating every 10 minutes.</p>`;
+      return n; }});
+  } else if(!list.length){
+    wanted.push({key:'empty:'+(ITEMS.length?'nomatch':'none'), make(){
+      const n=document.createElement('div'); n.className='empty';
+      n.innerHTML=ITEMS.length?'Nothing matches that.':'No posts yet. The collector runs every few minutes — check back shortly.';
+      return n; }});
+  } else {
+    let last=null;
+    for(const p of list){
+      const d=dayLabel(p.sort_time||p.published||p.first_seen);
+      if(d!==last){
+        wanted.push({key:'day:'+d, make(){
+          const h=document.createElement('div'); h.className='day'; h.textContent=d; return h; }});
+        last=d;
+      }
+      wanted.push({key:'post:'+p.id, sig:cardSig(p), make(){ return card(p); }});
+    }
+  }
+  if(!q&&(filter==='all'||filter==='facebook')){
+    const em=SOURCES.filter(s=>s.embed_only);
+    if(em.length){
+      wanted.push({key:'day:embeds', make(){
+        const h=document.createElement('div'); h.className='day'; h.textContent='Embedded sources'; return h; }});
+      em.forEach(s=>wanted.push({key:'embed:'+s.handle, make(){ return embedCard(s); }}));
+    }
+  }
+
+  // Reconcile against what is already on the page. A wholesale
+  // feedEl.innerHTML='' rebuilt all 400-odd cards on every poll, which made
+  // every image reload and the whole feed visibly flash each time a single
+  // post arrived. Reuse the nodes; only build what is genuinely new.
+  const have=new Map();
+  for(const el of Array.from(feedEl.children)) if(el.dataset.key) have.set(el.dataset.key, el);
+  let prev=null;
+  for(const w of wanted){
+    let el=have.get(w.key);
+    if(el && w.sig && el.dataset.sig!==w.sig) el=null;      // its content changed
+    if(el) have.delete(w.key);
+    else { el=w.make(); el.dataset.key=w.key; if(w.sig) el.dataset.sig=w.sig; }
+    const at=prev?prev.nextSibling:feedEl.firstChild;
+    if(el!==at) feedEl.insertBefore(el, at);
+    prev=el;
+  }
+  for(const el of have.values()) el.remove();
+  layout();
+}
+
+function skeleton(){
+  feedEl.innerHTML='';
+  for(let i=0;i<6;i++){
+    const s=document.createElement('div'); s.className='skel';
+    s.innerHTML=`<div style="height:34px;width:34px;border-radius:50%"></div>
+      <div style="height:11px;width:42%;margin-top:13px"></div>
+      <div style="height:11px;width:88%;margin-top:9px"></div>
+      <div style="height:${120+i*26}px;margin-top:14px"></div>`;
+    feedEl.appendChild(s);
+  }
+  layout();
+}
+
+function applyStamp(data){
+  const g=data.generated?new Date(data.generated):null;
+  const mins=g?(Date.now()-g)/60000:1e9;
+  dotEl.className='dot'+(mins>45?' dead':mins>20?' stale':'');
+  stampEl.textContent=g?`${ITEMS.length} posts · updated ${relTime(data.generated)} ago`:`${ITEMS.length} posts`;
+  stampEl.title=g?g.toLocaleString():'';
+}
+
+/* ---- locked feed --------------------------------------------------------
+   The repo is public, so the feed is committed encrypted and unlocked here.
+   The key is derived once and kept in memory; the passphrase sits in
+   sessionStorage so a reload does not re-prompt, and is gone when the tab
+   closes. Nothing is ever written to disk on the server side in the clear. */
+const PASS_KEY='lsc.pass';
+let feedKey=null, feedSalt='';
+
+function b64bytes(s){ return Uint8Array.from(atob(s),c=>c.charCodeAt(0)); }
+
+async function deriveKey(pass, saltB64, iter){
+  const base=await crypto.subtle.importKey('raw',new TextEncoder().encode(pass),
+    'PBKDF2',false,['deriveKey']);
+  return crypto.subtle.deriveKey(
+    {name:'PBKDF2',salt:b64bytes(saltB64),iterations:iter,hash:'SHA-256'},
+    base,{name:'AES-GCM',length:256},false,['decrypt']);
+}
+
+async function openFeed(blob, pass){
+  // The salt is stable across runs, so this only costs its ~1s once.
+  if(!feedKey || feedSalt!==blob.salt){
+    feedKey=await deriveKey(pass,blob.salt,blob.iter||600000);
+    feedSalt=blob.salt;
+  }
+  const pt=await crypto.subtle.decrypt({name:'AES-GCM',iv:b64bytes(blob.iv)},
+                                       feedKey,b64bytes(blob.ct));
+  return JSON.parse(new TextDecoder().decode(pt));
+}
+
+function storedPass(){ try{ return sessionStorage.getItem(PASS_KEY)||''; }catch(_){ return ''; } }
+
+function showUnlock(msg){
+  feedKey=null;
+  const box=document.getElementById('unlock');
+  document.getElementById('unlockmsg').textContent=msg||'';
+  box.hidden=false;
+  document.getElementById('unlockinput').focus();
+}
+
+function load(first){
+  const pass=storedPass();
+  if(!pass){ showUnlock(); return Promise.resolve(); }
+  return fetch('feed.enc',{cache:'no-cache'})   // revalidates: 304 when unchanged
+    .then(r=>{ if(!r.ok) throw new Error(r.status); return r.json(); })
+    .then(blob=>openFeed(blob,pass).catch(err=>{
+      // A wrong passphrase fails here, not at the fetch. Tell the reader that,
+      // rather than letting it look like the feed is down.
+      try{ sessionStorage.removeItem(PASS_KEY); }catch(_){}
+      showUnlock('That password did not work.');
+      throw err;
+    }))
+    .then(data=>{
+      const items=(data.items||[]).sort((a,b)=>
+        (b.sort_time||b.published||'').localeCompare(a.sort_time||a.published||''));
+      SOURCES=data.sources||[];
+      renderAccounts();     // keep the picker and its count in step with the feed
+      if(first||!knownIds.size){
+        ITEMS=items; knownIds=new Set(items.map(i=>i.id));
+        applyStamp(data); renderHealth(); render();
+      } else {
+        const fresh=items.filter(i=>!knownIds.has(i.id));
+        // Only posts from accounts you are actually watching should make a
+        // noise, and never on the first load - otherwise opening the page
+        // would fire the alert for the entire backlog.
+        const audible=fresh.filter(i=>!muted.has((i.handle||'').toLowerCase()));
+        if(audible.length) chime(audible.length);
+        ITEMS=items; knownIds=new Set(items.map(i=>i.id));
+        applyStamp(data); renderHealth();
+        // Put them in straight away. New posts used to wait behind the pill
+        // whenever you were scrolled down, so coming back to the tab showed a
+        // stale feed until you clicked it.
+        renderKeepingPlace();
+        if(fresh.length && scrollY>400){
+          pillEl.textContent=`${fresh.length} new post${fresh.length===1?'':'s'}`;
+          pillEl.hidden=false; requestAnimationFrame(()=>pillEl.classList.add('show'));
+        }
+      }
+    })
+    .catch(()=>{
+      if(!document.getElementById('unlock').hidden) return;  // already explained
+      dotEl.className='dot dead';
+      stampEl.textContent='feed unavailable';
+      feedEl.innerHTML=`<div class="empty">Could not load the feed. If the collector has never run, start it from the repository's Actions tab.</div>`;
+    });
+}
+
+document.getElementById('unlockform').addEventListener('submit',async e=>{
+  e.preventDefault();
+  const input=document.getElementById('unlockinput');
+  const btn=document.getElementById('unlockbtn');
+  const pass=input.value;
+  if(!pass) return;
+  btn.disabled=true; btn.textContent='Unlocking…';
+  try{
+    const blob=await fetch('feed.enc',{cache:'no-cache'}).then(r=>r.json());
+    await openFeed(blob,pass);                    // throws if the password is wrong
+    try{ sessionStorage.setItem(PASS_KEY,pass); }catch(_){}
+    document.getElementById('unlock').hidden=true;
+    input.value='';
+    load(true);
+  }catch(err){
+    feedKey=null;
+    document.getElementById('unlockmsg').textContent=
+      'That password did not work.';
+    input.select();
+  }finally{
+    btn.disabled=false; btn.textContent='Unlock';
+  }
+});
+
+pillEl.addEventListener('click',()=>{
+  // The posts are already on the page; this just takes you up to them.
+  pillEl.classList.remove('show'); setTimeout(()=>pillEl.hidden=true,300);
+  scrollTo({top:0,behavior:'smooth'});
+});
+addEventListener('scroll',()=>{
+  if(!pillEl.hidden && scrollY<300){
+    pillEl.classList.remove('show'); setTimeout(()=>pillEl.hidden=true,300);
+  }
+},{passive:true});
+document.getElementById('chips').addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b) return;
+  filter=b.dataset.f;
+  document.querySelectorAll('#chips button').forEach(c=>c.setAttribute('aria-pressed',String(c===b)));
+  render();
+});
+/* ---- column count ---------------------------------------------------- */
+/* Remembered per browser. Storage can throw (private windows, blocked site
+   data), so every touch of it is guarded and the page works without it. */
+const COLS_KEY='lsc.cols';
+
+function setCols(n,save){
+  n=Math.min(5,Math.max(3,parseInt(n,10)||3));
+  document.documentElement.style.setProperty('--user-cols',n);
+  document.querySelectorAll('#colseg button').forEach(b=>
+    b.setAttribute('aria-pressed',String(+b.dataset.c===n)));
+  if(save){ try{ localStorage.setItem(COLS_KEY,n); }catch(_){} }
+  layout();   // masonry spans are measured per column width, so re-measure
+}
+
+document.getElementById('colseg').addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b) return;
+  setCols(b.dataset.c,true);
+});
+
+let savedCols=null;
+try{ savedCols=localStorage.getItem(COLS_KEY); }catch(_){}
+setCols(savedCols||3,false);
+
+/* ---- sound toggle ------------------------------------------------------ */
+document.getElementById('soundbtn').addEventListener('click',()=>{
+  const turningOn=!soundOn;
+  // Flip the button FIRST. This used to await the audio unlock before updating
+  // anything, so if alert.mp3 had not finished loading the button sat there
+  // looking dead for a second or two. The unlock still happens inside this
+  // click - that is what satisfies the browser - it just no longer blocks the
+  // visible response.
+  setSound(turningOn,true);
+  if(!turningOn) return;
+  const b=document.getElementById('soundbtn');
+  b.classList.add('busy');
+  unlockAudio().then(ok=>{
+    b.classList.remove('busy');
+    if(ok){
+      b.title='Alert sound on';
+      try{ alertSound.currentTime=0; alertSound.play().catch(()=>{}); }catch(_){}
+    } else {
+      // The browser refused. Say so on the button rather than leaving a
+      // toggle that looks on but will never make a sound.
+      setSound(false,true);
+      b.title='Your browser blocked audio here — try clicking again';
+      b.classList.add('blocked');
+      setTimeout(()=>b.classList.remove('blocked'),2000);
+    }
+  });
+});
+
+try{ setSound(localStorage.getItem(SOUND_KEY)==='1',false); }catch(_){ setSound(false,false); }
+// A saved "on" still needs a gesture before it can make noise, so unlock on
+// the first interaction of the session, whatever it is.
+addEventListener('pointerdown',function once(){ if(soundOn) unlockAudio(); removeEventListener('pointerdown',once); });
+
+/* ---- account picker ---------------------------------------------------- */
+const acctBtn=document.getElementById('acctbtn'), acctMenu=document.getElementById('acctmenu');
+acctBtn.addEventListener('click',e=>{
+  e.stopPropagation();
+  const open=acctMenu.hidden;
+  acctMenu.hidden=!open; acctBtn.setAttribute('aria-expanded',String(open));
+  if(open) renderAccounts();
+});
+acctMenu.addEventListener('click',e=>{
+  e.stopPropagation();
+  const all=e.target.closest('[data-all]');
+  if(all){
+    if(all.dataset.all==='1') muted.clear();
+    else knownAccounts().forEach(([h])=>muted.add(h));
+    saveMuted(); renderAccounts(); render(); return;
+  }
+  const cb=e.target.closest('input[type=checkbox]');
+  if(cb){
+    const h=cb.dataset.h;
+    if(cb.checked) muted.delete(h); else muted.add(h);
+    saveMuted(); renderAccounts(); render();
+  }
+});
+addEventListener('click',()=>{ if(!acctMenu.hidden){ acctMenu.hidden=true; acctBtn.setAttribute('aria-expanded','false'); } });
+addEventListener('keydown',e=>{ if(e.key==='Escape'&&!acctMenu.hidden){ acctMenu.hidden=true; acctBtn.setAttribute('aria-expanded','false'); } });
+
+try{
+  const raw=localStorage.getItem(MUTED_KEY);
+  if(raw) muted=new Set(JSON.parse(raw));
+}catch(_){ muted=new Set(); }
+
+qEl.addEventListener('input',render);
+addEventListener('keydown',e=>{
+  if(e.key==='/'&&document.activeElement!==qEl){ e.preventDefault(); qEl.focus(); }
+  if(e.key==='Escape'&&document.activeElement===qEl){ qEl.value=''; qEl.blur(); render(); }
+});
+
+skeleton();
+load(true);
+setInterval(()=>load(false), 60*1000);
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden) load(false); });
+</script>
+</body>
+</html>
