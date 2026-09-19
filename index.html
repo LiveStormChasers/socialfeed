@@ -159,6 +159,10 @@
   /* ---- unlock screen ---- */
   #unlock{position:fixed;inset:0;z-index:99;display:grid;place-items:center;
           background:var(--bg);padding:24px}
+  /* display:grid above beats the browser's own [hidden]{display:none}, so
+     setting .hidden on this panel did nothing and the unlock screen stayed
+     painted over the feed after a correct password. Say it explicitly. */
+  #unlock[hidden]{display:none}
   #unlockform{width:100%;max-width:320px;text-align:center}
   #unlockform h1{font-size:19px;letter-spacing:.02em;margin:0 0 4px}
   #unlockform .sub{color:var(--muted);font-size:13px;margin:0 0 20px}
