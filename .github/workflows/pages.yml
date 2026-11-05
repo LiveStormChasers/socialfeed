@@ -1,0 +1,66 @@
+name: Deploy Pages
+
+# Why this exists instead of GitHub's built-in branch deployment:
+#
+# The feed commits every ten minutes. A Pages build normally takes 30-50
+# seconds, but now and then one hangs - there is an 11m 21s build in the
+# history. While a build is stuck, GitHub's built-in deployment REFUSES every
+# following one: "Deployment request failed ... due to in progress deployment."
+# Sixteen deploys failed that way and the published feed sat 49 minutes behind
+# the repo, even though collection itself was perfectly healthy.
+#
+# A workflow we own can do what the built-in one cannot: cancel-in-progress
+# makes a new deploy supersede a stuck one instead of being turned away. The
+# newest feed always wins, and a hung build costs one cycle rather than an hour.
+#
+# Publishing from a custom workflow also lifts the 10-builds-per-hour soft
+# limit that applies to branch deployment, which is what would have blocked a
+# faster collection cadence.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v7
+
+      # Publish only what the page actually needs. The collector, its tests and
+      # the README are public in the repo but have no business in the deployed
+      # site, and leaving them out keeps the upload small - which is the other
+      # half of why builds were slow enough to collide.
+      - name: Stage the site
+        run: |
+          set -eu
+          mkdir -p _site
+          cp index.html _site/
+          cp feed.enc  _site/ 2>/dev/null || echo "no feed.enc yet - first deploy"
+          cp alert.mp3 _site/ 2>/dev/null || true
+          if [ -d media ]; then cp -r media _site/; fi
+          echo "staged:"; ls -la _site | head -20
+          echo "size: $(du -sh _site | cut -f1)"
+
+      - uses: actions/configure-pages@v6
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+
+      - id: deployment
+        uses: actions/deploy-pages@v5
