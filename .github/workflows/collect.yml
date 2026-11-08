@@ -30,6 +30,7 @@ concurrency:
 
 permissions:
   contents: write
+  actions: write    # needed to dispatch pages.yml after a successful push
 
 jobs:
   shard:
@@ -216,6 +217,7 @@ jobs:
         run: python encrypt_feed.py
 
       - name: Commit updated feed
+        id: commit
         env:
           SOURCES_JSON: ${{ secrets.SOURCES_JSON }}
           FEED_PASSPHRASE: ${{ secrets.FEED_PASSPHRASE }}
@@ -241,11 +243,13 @@ jobs:
             git add feed.enc media
             if git diff --staged --quiet; then
               echo "No new posts - nothing to commit."
+              echo "pushed=false" >> "$GITHUB_OUTPUT"
               exit 0
             fi
             git commit -q -m "Update feed ($(date -u '+%Y-%m-%d %H:%M UTC'))"
             if git push -q origin "HEAD:${GITHUB_REF_NAME}"; then
               echo "pushed on attempt ${attempt}"
+              echo "pushed=true" >> "$GITHUB_OUTPUT"
               exit 0
             fi
             echo "push rejected - another run landed first, re-merging onto it"
@@ -259,6 +263,19 @@ jobs:
           done
           echo "could not push after 3 attempts - the next run will pick this up"
           exit 1
+
+      # A push made with GITHUB_TOKEN does not trigger other workflows, so the
+      # Deploy Pages workflow never hears about a new feed on its own - the site
+      # sat three days stale before this was noticed. workflow_dispatch is the
+      # documented exception to that rule, which is also how the heartbeat
+      # drives this workflow. Ask for the deploy explicitly.
+      - name: Publish the updated feed
+        if: steps.commit.outputs.pushed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run pages.yml --repo "${GITHUB_REPOSITORY}" --ref "${GITHUB_REF_NAME}"
+          echo "asked Deploy Pages to publish the new feed"
 
       - name: Summary
         if: always()
