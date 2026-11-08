@@ -277,6 +277,61 @@ jobs:
           gh workflow run pages.yml --repo "${GITHUB_REPOSITORY}" --ref "${GITHUB_REF_NAME}"
           echo "asked Deploy Pages to publish the new feed"
 
+      # The publishing half of this system has failed silently twice. Once the
+      # Pages deployments collided and the site sat 49 minutes behind; once a
+      # workflow we own could not be triggered by a feed-bot push at all and the
+      # site sat THREE DAYS behind. Both times collection looked perfect in this
+      # tab, and both times a person had to notice the page was stale.
+      #
+      # So stop trusting that publishing worked. Fetch what the public site is
+      # actually serving, unlock it, and read its timestamp. This runs last and
+      # never blocks the collection above it - by design it reports on the
+      # PREVIOUS cycle, because this cycle's deploy is still in flight.
+      #
+      # A failure here is the alarm: it turns the run red and sends the usual
+      # failure email, which is the only thing that would have caught either
+      # outage without a person looking.
+      - name: Check the published site is not stale
+        if: always()
+        env:
+          FEED_PASSPHRASE: ${{ secrets.FEED_PASSPHRASE }}
+          SITE_URL: https://livestormchasers.github.io/socialfeed/feed.enc
+        run: |
+          python - <<'PY'
+          import base64, json, os, urllib.request
+          from datetime import datetime, timezone
+          from cryptography.hazmat.primitives import hashes
+          from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+          from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+
+          # Generous: one cycle is 10 minutes and this runs before our own
+          # deploy lands, so only a genuine stall trips it.
+          LIMIT_MIN = 45
+
+          try:
+              raw = urllib.request.urlopen(os.environ["SITE_URL"], timeout=30).read()
+              blob = json.loads(raw)
+              d = base64.b64decode
+              kdf = PBKDF2HMAC(algorithm=hashes.SHA256(), length=32,
+                               salt=d(blob["salt"]), iterations=int(blob["iter"]))
+              key = kdf.derive(os.environ["FEED_PASSPHRASE"].encode())
+              feed = json.loads(AESGCM(key).decrypt(d(blob["iv"]), d(blob["ct"]), None))
+          except Exception as exc:
+              # Never fail the run over a transient fetch problem.
+              print(f"::warning::could not read the published feed: {type(exc).__name__}: {exc}")
+              raise SystemExit(0)
+
+          gen = datetime.fromisoformat(feed["generated"].replace("Z", "+00:00"))
+          age = (datetime.now(timezone.utc) - gen).total_seconds() / 60
+          print(f"published site: {feed.get('count')} posts, {age:.0f} minutes old")
+
+          if age > LIMIT_MIN:
+              print(f"::error::The published site is {age:.0f} minutes behind the "
+                    "collector. Collection is working but the feed is not reaching "
+                    "the page - check the Deploy Pages workflow.")
+              raise SystemExit(1)
+          PY
+
       - name: Summary
         if: always()
         run: |
