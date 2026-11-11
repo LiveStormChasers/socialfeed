@@ -68,13 +68,25 @@ jobs:
           X_COOKIES: ${{ secrets.X_COOKIES }}
           FB_COOKIES: ${{ secrets.FB_COOKIES }}
           SOURCES_JSON: ${{ secrets.SOURCES_JSON }}
+          FEED_PASSPHRASE: ${{ secrets.FEED_PASSPHRASE }}
         run: |
           python - <<'PY'
           import json, os
-          # The watch list lives in a secret, not in the repo. Fall back to the
-          # file so a fork or a local checkout still works.
-          raw = os.environ.get("SOURCES_JSON", "").strip()
-          cfg = json.loads(raw) if raw else json.load(open("sources.json"))
+          from pathlib import Path
+          # The watch list is encrypted in sources.enc. The SOURCES_JSON secret
+          # and then sources.json remain as fallbacks, so a fork or a local
+          # checkout still works. Same ladder as collect.py's load_config().
+          cfg = None
+          if Path("sources.enc").exists() and os.environ.get("FEED_PASSPHRASE"):
+              try:
+                  from encrypt_feed import decrypt
+                  blob = json.loads(Path("sources.enc").read_text(encoding="utf-8"))
+                  cfg = json.loads(decrypt(blob, os.environ["FEED_PASSPHRASE"]).decode("utf-8"))
+              except Exception as exc:
+                  print(f"could not read sources.enc: {type(exc).__name__}: {exc}")
+          if cfg is None:
+              raw = os.environ.get("SOURCES_JSON", "").strip()
+              cfg = json.loads(raw) if raw else json.load(open("sources.json"))
           fb = any(s.get("enabled", True) and s.get("platform", "").lower() == "facebook"
                    for s in cfg.get("sources", []))
           cookies = bool(os.environ.get("X_COOKIES") or os.environ.get("FB_COOKIES"))
@@ -153,6 +165,7 @@ jobs:
           X_COOKIES: ${{ secrets.X_COOKIES }}
           FB_COOKIES: ${{ secrets.FB_COOKIES }}
           SOURCES_JSON: ${{ secrets.SOURCES_JSON }}
+          FEED_PASSPHRASE: ${{ secrets.FEED_PASSPHRASE }}
         run: |
           python collect.py --verbose \
             --shard ${{ matrix.shard }} --shards 9 \
@@ -209,6 +222,7 @@ jobs:
       - name: Merge into the feed
         env:
           SOURCES_JSON: ${{ secrets.SOURCES_JSON }}
+          FEED_PASSPHRASE: ${{ secrets.FEED_PASSPHRASE }}
         run: python collect.py --verbose --merge parts
 
       - name: Lock the feed
