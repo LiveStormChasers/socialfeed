@@ -140,8 +140,15 @@ jobs:
           # ships what Chromium needs, because it ships Chrome. If apt is having
           # a bad day, warn and carry on - collect.py tries each route per
           # source, so a missing deep read costs some posts, not the whole run.
-          if python -m playwright install-deps chromium; then
+          # Bounded on 2026-11-11: apt stopped answering and this call sat for
+          # ten minutes on every shard before failing anyway, stretching a
+          # 2.5-minute run past the ten-minute heartbeat, so runs queued up and
+          # cancelled one another. The top-up is optional; waiting on it is not
+          # worth ten minutes.
+          if timeout 90 python -m playwright install-deps chromium; then
             echo "browser dependencies installed"
+          elif [ $? -eq 124 ]; then
+            echo "::warning::apt did not answer within 90s - continuing with the libraries already on the image"
           else
             echo "::warning::apt could not install browser dependencies - continuing with the libraries already on the image"
           fi
@@ -288,7 +295,21 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh workflow run pages.yml --repo "${GITHUB_REPOSITORY}" --ref "${GITHUB_REF_NAME}"
+          # GitHub answered this with a 500 once on 2026-11-08. The next cycle
+          # published fine, so the only lasting effect was a failure email for
+          # a problem that had already fixed itself. Retry before shouting.
+          published=false
+          for attempt in 1 2 3; do
+            if gh workflow run pages.yml --repo "${GITHUB_REPOSITORY}" --ref "${GITHUB_REF_NAME}"; then
+              published=true; break
+            fi
+            echo "dispatch attempt ${attempt} failed - retrying in 10s"
+            sleep 10
+          done
+          if [ "$published" != true ]; then
+            echo "::error::could not dispatch pages.yml after 3 attempts"
+            exit 1
+          fi
           echo "asked Deploy Pages to publish the new feed"
 
       # The publishing half of this system has failed silently twice. Once the
