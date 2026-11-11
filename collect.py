@@ -43,6 +43,7 @@ import requests
 
 BASE = Path(__file__).resolve().parent
 CONFIG_PATH = BASE / "sources.json"
+SOURCES_ENC_PATH = BASE / "sources.enc"
 FEED_PATH = BASE / "feed.json"
 MEDIA_DIR = BASE / "media"
 
@@ -99,13 +100,56 @@ def src_tag(platform, handle):
     return "src-" + hashlib.sha1(key.encode("utf-8", "replace")).hexdigest()[:6]
 
 
-def load_config():
-    """The watch list, from the SOURCES_JSON secret if there is one.
+def load_encrypted_config():
+    """The watch list, decrypted from sources.enc with FEED_PASSPHRASE.
 
-    The repo is public, so the list of accounts does not live in it. In CI the
-    workflow passes it through the SOURCES_JSON secret; sources.json stays as a
-    fallback so the collector still runs locally from a checkout.
+    sources.enc is committed to the public repo the same way feed.enc is: the
+    ciphertext is public, the account names are not. This is the preferred
+    source because it can be edited in the repo like any other file, whereas a
+    GitHub secret is write-only - nobody, including the repo owner, can read
+    one back, so the list could only ever be replaced wholesale and from
+    memory.
+
+    Returns None - not an error - when the file is absent or unreadable, so the
+    SOURCES_JSON secret still works as a fallback during the changeover and if
+    the passphrase is ever rotated out of step with the file.
     """
+    if not SOURCES_ENC_PATH.exists():
+        return None
+
+    passphrase = os.environ.get("FEED_PASSPHRASE", "")
+    if not passphrase:
+        log(f"{SOURCES_ENC_PATH.name} is present but FEED_PASSPHRASE is not set.")
+        return None
+
+    try:
+        from encrypt_feed import decrypt
+        blob = json.loads(SOURCES_ENC_PATH.read_text(encoding="utf-8"))
+        cfg = json.loads(decrypt(blob, passphrase).decode("utf-8"))
+    except Exception as exc:
+        log(f"could not decrypt {SOURCES_ENC_PATH.name}: {type(exc).__name__}: {exc}")
+        return None
+
+    if not isinstance(cfg, dict) or "sources" not in cfg:
+        log(f"{SOURCES_ENC_PATH.name} decrypted but has no 'sources' key.")
+        return None
+
+    log(f"watch list loaded from {SOURCES_ENC_PATH.name} "
+        f"({len(cfg.get('sources') or [])} entries)")
+    return cfg
+
+
+def load_config():
+    """The watch list: sources.enc first, then the SOURCES_JSON secret.
+
+    The repo is public, so the list of accounts never appears in it in the
+    clear. sources.enc holds it encrypted; SOURCES_JSON remains as a fallback,
+    and sources.json as a last resort so a local checkout still runs.
+    """
+    cfg = load_encrypted_config()
+    if cfg is not None:
+        return cfg
+
     raw = os.environ.get("SOURCES_JSON", "").strip()
     if raw:
         try:

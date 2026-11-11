@@ -4,6 +4,7 @@ No network: the syndication routes are exercised against a captured-shape
 fixture payload, and the browser route's extraction scripts against fixture DOM.
 """
 import json
+import re
 import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -143,6 +144,17 @@ check("all posts dated", all(x["published"] for x in posts))
 print("\n--- facebook fragment merging ---")
 fb_html = (BASE / "tests" / "fixture_fb_public.html").read_text()
 
+# The fixture was captured with real epoch timestamps baked in. Left alone they
+# age, and once they pass keep_days every merge test below prunes its own input
+# and asserts against an empty list - a failure that looks like a code bug and
+# is really just the calendar. So slide the whole capture forward, keeping the
+# gaps between fragments intact, until its newest post is an hour old.
+_stamps = [int(n) for n in re.findall(r'creation_time":\s*(\d+)', fb_html)]
+if _stamps:
+    _shift = int(C.now_utc().timestamp()) - 3600 - max(_stamps)
+    fb_html = re.sub(r'(creation_time":\s*)(\d+)',
+                     lambda m: m.group(1) + str(int(m.group(2)) + _shift), fb_html)
+
 check("encoded story id decodes to the post id",
       C.decode_story_id("UzpfSTEwMDA2MzY1NjAxNjQzNToxNjg2ODAxNTcwMTE4MzYx") == "1686801570118361")
 check("non-story id decodes to None", C.decode_story_id("Q29tbWVudDoxMjM=") is None)
@@ -166,7 +178,7 @@ post = posts[0]
 check("message text recovered from the body fragment",
       "Palo Pinto" in post["text"], post["text"][:60])
 check("creation_time recovered from the metadata fragment",
-      post["published"].startswith("2026-") and post["published_exact"], post["published"])
+      post["published_exact"] and post["published"] > C.iso(C.now_utc() - timedelta(days=1)), post["published"])
 check("permalink recovered", post["url"].endswith("/posts/1686801570118361"), post["url"])
 check("photo from one fragment and video thumb from another both kept",
       len(post["images"]) == 2, str(post["images"]))
@@ -730,8 +742,10 @@ check("multi-line bodies keep every line above the thread",
 def mrec(pid, text, when):
     return dict(fbpost(pid, text, when, True,
                        "https://www.facebook.com/m/posts/pfbid0" + pid), handle="m")
-merged, _ = C.merge([mrec("old", "Quiet day\nAll reactions:\nBob\nnice", "2026-08-28T21:00:00Z")],
-                    [mrec("new", "Fresh post here", "2026-08-28T22:00:00Z")],
+merged, _ = C.merge([mrec("old", "Quiet day\nAll reactions:\nBob\nnice",
+                          C.iso(C.now_utc() - timedelta(hours=2)))],
+                    [mrec("new", "Fresh post here",
+                          C.iso(C.now_utc() - timedelta(hours=1)))],
                     {"max_feed_items": 100, "keep_days": 30})
 check("merge cleans records already stored in the feed",
       [i["text"] for i in merged if i["id"] == "old"] == ["Quiet day"])
